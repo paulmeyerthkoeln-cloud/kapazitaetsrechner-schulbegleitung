@@ -1,5 +1,4 @@
 import { describe, it, expect } from 'vitest'
-import { parseISO } from 'date-fns'
 import {
   getISOWochenKey,
   parseZuWochenKey,
@@ -78,9 +77,8 @@ describe('expandiereMuster', () => {
       wir_begleiten: true,
       typ: 'regulaer',
     })
-    // Compare against the same parseISO+toISOString transform the implementation
-    // uses, rather than a hardcoded string, since that transform is local-timezone
-    // sensitive (a pre-existing, out-of-scope quirk not introduced by this fix).
-    expect(einheiten[0].datum_oder_kw).toBe(parseISO('2026-11-02').toISOString().slice(0, 10))
+    // Compare against the correct local-date string (fixed: no longer using
+    // buggy toISOString().slice() which caused UTC day-shift in positive-offset timezones)
+    expect(einheiten[0].datum_oder_kw).toBe('2026-11-02')
   })
 })

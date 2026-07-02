@@ -1,4 +1,4 @@
-import { getISOWeek, getISOWeekYear, startOfISOWeek, addWeeks, areIntervalsOverlapping, endOfISOWeek, parseISO } from 'date-fns'
+import { getISOWeek, getISOWeekYear, startOfISOWeek, addWeeks, areIntervalsOverlapping, endOfISOWeek, parseISO, format } from 'date-fns'
 import type { FerienZeitraum, Muster, Einheit } from './types'
 
 export function getISOWochenKey(date: Date): string {
@@ -47,7 +47,7 @@ export function expandiereMuster(muster: Muster, reiheId: string, ferien: Ferien
       einheiten.push({
         id: `${reiheId}_muster_${index}`,
         index,
-        datum_oder_kw: cursor.toISOString().slice(0, 10),
+        datum_oder_kw: format(cursor, 'yyyy-MM-dd'),
         kontaktzeit_h: muster.kontaktzeit_h,
         personen_parallel: 1,
         erstdurchfuehrung: false,
