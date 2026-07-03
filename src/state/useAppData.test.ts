@@ -51,5 +51,40 @@ describe('useAppData', () => {
       result.current.importJson(exported)
     })
     expect(result.current.data.personen[0].stunden_pro_woche_fuer_begleitung).not.toBe(99)
+    expect(result.current.importError).toBeNull()
+  })
+
+  it('importJson with malformed JSON sets importError and leaves data unchanged', () => {
+    const { result } = renderHook(() => useAppData())
+    const vorherigeDaten = result.current.data
+    act(() => {
+      result.current.importJson('not json')
+    })
+    expect(result.current.importError).not.toBeNull()
+    expect(result.current.data).toBe(vorherigeDaten)
+  })
+
+  it('importJson with valid JSON missing a required top-level key sets importError and leaves data unchanged', () => {
+    const { result } = renderHook(() => useAppData())
+    const vorherigeDaten = result.current.data
+    act(() => {
+      result.current.importJson(JSON.stringify({ settings: {}, personen: [], kalender: {} }))
+    })
+    expect(result.current.importError).not.toBeNull()
+    expect(result.current.data).toBe(vorherigeDaten)
+  })
+
+  it('a failed import followed by a valid import succeeds and clears importError', () => {
+    const { result } = renderHook(() => useAppData())
+    const exported = result.current.exportJson()
+    act(() => {
+      result.current.importJson('not json')
+    })
+    expect(result.current.importError).not.toBeNull()
+    act(() => {
+      result.current.importJson(exported)
+    })
+    expect(result.current.importError).toBeNull()
+    expect(result.current.data.personen.length).toBeGreaterThan(0)
   })
 })

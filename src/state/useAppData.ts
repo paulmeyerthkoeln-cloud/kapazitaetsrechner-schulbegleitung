@@ -4,10 +4,13 @@ import { berechneSzenario } from '../lib/szenario'
 import type { SzenarioTyp, SensitivitaetsParameter } from '../lib/szenario'
 import type { Datenbestand, Person } from '../lib/types'
 
+const PFLICHTFELDER = ['settings', 'personen', 'kalender', 'schulen'] as const
+
 export function useAppData() {
   const [data, setData] = useState<Datenbestand>(seedData as Datenbestand)
   const [szenario, setSzenario] = useState<SzenarioTyp>('ziel')
   const [sensitivitaet, setSensitivitaet] = useState<SensitivitaetsParameter>({})
+  const [importError, setImportError] = useState<string | null>(null)
 
   function setPerson(id: string, patch: Partial<Person>) {
     setData((prev) => ({
@@ -38,7 +41,18 @@ export function useAppData() {
   }
 
   function importJson(json: string) {
-    setData(JSON.parse(json) as Datenbestand)
+    try {
+      const geparst = JSON.parse(json)
+      const istObjekt = typeof geparst === 'object' && geparst !== null
+      const fehltFeld = !istObjekt || PFLICHTFELDER.some((feld) => !(feld in geparst))
+      if (fehltFeld) {
+        throw new Error(`JSON fehlt eines der Pflichtfelder: ${PFLICHTFELDER.join(', ')}`)
+      }
+      setData(geparst as Datenbestand)
+      setImportError(null)
+    } catch (fehler) {
+      setImportError(fehler instanceof Error ? fehler.message : 'Import fehlgeschlagen: ungültiges JSON')
+    }
   }
 
   const ergebnis = useMemo(
@@ -57,5 +71,6 @@ export function useAppData() {
     ergebnis,
     exportJson,
     importJson,
+    importError,
   }
 }

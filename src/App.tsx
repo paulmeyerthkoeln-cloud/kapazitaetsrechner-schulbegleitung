@@ -23,6 +23,7 @@ export default function App() {
     ergebnis,
     exportJson,
     importJson,
+    importError,
   } = useAppData()
 
   function onPresetApply(reiheId: string, preset: Parameters<typeof wendeBesetzungPreset>[1]) {
@@ -60,7 +61,7 @@ export default function App() {
         ))
       )}
       <RestkapazitaetPlanner data={data} />
-      <ExportImport exportJson={exportJson} importJson={importJson} />
+      <ExportImport exportJson={exportJson} importJson={importJson} importError={importError} />
     </main>
   )
 }
