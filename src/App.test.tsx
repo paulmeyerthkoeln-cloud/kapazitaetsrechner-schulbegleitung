@@ -3,8 +3,9 @@ import { render, screen } from '@testing-library/react'
 import App from './App'
 
 describe('App', () => {
-  it('renders without crashing', () => {
+  it('renders the Ampel-Antwort and Wochen-Heatmap', () => {
     render(<App />)
-    expect(screen.getByText(/Kapazitätsrechner/i)).toBeInTheDocument()
+    expect(screen.getByText(/Kapazitätsrechner Schulbegleitung/i)).toBeInTheDocument()
+    expect(screen.getByText(/MACHBAR|KRITISCH|NICHT MACHBAR/)).toBeInTheDocument()
   })
 })
