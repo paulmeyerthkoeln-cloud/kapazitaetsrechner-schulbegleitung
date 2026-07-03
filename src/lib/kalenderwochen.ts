@@ -63,6 +63,8 @@ export function expandiereMuster(muster: Muster, reiheId: string, ferien: Ferien
 export function berechneReiheZeitraum(reihe: Reihe): { von: string; bis: string } | null {
   if (reihe.einheiten.length === 0) return null
   const wochenKeys = reihe.einheiten.map((e) => parseZuWochenKey(e.datum_oder_kw))
+  // String comparison of "YYYY-KWnn" keys is chronologically correct because
+  // getISOWochenKey always produces a 4-digit year and a zero-padded week.
   return {
     von: wochenKeys.reduce((kleinstes, key) => (key < kleinstes ? key : kleinstes)),
     bis: wochenKeys.reduce((groesstes, key) => (key > groesstes ? key : groesstes)),

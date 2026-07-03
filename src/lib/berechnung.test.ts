@@ -390,6 +390,40 @@ describe('berechneWochenuebersicht', () => {
     expect(wochen[0].ampel).toBe('gruen')
     expect(wochen[0].bedarf).toBeCloseTo(wochen[0].einsatzBedarf + wochen[0].koordinationBedarf, 10)
   })
+
+  it('gates koordinationBedarf to 0 outside a Reihe\'s active week across a multi-week sweep', () => {
+    const data: Datenbestand = {
+      settings: { ...settings, planungszeitraum: { start: '2026-11-02', ende: '2026-11-16' } },
+      personen: [],
+      kalender: { ferien: [] },
+      schulen: [
+        {
+          id: 's1',
+          name: 'Schule 1',
+          reihen: [
+            {
+              id: 'r1',
+              titel: 'x',
+              betreuungsmodell: 'C',
+              fahrzeit_h: 0,
+              status: 'zugesagt',
+              extern_betreut: false,
+              einheiten: [einheit({ id: 'e1', datum_oder_kw: '2026-KW46', wir_begleiten: false })],
+            },
+          ],
+        },
+      ],
+    }
+
+    const wochen = berechneWochenuebersicht(data)
+    expect(wochen).toHaveLength(3)
+    expect(wochen[0].wochenKey).toBe('2026-KW45')
+    expect(wochen[1].wochenKey).toBe('2026-KW46')
+    expect(wochen[2].wochenKey).toBe('2026-KW47')
+    expect(wochen[0].koordinationBedarf).toBe(0)
+    expect(wochen[2].koordinationBedarf).toBe(0)
+    expect(wochen[1].koordinationBedarf).toBeGreaterThan(0)
+  })
 })
 
 describe('berechneMachbarkeit', () => {
