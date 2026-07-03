@@ -1,5 +1,5 @@
 import { getISOWeek, getISOWeekYear, startOfISOWeek, addWeeks, areIntervalsOverlapping, endOfISOWeek, parseISO, format } from 'date-fns'
-import type { FerienZeitraum, Muster, Einheit } from './types'
+import type { FerienZeitraum, Muster, Einheit, Reihe } from './types'
 
 export function getISOWochenKey(date: Date): string {
   const jahr = getISOWeekYear(date)
@@ -58,4 +58,13 @@ export function expandiereMuster(muster: Muster, reiheId: string, ferien: Ferien
     cursor = addWeeks(cursor, 1)
   }
   return einheiten
+}
+
+export function berechneReiheZeitraum(reihe: Reihe): { von: string; bis: string } | null {
+  if (reihe.einheiten.length === 0) return null
+  const wochenKeys = reihe.einheiten.map((e) => parseZuWochenKey(e.datum_oder_kw))
+  return {
+    von: wochenKeys.reduce((kleinstes, key) => (key < kleinstes ? key : kleinstes)),
+    bis: wochenKeys.reduce((groesstes, key) => (key > groesstes ? key : groesstes)),
+  }
 }

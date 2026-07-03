@@ -6,8 +6,9 @@ import {
   istWocheInFerien,
   alleWochenImZeitraum,
   expandiereMuster,
+  berechneReiheZeitraum,
 } from './kalenderwochen'
-import type { FerienZeitraum, Muster } from './types'
+import type { FerienZeitraum, Muster, Reihe } from './types'
 
 describe('getISOWochenKey', () => {
   it('formats a Monday in ISO week 46 of 2026', () => {
@@ -80,5 +81,43 @@ describe('expandiereMuster', () => {
     // Compare against the correct local-date string (fixed: no longer using
     // buggy toISOString().slice() which caused UTC day-shift in positive-offset timezones)
     expect(einheiten[0].datum_oder_kw).toBe('2026-11-02')
+  })
+})
+
+describe('berechneReiheZeitraum', () => {
+  const reiheBasis: Reihe = {
+    id: 'r1',
+    titel: 'x',
+    betreuungsmodell: 'A',
+    fahrzeit_h: 0,
+    status: 'zugesagt',
+    extern_betreut: false,
+    einheiten: [],
+  }
+
+  it('returns null for a Reihe without Einheiten', () => {
+    expect(berechneReiheZeitraum(reiheBasis)).toBeNull()
+  })
+
+  it('returns the min/max week key across all Einheiten, including across a year boundary', () => {
+    const reihe: Reihe = {
+      ...reiheBasis,
+      einheiten: [
+        { id: 'e1', index: 1, datum_oder_kw: '2026-KW46', kontaktzeit_h: 1, personen_parallel: 1, erstdurchfuehrung: false, wir_begleiten: true, typ: 'regulaer' },
+        { id: 'e2', index: 2, datum_oder_kw: '2027-KW05', kontaktzeit_h: 1, personen_parallel: 1, erstdurchfuehrung: false, wir_begleiten: true, typ: 'regulaer' },
+        { id: 'e3', index: 3, datum_oder_kw: '2026-KW48', kontaktzeit_h: 1, personen_parallel: 1, erstdurchfuehrung: false, wir_begleiten: true, typ: 'regulaer' },
+      ],
+    }
+    expect(berechneReiheZeitraum(reihe)).toEqual({ von: '2026-KW46', bis: '2027-KW05' })
+  })
+
+  it('handles a Reihe with a single Einheit (von equals bis)', () => {
+    const reihe: Reihe = {
+      ...reiheBasis,
+      einheiten: [
+        { id: 'e1', index: 1, datum_oder_kw: '2026-09-07', kontaktzeit_h: 1, personen_parallel: 1, erstdurchfuehrung: false, wir_begleiten: true, typ: 'regulaer' },
+      ],
+    }
+    expect(berechneReiheZeitraum(reihe)).toEqual({ von: '2026-KW37', bis: '2026-KW37' })
   })
 })
