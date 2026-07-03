@@ -36,6 +36,13 @@ export function useAppData() {
     }))
   }
 
+  function setSchuleKoordination(schuleId: string, wert: number) {
+    setData((prev) => ({
+      ...prev,
+      schulen: prev.schulen.map((schule) => (schule.id === schuleId ? { ...schule, koordination_h_pro_monat: wert } : schule)),
+    }))
+  }
+
   function exportJson(): string {
     return JSON.stringify(data, null, 2)
   }
@@ -64,6 +71,7 @@ export function useAppData() {
     data,
     setPerson,
     setEinheitBegleitung,
+    setSchuleKoordination,
     szenario,
     setSzenario,
     sensitivitaet,

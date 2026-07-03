@@ -33,6 +33,18 @@ describe('useAppData', () => {
     expect(aktualisierteReihe.einheiten[0].wir_begleiten).toBe(false)
   })
 
+  it('setSchuleKoordination updates a Schule\'s coordination override and leaves other Schulen unchanged', () => {
+    const { result } = renderHook(() => useAppData())
+    const vorherWdg = result.current.data.schulen.find((s) => s.id === 'wdg')!.koordination_h_pro_monat
+    act(() => {
+      result.current.setSchuleKoordination('huegelstrasse', 2)
+    })
+    const huegelstrasse = result.current.data.schulen.find((s) => s.id === 'huegelstrasse')!
+    const wdg = result.current.data.schulen.find((s) => s.id === 'wdg')!
+    expect(huegelstrasse.koordination_h_pro_monat).toBe(2)
+    expect(wdg.koordination_h_pro_monat).toBe(vorherWdg)
+  })
+
   it('setSzenario switches the active scenario and recomputes the ergebnis', () => {
     const { result } = renderHook(() => useAppData())
     act(() => {
