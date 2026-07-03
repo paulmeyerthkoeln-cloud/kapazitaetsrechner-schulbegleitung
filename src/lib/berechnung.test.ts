@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { berechneAufwandEinheit, berechneKoordinationWoche } from './berechnung'
-import type { Einheit, Settings, Schule } from './types'
+import { berechneAufwandEinheit, berechneKoordinationWoche, berechneBedarfProWoche, berechneAngebotProWoche } from './berechnung'
+import type { Einheit, Settings, Schule, Datenbestand, Person } from './types'
 
 const settings: Settings = {
   planungszeitraum: { start: '2026-09-01', ende: '2027-07-16' },
@@ -56,5 +56,145 @@ describe('berechneKoordinationWoche', () => {
 
   it('uses the per-school override when present (e.g. Hügelstraße)', () => {
     expect(berechneKoordinationWoche({ ...schule, koordination_h_pro_monat: 0.5 }, settings)).toBeCloseTo(0.5 / 4.33, 5)
+  })
+})
+
+describe('berechneBedarfProWoche', () => {
+  it('reproduces the full KW46/2026 hand-calculation from spec section 9 (~13.26h)', () => {
+    const data: Datenbestand = {
+      settings,
+      personen: [],
+      kalender: { ferien: [] },
+      schulen: [
+        {
+          id: 'wdg',
+          name: 'WDG',
+          reihen: [
+            {
+              id: 'r_wdg',
+              titel: 'Theorieblöcke',
+              betreuungsmodell: 'A',
+              fahrzeit_h: 1.0,
+              status: 'zugesagt',
+              extern_betreut: false,
+              einheiten: [einheit({ datum_oder_kw: '2026-KW46', kontaktzeit_h: 4, erstdurchfuehrung: true })],
+            },
+          ],
+        },
+        {
+          id: 'sedanstrasse',
+          name: 'Gym. Sedanstraße',
+          reihen: [
+            {
+              id: 'r_sedan',
+              titel: 'GNU-Kurs',
+              betreuungsmodell: 'A',
+              fahrzeit_h: 0.5,
+              status: 'zugesagt',
+              extern_betreut: false,
+              einheiten: [
+                einheit({ id: 'e_sedan', datum_oder_kw: '2026-KW46', kontaktzeit_h: 1.5, erstdurchfuehrung: false }),
+              ],
+            },
+          ],
+        },
+        ...Array.from({ length: 6 }, (_, i) => ({
+          id: `schule_${i}`,
+          name: `Schule ${i}`,
+          reihen: [
+            {
+              id: `r_${i}`,
+              titel: 'laufende Reihe',
+              betreuungsmodell: 'C' as const,
+              fahrzeit_h: 0,
+              status: 'zugesagt',
+              extern_betreut: false,
+              einheiten: [einheit({ id: `e_${i}`, datum_oder_kw: '2026-KW10', wir_begleiten: false })],
+            },
+          ],
+        })),
+        {
+          id: 'huegelstrasse',
+          name: 'HS Hügelstraße',
+          koordination_h_pro_monat: 0.5,
+          reihen: [
+            {
+              id: 'r_huegel',
+              titel: 'laufend',
+              betreuungsmodell: 'X',
+              fahrzeit_h: 0,
+              status: 'zugesagt',
+              extern_betreut: true,
+              einheiten: [einheit({ id: 'e_huegel', datum_oder_kw: '2026-KW10', wir_begleiten: false })],
+            },
+          ],
+        },
+      ],
+    }
+
+    // 8 Schulen bei Koordination-Default (WDG, Sedanstraße, 6 Füll-Schulen) + Hügelstraße reduziert:
+    // Koordination = (8*1.5 + 0.5) / 4.33 = 2.887h. Aufwand WDG 8.0h + Sedanstraße 2.375h.
+    // Gesamt = 8.0 + 2.375 + 2.887 = 13.262h — matches spec section 9 exactly.
+    // NOTE: koordination is charged per Schule that has any Einheit anywhere (not gated to
+    // this exact wochenKey) — see the corrected berechneBedarfProWoche in Step 3 below. The
+    // 6 dummy schools and Hügelstraße only have Einheiten dated 2026-KW10, not 2026-KW46,
+    // to specifically exercise this "coordination doesn't require an Einheit this week" rule.
+    expect(berechneBedarfProWoche(data, '2026-KW46', false)).toBeCloseTo(13.26, 1)
+  })
+
+  it('returns 0 for a Ferienwoche regardless of scheduled Einheiten', () => {
+    const data: Datenbestand = {
+      settings,
+      personen: [],
+      kalender: { ferien: [] },
+      schulen: [
+        {
+          id: 'wdg',
+          name: 'WDG',
+          reihen: [
+            {
+              id: 'r_wdg',
+              titel: 'x',
+              betreuungsmodell: 'A',
+              fahrzeit_h: 1.0,
+              status: 'zugesagt',
+              extern_betreut: false,
+              einheiten: [einheit({ datum_oder_kw: '2026-KW46' })],
+            },
+          ],
+        },
+      ],
+    }
+
+    expect(berechneBedarfProWoche(data, '2026-KW46', true)).toBe(0)
+  })
+})
+
+describe('berechneAngebotProWoche', () => {
+  const person = (overrides: Partial<Person> = {}): Person => ({
+    id: 'p1',
+    name: 'Person 1',
+    stunden_pro_woche_fuer_begleitung: 8,
+    aktiv_ab: '2026-09-01',
+    aktiv_bis: '2027-07-16',
+    abwesenheiten: [],
+    ...overrides,
+  })
+
+  it('sums the weekly hours of 4 active people to 32h (spec section 9)', () => {
+    const personen = [person({ id: 'p1' }), person({ id: 'p2' }), person({ id: 'p3' }), person({ id: 'p4' })]
+    expect(berechneAngebotProWoche(personen, new Date('2026-11-09'))).toBeCloseTo(32, 5)
+  })
+
+  it('reduces capacity by 20% per absent weekday in that week', () => {
+    const personen = [
+      person({ abwesenheiten: [{ von: '2026-11-09', bis: '2026-11-10', grund: 'Urlaub' }] }),
+    ]
+    expect(berechneAngebotProWoche(personen, new Date('2026-11-09'))).toBeCloseTo(8 * (1 - 0.4), 5)
+  })
+
+  it('excludes people who are not active during that week', () => {
+    const personen = [person({ aktiv_ab: '2027-02-01' })]
+    expect(berechneAngebotProWoche(personen, new Date('2026-11-09'))).toBe(0)
   })
 })
