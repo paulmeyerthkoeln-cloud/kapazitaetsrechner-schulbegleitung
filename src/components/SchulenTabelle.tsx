@@ -1,7 +1,15 @@
 import { berechneUnserAnteil } from '../lib/besetzung'
-import type { Schule } from '../lib/types'
+import type { Schule, Settings } from '../lib/types'
 
-export function SchulenTabelle({ schulen }: { schulen: Schule[] }) {
+export function SchulenTabelle({
+  schulen,
+  settings,
+  onKoordinationChange,
+}: {
+  schulen: Schule[]
+  settings: Settings
+  onKoordinationChange: (schuleId: string, wert: number) => void
+}) {
   return (
     <table>
       <thead>
@@ -11,6 +19,7 @@ export function SchulenTabelle({ schulen }: { schulen: Schule[] }) {
           <th>Modell</th>
           <th>Status</th>
           <th>Unser Anteil</th>
+          <th>Koordination h/Monat</th>
         </tr>
       </thead>
       <tbody>
@@ -25,6 +34,16 @@ export function SchulenTabelle({ schulen }: { schulen: Schule[] }) {
                 <td>{reihe.status}</td>
                 <td>
                   {anteil.anzahl} von {anteil.gesamt} ({Math.round(anteil.anteil * 100)}%)
+                </td>
+                <td>
+                  <input
+                    type="number"
+                    step={0.5}
+                    min={0}
+                    value={schule.koordination_h_pro_monat ?? settings.koordination_h_pro_schule_pro_monat}
+                    onChange={(e) => onKoordinationChange(schule.id, Number(e.target.value))}
+                    style={{ width: '4rem' }}
+                  />
                 </td>
               </tr>
             )

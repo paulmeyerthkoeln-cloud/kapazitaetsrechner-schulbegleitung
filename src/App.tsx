@@ -16,6 +16,7 @@ export default function App() {
     data,
     setPerson,
     setEinheitBegleitung,
+    setSchuleKoordination,
     szenario,
     setSzenario,
     sensitivitaet,
@@ -48,7 +49,7 @@ export default function App() {
       <WochenHeatmap wochen={ergebnis.wochen} />
       <BedarfAngebotChart wochen={ergebnis.wochen} settings={data.settings} />
       <EngpassBericht topEngpaesse={ergebnis.machbarkeit.topEngpaesse} />
-      <SchulenTabelle schulen={data.schulen} />
+      <SchulenTabelle schulen={data.schulen} settings={data.settings} onKoordinationChange={setSchuleKoordination} />
       <PersonenTabelle personen={data.personen} onChange={setPerson} />
       {data.schulen.flatMap((schule) =>
         schule.reihen.map((reihe) => (
