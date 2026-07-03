@@ -1,0 +1,30 @@
+.wochen-heatmap {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1.75rem;
+  gap: 2px;
+  overflow-x: auto;
+  padding: 0.5rem 0;
+}
+
+.wochen-heatmap-zelle {
+  height: 1.75rem;
+  cursor: pointer;
+  border: none;
+}
+
+.wochen-heatmap-zelle.gruen {
+  background: #2e7d32;
+}
+
+.wochen-heatmap-zelle.gelb {
+  background: #e1a100;
+}
+
+.wochen-heatmap-zelle.rot {
+  background: #c0392b;
+}
+
+.wochen-heatmap-zelle.ferien {
+  background: #cccccc;
+}
