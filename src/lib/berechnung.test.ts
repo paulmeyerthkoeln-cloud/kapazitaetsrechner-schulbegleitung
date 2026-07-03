@@ -110,7 +110,7 @@ describe('berechneBedarfProWoche', () => {
               fahrzeit_h: 0,
               status: 'zugesagt',
               extern_betreut: false,
-              einheiten: [einheit({ id: `e_${i}`, datum_oder_kw: '2026-KW10', wir_begleiten: false })],
+              einheiten: [einheit({ id: `e_${i}`, datum_oder_kw: '2026-KW46', wir_begleiten: false })],
             },
           ],
         })),
@@ -126,7 +126,7 @@ describe('berechneBedarfProWoche', () => {
               fahrzeit_h: 0,
               status: 'zugesagt',
               extern_betreut: true,
-              einheiten: [einheit({ id: 'e_huegel', datum_oder_kw: '2026-KW10', wir_begleiten: false })],
+              einheiten: [einheit({ id: 'e_huegel', datum_oder_kw: '2026-KW46', wir_begleiten: false })],
             },
           ],
         },
@@ -136,11 +136,101 @@ describe('berechneBedarfProWoche', () => {
     // 8 Schulen bei Koordination-Default (WDG, Sedanstraße, 6 Füll-Schulen) + Hügelstraße reduziert:
     // Koordination = (8*1.5 + 0.5) / 4.33 = 2.887h. Aufwand WDG 8.0h + Sedanstraße 2.375h.
     // Gesamt = 8.0 + 2.375 + 2.887 = 13.262h — matches spec section 9 exactly.
-    // NOTE: koordination is charged per Schule that has any Einheit anywhere (not gated to
-    // this exact wochenKey) — see the corrected berechneBedarfProWoche in Step 3 below. The
-    // 6 dummy schools and Hügelstraße only have Einheiten dated 2026-KW10, not 2026-KW46,
-    // to specifically exercise this "coordination doesn't require an Einheit this week" rule.
-    expect(berechneBedarfProWoche(data, '2026-KW46', false)).toBeCloseTo(13.26, 1)
+    // All 8 Schulen have an Einheit dated 2026-KW46, so their Reihe is active that week —
+    // coordination is gated to a Reihe's active date range, not charged year-round.
+    const { einsatzBedarf, koordinationBedarf } = berechneBedarfProWoche(data, '2026-KW46', false)
+    expect(einsatzBedarf + koordinationBedarf).toBeCloseTo(13.26, 1)
+  })
+
+  it('excludes a Schule\'s coordination before its Reihe has started or after it has ended', () => {
+    const data: Datenbestand = {
+      settings,
+      personen: [],
+      kalender: { ferien: [] },
+      schulen: [
+        {
+          id: 's1',
+          name: 'Schule 1',
+          reihen: [
+            {
+              id: 'r1',
+              titel: 'x',
+              betreuungsmodell: 'C',
+              fahrzeit_h: 0,
+              status: 'zugesagt',
+              extern_betreut: false,
+              einheiten: [einheit({ id: 'e1', datum_oder_kw: '2027-KW10', wir_begleiten: false })],
+            },
+          ],
+        },
+      ],
+    }
+    expect(berechneBedarfProWoche(data, '2026-KW46', false)).toEqual({ einsatzBedarf: 0, koordinationBedarf: 0 })
+    expect(berechneBedarfProWoche(data, '2027-KW10', false).koordinationBedarf).toBeCloseTo(1.5 / 4.33, 5)
+  })
+
+  it('still charges coordination for a Modell-X Schule with wir_begleiten always false, while its Reihe is active', () => {
+    const data: Datenbestand = {
+      settings,
+      personen: [],
+      kalender: { ferien: [] },
+      schulen: [
+        {
+          id: 'huegel',
+          name: 'Hügelstraße',
+          koordination_h_pro_monat: 0.5,
+          reihen: [
+            {
+              id: 'r_huegel',
+              titel: 'x',
+              betreuungsmodell: 'X',
+              fahrzeit_h: 0,
+              status: 'zugesagt',
+              extern_betreut: true,
+              einheiten: [einheit({ id: 'e1', datum_oder_kw: '2026-KW46', wir_begleiten: false })],
+            },
+          ],
+        },
+      ],
+    }
+    const { einsatzBedarf, koordinationBedarf } = berechneBedarfProWoche(data, '2026-KW46', false)
+    expect(einsatzBedarf).toBe(0)
+    expect(koordinationBedarf).toBeCloseTo(0.5 / 4.33, 5)
+  })
+
+  it('counts a Schule\'s coordination only once even when multiple Reihen are simultaneously active', () => {
+    const data: Datenbestand = {
+      settings,
+      personen: [],
+      kalender: { ferien: [] },
+      schulen: [
+        {
+          id: 's1',
+          name: 'Schule 1',
+          reihen: [
+            {
+              id: 'r1',
+              titel: 'a',
+              betreuungsmodell: 'C',
+              fahrzeit_h: 0,
+              status: 'zugesagt',
+              extern_betreut: false,
+              einheiten: [einheit({ id: 'e1', datum_oder_kw: '2026-KW46', wir_begleiten: false })],
+            },
+            {
+              id: 'r2',
+              titel: 'b',
+              betreuungsmodell: 'C',
+              fahrzeit_h: 0,
+              status: 'zugesagt',
+              extern_betreut: false,
+              einheiten: [einheit({ id: 'e2', datum_oder_kw: '2026-KW46', wir_begleiten: false })],
+            },
+          ],
+        },
+      ],
+    }
+    expect(berechneBedarfProWoche(data, '2026-KW46', false).koordinationBedarf).toBeCloseTo(1.5 / 4.33, 5)
   })
 
   it('returns 0 for a Ferienwoche regardless of scheduled Einheiten', () => {
@@ -167,7 +257,7 @@ describe('berechneBedarfProWoche', () => {
       ],
     }
 
-    expect(berechneBedarfProWoche(data, '2026-KW46', true)).toBe(0)
+    expect(berechneBedarfProWoche(data, '2026-KW46', true)).toEqual({ einsatzBedarf: 0, koordinationBedarf: 0 })
   })
 })
 
@@ -298,6 +388,7 @@ describe('berechneWochenuebersicht', () => {
     expect(wochen[0].wochenKey).toBe('2026-KW46')
     expect(wochen[0].auslastung).toBeCloseTo(0.414, 2)
     expect(wochen[0].ampel).toBe('gruen')
+    expect(wochen[0].bedarf).toBeCloseTo(wochen[0].einsatzBedarf + wochen[0].koordinationBedarf, 10)
   })
 })
 
@@ -305,6 +396,8 @@ describe('berechneMachbarkeit', () => {
   const basis: import('./berechnung').WochenErgebnis = {
     wochenKey: '2026-KW01',
     bedarf: 0,
+    einsatzBedarf: 0,
+    koordinationBedarf: 0,
     angebot: 32,
     auslastung: 0,
     ampel: 'gruen',

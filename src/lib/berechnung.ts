@@ -1,5 +1,5 @@
 import { eachDayOfInterval, isWeekend, endOfISOWeek, parseISO } from 'date-fns'
-import { parseZuWochenKey, alleWochenImZeitraum, istWocheInFerien, getISOWochenKey } from './kalenderwochen'
+import { parseZuWochenKey, alleWochenImZeitraum, istWocheInFerien, getISOWochenKey, berechneReiheZeitraum } from './kalenderwochen'
 import type { Einheit, Settings, Schule, Datenbestand, Person } from './types'
 
 export function berechneAufwandEinheit(einheit: Einheit, fahrzeit_h: number, settings: Settings): number {
@@ -16,25 +16,33 @@ export function berechneKoordinationWoche(schule: Schule, settings: Settings): n
   return proMonat / 4.33
 }
 
-export function berechneBedarfProWoche(data: Datenbestand, wochenKey: string, istFerien: boolean): number {
-  if (istFerien) return 0
+export function berechneBedarfProWoche(
+  data: Datenbestand,
+  wochenKey: string,
+  istFerien: boolean
+): { einsatzBedarf: number; koordinationBedarf: number } {
+  if (istFerien) return { einsatzBedarf: 0, koordinationBedarf: 0 }
 
-  let bedarf = 0
+  let einsatzBedarf = 0
+  let koordinationBedarf = 0
   for (const schule of data.schulen) {
-    const hatReihenMitEinheiten = schule.reihen.some((r) => r.einheiten.length > 0)
+    const istSchuleAktiv = schule.reihen.some((reihe) => {
+      const zeitraum = berechneReiheZeitraum(reihe)
+      return zeitraum !== null && zeitraum.von <= wochenKey && wochenKey <= zeitraum.bis
+    })
     for (const reihe of schule.reihen) {
       for (const einheit of reihe.einheiten) {
         if (parseZuWochenKey(einheit.datum_oder_kw) !== wochenKey) continue
         if (einheit.wir_begleiten) {
-          bedarf += berechneAufwandEinheit(einheit, reihe.fahrzeit_h, data.settings)
+          einsatzBedarf += berechneAufwandEinheit(einheit, reihe.fahrzeit_h, data.settings)
         }
       }
     }
-    if (hatReihenMitEinheiten) {
-      bedarf += berechneKoordinationWoche(schule, data.settings)
+    if (istSchuleAktiv) {
+      koordinationBedarf += berechneKoordinationWoche(schule, data.settings)
     }
   }
-  return bedarf
+  return { einsatzBedarf, koordinationBedarf }
 }
 
 export function berechneAngebotProWoche(personen: Person[], wochenStartMontag: Date): number {
@@ -66,6 +74,8 @@ export function ampelFarbe(auslastung: number, settings: Settings): AmpelFarbe {
 export interface WochenErgebnis {
   wochenKey: string
   bedarf: number
+  einsatzBedarf: number
+  koordinationBedarf: number
   angebot: number
   auslastung: number
   ampel: AmpelFarbe
@@ -77,10 +87,20 @@ export function berechneWochenuebersicht(data: Datenbestand): WochenErgebnis[] {
   return wochenStarts.map((montag) => {
     const wochenKey = getISOWochenKey(montag)
     const istFerien = istWocheInFerien(montag, data.kalender.ferien)
-    const bedarf = berechneBedarfProWoche(data, wochenKey, istFerien)
+    const { einsatzBedarf, koordinationBedarf } = berechneBedarfProWoche(data, wochenKey, istFerien)
+    const bedarf = einsatzBedarf + koordinationBedarf
     const angebot = berechneAngebotProWoche(data.personen, montag)
     const auslastung = angebot === 0 ? 0 : bedarf / angebot
-    return { wochenKey, bedarf, angebot, auslastung, ampel: ampelFarbe(auslastung, data.settings), istFerien }
+    return {
+      wochenKey,
+      bedarf,
+      einsatzBedarf,
+      koordinationBedarf,
+      angebot,
+      auslastung,
+      ampel: ampelFarbe(auslastung, data.settings),
+      istFerien,
+    }
   })
 }
 
