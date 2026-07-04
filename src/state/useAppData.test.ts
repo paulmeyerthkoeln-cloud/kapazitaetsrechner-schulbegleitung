@@ -95,6 +95,42 @@ describe('useAppData', () => {
     expect(aktualisierteEinheit.id).toBe(einheit.id)
   })
 
+  it('addUmverteilung appends a new Umverteilung with the given values and leaves existing entries unchanged', () => {
+    const { result } = renderHook(() => useAppData())
+    act(() => {
+      result.current.addUmverteilung('Herbstferien NRW', '2027-KW04', 10)
+    })
+    const umverteilungen = result.current.data.umverteilungen ?? []
+    expect(umverteilungen).toHaveLength(1)
+    expect(umverteilungen[0].ferienName).toBe('Herbstferien NRW')
+    expect(umverteilungen[0].zielWochenKey).toBe('2027-KW04')
+    expect(umverteilungen[0].zusatzStunden).toBe(10)
+    act(() => {
+      result.current.addUmverteilung('Weihnachtsferien NRW', '2027-KW05', 5)
+    })
+    const aktualisiert = result.current.data.umverteilungen ?? []
+    expect(aktualisiert).toHaveLength(2)
+    expect(aktualisiert[0].zielWochenKey).toBe('2027-KW04')
+    expect(aktualisiert[1].zielWochenKey).toBe('2027-KW05')
+  })
+
+  it('removeUmverteilung deletes the matching entry and leaves others unchanged', () => {
+    const { result } = renderHook(() => useAppData())
+    act(() => {
+      result.current.addUmverteilung('Herbstferien NRW', '2027-KW04', 10)
+    })
+    act(() => {
+      result.current.addUmverteilung('Weihnachtsferien NRW', '2027-KW05', 5)
+    })
+    const zuLoeschen = (result.current.data.umverteilungen ?? [])[0]
+    act(() => {
+      result.current.removeUmverteilung(zuLoeschen.id)
+    })
+    const verbleibend = result.current.data.umverteilungen ?? []
+    expect(verbleibend).toHaveLength(1)
+    expect(verbleibend[0].zielWochenKey).toBe('2027-KW05')
+  })
+
   it('setSzenario switches the active scenario and recomputes the ergebnis', () => {
     const { result } = renderHook(() => useAppData())
     act(() => {

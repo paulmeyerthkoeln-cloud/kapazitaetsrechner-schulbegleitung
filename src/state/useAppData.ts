@@ -102,6 +102,23 @@ export function useAppData() {
     }))
   }
 
+  function addUmverteilung(ferienName: string, zielWochenKey: string, zusatzStunden: number) {
+    setData((prev) => ({
+      ...prev,
+      umverteilungen: [
+        ...(prev.umverteilungen ?? []),
+        { id: `umverteilung_${Date.now()}`, ferienName, zielWochenKey, zusatzStunden },
+      ],
+    }))
+  }
+
+  function removeUmverteilung(id: string) {
+    setData((prev) => ({
+      ...prev,
+      umverteilungen: (prev.umverteilungen ?? []).filter((u) => u.id !== id),
+    }))
+  }
+
   function exportJson(): string {
     return JSON.stringify(data, null, 2)
   }
@@ -134,6 +151,8 @@ export function useAppData() {
     addEinheit,
     removeEinheit,
     setEinheitFelder,
+    addUmverteilung,
+    removeUmverteilung,
     szenario,
     setSzenario,
     sensitivitaet,
