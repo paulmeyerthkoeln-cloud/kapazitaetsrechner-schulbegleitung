@@ -1,6 +1,13 @@
 import { eachDayOfInterval, isWeekend, endOfISOWeek, parseISO } from 'date-fns'
-import { parseZuWochenKey, alleWochenImZeitraum, istWocheInFerien, getISOWochenKey, berechneReiheZeitraum } from './kalenderwochen'
-import type { Einheit, Settings, Schule, Datenbestand, Person } from './types'
+import {
+  parseZuWochenKey,
+  alleWochenImZeitraum,
+  istWocheInFerien,
+  getISOWochenKey,
+  berechneReiheZeitraum,
+  ermittleFerienName,
+} from './kalenderwochen'
+import type { Einheit, Settings, Schule, Datenbestand, Person, Umverteilung } from './types'
 
 export function berechneAufwandEinheit(einheit: Einheit, fahrzeit_h: number, settings: Settings): number {
   const vorbereitungsfaktor = einheit.erstdurchfuehrung
@@ -63,6 +70,10 @@ export function berechneAngebotProWoche(personen: Person[], wochenStartMontag: D
   return angebot
 }
 
+export function berechneZusatzangebotProWoche(umverteilungen: Umverteilung[], wochenKey: string): number {
+  return umverteilungen.filter((u) => u.zielWochenKey === wochenKey).reduce((summe, u) => summe + u.zusatzStunden, 0)
+}
+
 export type AmpelFarbe = 'gruen' | 'gelb' | 'rot'
 
 export function ampelFarbe(auslastung: number, settings: Settings): AmpelFarbe {
@@ -77,9 +88,12 @@ export interface WochenErgebnis {
   einsatzBedarf: number
   koordinationBedarf: number
   angebot: number
+  angebotBasis: number
+  zusatzangebot: number
   auslastung: number
   ampel: AmpelFarbe
   istFerien: boolean
+  ferienName: string | null
 }
 
 export function berechneWochenuebersicht(data: Datenbestand): WochenErgebnis[] {
@@ -87,9 +101,12 @@ export function berechneWochenuebersicht(data: Datenbestand): WochenErgebnis[] {
   return wochenStarts.map((montag) => {
     const wochenKey = getISOWochenKey(montag)
     const istFerien = istWocheInFerien(montag, data.kalender.ferien)
+    const ferienName = ermittleFerienName(montag, data.kalender.ferien)
     const { einsatzBedarf, koordinationBedarf } = berechneBedarfProWoche(data, wochenKey, istFerien)
     const bedarf = einsatzBedarf + koordinationBedarf
-    const angebot = berechneAngebotProWoche(data.personen, montag)
+    const angebotBasis = berechneAngebotProWoche(data.personen, montag)
+    const zusatzangebot = berechneZusatzangebotProWoche(data.umverteilungen ?? [], wochenKey)
+    const angebot = angebotBasis + zusatzangebot
     const auslastung = angebot === 0 ? 0 : bedarf / angebot
     return {
       wochenKey,
@@ -97,9 +114,12 @@ export function berechneWochenuebersicht(data: Datenbestand): WochenErgebnis[] {
       einsatzBedarf,
       koordinationBedarf,
       angebot,
+      angebotBasis,
+      zusatzangebot,
       auslastung,
       ampel: ampelFarbe(auslastung, data.settings),
       istFerien,
+      ferienName,
     }
   })
 }

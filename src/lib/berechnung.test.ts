@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { berechneAufwandEinheit, berechneKoordinationWoche, berechneBedarfProWoche, berechneAngebotProWoche } from './berechnung'
-import { ampelFarbe, berechneWochenuebersicht, berechneMachbarkeit } from './berechnung'
-import type { Einheit, Settings, Schule, Datenbestand, Person } from './types'
+import { ampelFarbe, berechneWochenuebersicht, berechneMachbarkeit, berechneZusatzangebotProWoche } from './berechnung'
+import type { Einheit, Settings, Schule, Datenbestand, Person, Umverteilung } from './types'
 
 const settings: Settings = {
   planungszeitraum: { start: '2026-09-01', ende: '2027-07-16' },
@@ -302,6 +302,24 @@ describe('ampelFarbe', () => {
   })
 })
 
+describe('berechneZusatzangebotProWoche', () => {
+  it('sums zusatzStunden across all entries matching the given wochenKey', () => {
+    const umverteilungen: Umverteilung[] = [
+      { id: 'u1', ferienName: 'Herbstferien NRW', zielWochenKey: '2027-KW04', zusatzStunden: 10 },
+      { id: 'u2', ferienName: 'Weihnachtsferien NRW', zielWochenKey: '2027-KW04', zusatzStunden: 5 },
+      { id: 'u3', ferienName: 'Herbstferien NRW', zielWochenKey: '2027-KW05', zusatzStunden: 20 },
+    ]
+    expect(berechneZusatzangebotProWoche(umverteilungen, '2027-KW04')).toBe(15)
+  })
+
+  it('returns 0 when no entry matches the given wochenKey', () => {
+    const umverteilungen: Umverteilung[] = [
+      { id: 'u1', ferienName: 'Herbstferien NRW', zielWochenKey: '2027-KW04', zusatzStunden: 10 },
+    ]
+    expect(berechneZusatzangebotProWoche(umverteilungen, '2027-KW10')).toBe(0)
+  })
+})
+
 describe('berechneWochenuebersicht', () => {
   it('reproduces 41% Grün for KW46/2026 (spec section 9 end-to-end)', () => {
     const personen: Person[] = Array.from({ length: 4 }, (_, i) => ({
@@ -424,6 +442,58 @@ describe('berechneWochenuebersicht', () => {
     expect(wochen[2].koordinationBedarf).toBe(0)
     expect(wochen[1].koordinationBedarf).toBeGreaterThan(0)
   })
+
+  it('raises angebot and lowers auslastung only in the Zielwoche of an Umverteilung', () => {
+    const personen: Person[] = [
+      {
+        id: 'p1',
+        name: 'Person 1',
+        stunden_pro_woche_fuer_begleitung: 8,
+        aktiv_ab: '2026-09-01',
+        aktiv_bis: '2027-07-16',
+        abwesenheiten: [],
+      },
+    ]
+    const schulen: Schule[] = [
+      {
+        id: 's1',
+        name: 'Schule 1',
+        reihen: [
+          {
+            id: 'r1',
+            titel: 'x',
+            betreuungsmodell: 'A',
+            fahrzeit_h: 0,
+            status: 'zugesagt',
+            extern_betreut: false,
+            einheiten: [einheit({ id: 'e1', datum_oder_kw: '2026-KW46', kontaktzeit_h: 4, erstdurchfuehrung: false })],
+          },
+        ],
+      },
+    ]
+    const basisDaten: Datenbestand = {
+      settings: { ...settings, planungszeitraum: { start: '2026-11-02', ende: '2026-11-16' } },
+      personen,
+      kalender: { ferien: [] },
+      schulen,
+    }
+
+    const ohneUmverteilung = berechneWochenuebersicht(basisDaten)
+    const mitUmverteilung = berechneWochenuebersicht({
+      ...basisDaten,
+      umverteilungen: [{ id: 'u1', ferienName: 'Herbstferien NRW', zielWochenKey: '2026-KW46', zusatzStunden: 10 }],
+    })
+
+    expect(mitUmverteilung[1].wochenKey).toBe('2026-KW46')
+    expect(mitUmverteilung[1].zusatzangebot).toBe(10)
+    expect(mitUmverteilung[1].angebot).toBeCloseTo(ohneUmverteilung[1].angebot + 10, 5)
+    expect(mitUmverteilung[1].auslastung).toBeLessThan(ohneUmverteilung[1].auslastung)
+
+    expect(mitUmverteilung[0].zusatzangebot).toBe(0)
+    expect(mitUmverteilung[0].auslastung).toBeCloseTo(ohneUmverteilung[0].auslastung, 5)
+    expect(mitUmverteilung[2].zusatzangebot).toBe(0)
+    expect(mitUmverteilung[2].auslastung).toBeCloseTo(ohneUmverteilung[2].auslastung, 5)
+  })
 })
 
 describe('berechneMachbarkeit', () => {
@@ -433,9 +503,12 @@ describe('berechneMachbarkeit', () => {
     einsatzBedarf: 0,
     koordinationBedarf: 0,
     angebot: 32,
+    angebotBasis: 32,
+    zusatzangebot: 0,
     auslastung: 0,
     ampel: 'gruen',
     istFerien: false,
+    ferienName: null,
   }
 
   it('is machbar when no week is rot', () => {
