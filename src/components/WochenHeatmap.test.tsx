@@ -1,0 +1,37 @@
+import { describe, it, expect } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import { WochenHeatmap } from './WochenHeatmap'
+import type { WochenErgebnis } from '../lib/berechnung'
+
+function woche(overrides: Partial<WochenErgebnis> = {}): WochenErgebnis {
+  return {
+    wochenKey: '2026-KW46',
+    bedarf: 13.26,
+    einsatzBedarf: 10.4,
+    koordinationBedarf: 2.9,
+    angebot: 32,
+    angebotBasis: 32,
+    zusatzangebot: 0,
+    auslastung: 0.414,
+    ampel: 'gruen',
+    istFerien: false,
+    ferienName: null,
+    ...overrides,
+  }
+}
+
+describe('WochenHeatmap', () => {
+  it('shows the auslastung percentage in the title for a regular week', () => {
+    render(<WochenHeatmap wochen={[woche()]} />)
+    expect(screen.getByTitle('2026-KW46: 41%')).toBeInTheDocument()
+  })
+
+  it('shows the Ferienname instead of a percentage for a Ferienwoche', () => {
+    render(
+      <WochenHeatmap
+        wochen={[woche({ wochenKey: '2026-KW44', istFerien: true, ferienName: 'Herbstferien NRW', auslastung: 0 })]}
+      />
+    )
+    expect(screen.getByTitle('Ferien: Herbstferien NRW')).toBeInTheDocument()
+  })
+})

@@ -14,7 +14,7 @@ export function WochenHeatmap({
         <button
           key={w.wochenKey}
           className={`wochen-heatmap-zelle ${w.istFerien ? 'ferien' : w.ampel}`}
-          title={`${w.wochenKey}: ${Math.round(w.auslastung * 100)}%`}
+          title={w.istFerien ? `Ferien: ${w.ferienName}` : `${w.wochenKey}: ${Math.round(w.auslastung * 100)}%`}
           onClick={() => onWocheClick?.(w.wochenKey)}
         />
       ))}

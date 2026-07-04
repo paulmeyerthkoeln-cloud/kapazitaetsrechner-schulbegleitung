@@ -26,5 +26,5 @@
 }
 
 .wochen-heatmap-zelle.ferien {
-  background: #cccccc;
+  background: repeating-linear-gradient(45deg, #cccccc, #cccccc 4px, #e8e8e8 4px, #e8e8e8 8px);
 }
