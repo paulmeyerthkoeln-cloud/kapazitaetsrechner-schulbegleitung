@@ -14,7 +14,7 @@ Keine Änderungen am bestehenden `Einheit`-Typ (`src/lib/types.ts`) nötig — a
 
 Drei neue Funktionen, nach dem bestehenden unveränderlichen Update-Muster von `setEinheitBegleitung`:
 
-- `addEinheit(reiheId: string): void` — hängt eine neue Einheit an die Reihe an mit: `datum_oder_kw` = heutiges Datum (`format(new Date(), 'yyyy-MM-dd')`), `kontaktzeit_h: 1.5`, `personen_parallel: 1`, `erstdurchfuehrung: false`, `wir_begleiten: true`, `typ: 'regulaer'`, `id` per `crypto.randomUUID()`, `index` = `reihe.einheiten.length + 1`.
+- `addEinheit(reiheId: string): void` — hängt eine neue Einheit an die Reihe an mit: `datum_oder_kw` = heutiges Datum (`format(new Date(), 'yyyy-MM-dd')`), `kontaktzeit_h: 1.5`, `personen_parallel: 1`, `erstdurchfuehrung: false`, `wir_begleiten: true`, `typ: 'regulaer'`, `id` = `` `${reihe.id}_neu_${Date.now()}` `` (hält neue ids visuell konsistent mit der Namenskonvention der Seed-Daten, z. B. `wdg_e1`, und vermeidet eine Abhängigkeit von `crypto.randomUUID()` in der jsdom-Testumgebung), `index` = `reihe.einheiten.length + 1`.
 - `removeEinheit(reiheId: string, einheitId: string): void` — entfernt die Einheit mit passender `id` aus der Reihe und nummeriert die verbleibenden Einheiten der Reihe neu durch (`index` 1..N in Array-Reihenfolge). Die Neunummerierung ist rein für die Anzeige — die Berechnungslogik verwendet `index` nirgends.
 - `setEinheitFelder(reiheId: string, einheitId: string, patch: Partial<Pick<Einheit, 'datum_oder_kw' | 'kontaktzeit_h'>>): void` — aktualisiert `datum_oder_kw` und/oder `kontaktzeit_h` der passenden Einheit.
 
