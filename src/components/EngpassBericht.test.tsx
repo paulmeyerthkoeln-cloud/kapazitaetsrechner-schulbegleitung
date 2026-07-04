@@ -9,9 +9,12 @@ const woche = (overrides: Partial<WochenErgebnis> = {}): WochenErgebnis => ({
   einsatzBedarf: 10.375,
   koordinationBedarf: 2.887,
   angebot: 32,
+  angebotBasis: 32,
+  zusatzangebot: 0,
   auslastung: 0.414,
   ampel: 'gruen',
   istFerien: false,
+  ferienName: null,
   ...overrides,
 })
 

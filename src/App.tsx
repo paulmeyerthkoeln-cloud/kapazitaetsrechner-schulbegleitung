@@ -6,6 +6,7 @@ import { SchulenAccordion } from './components/SchulenAccordion'
 import { PersonenTabelle } from './components/PersonenTabelle'
 import { EngpassBericht } from './components/EngpassBericht'
 import { RestkapazitaetPlanner } from './components/RestkapazitaetPlanner'
+import { KapazitaetsUmverteilung } from './components/KapazitaetsUmverteilung'
 import { SzenarioAuswahl } from './components/SzenarioAuswahl'
 import { ExportImport } from './components/ExportImport'
 
@@ -18,6 +19,8 @@ export default function App() {
     addEinheit,
     removeEinheit,
     setEinheitFelder,
+    addUmverteilung,
+    removeUmverteilung,
     szenario,
     setSzenario,
     sensitivitaet,
@@ -66,6 +69,15 @@ export default function App() {
       </div>
       <div className="card">
         <RestkapazitaetPlanner data={data} />
+      </div>
+      <div className="card">
+        <KapazitaetsUmverteilung
+          umverteilungen={data.umverteilungen ?? []}
+          ferien={data.kalender.ferien}
+          wochen={ergebnis.wochen}
+          onAdd={addUmverteilung}
+          onRemove={removeUmverteilung}
+        />
       </div>
       <div className="card">
         <ExportImport exportJson={exportJson} importJson={importJson} importError={importError} />
