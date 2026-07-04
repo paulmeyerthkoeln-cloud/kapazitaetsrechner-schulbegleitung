@@ -70,3 +70,11 @@ export function berechneReiheZeitraum(reihe: Reihe): { von: string; bis: string 
     bis: wochenKeys.reduce((groesstes, key) => (key > groesstes ? key : groesstes)),
   }
 }
+
+export function ermittleFerienName(wochenStartMontag: Date, ferien: FerienZeitraum[]): string | null {
+  const wocheInterval = { start: startOfISOWeek(wochenStartMontag), end: endOfISOWeek(wochenStartMontag) }
+  const treffer = ferien.find((f) =>
+    areIntervalsOverlapping(wocheInterval, { start: parseISO(f.von), end: parseISO(f.bis) }, { inclusive: true })
+  )
+  return treffer?.name ?? null
+}

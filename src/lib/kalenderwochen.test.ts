@@ -7,6 +7,7 @@ import {
   alleWochenImZeitraum,
   expandiereMuster,
   berechneReiheZeitraum,
+  ermittleFerienName,
 } from './kalenderwochen'
 import type { FerienZeitraum, Muster, Reihe } from './types'
 
@@ -119,5 +120,20 @@ describe('berechneReiheZeitraum', () => {
       ],
     }
     expect(berechneReiheZeitraum(reihe)).toEqual({ von: '2026-KW37', bis: '2026-KW37' })
+  })
+})
+
+describe('ermittleFerienName', () => {
+  it('returns the name of the overlapping Ferienzeitraum', () => {
+    expect(ermittleFerienName(new Date('2026-10-19'), [herbstferien])).toBe('Herbstferien NRW')
+  })
+
+  it('returns null when no Ferienzeitraum overlaps', () => {
+    expect(ermittleFerienName(new Date('2026-11-09'), [herbstferien])).toBeNull()
+  })
+
+  it('returns the first matching name when multiple Ferienzeiträume are given', () => {
+    const weihnachtsferien: FerienZeitraum = { name: 'Weihnachtsferien NRW', von: '2026-12-23', bis: '2027-01-06' }
+    expect(ermittleFerienName(new Date('2026-10-19'), [herbstferien, weihnachtsferien])).toBe('Herbstferien NRW')
   })
 })
