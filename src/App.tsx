@@ -16,6 +16,9 @@ export default function App() {
     data,
     setPerson,
     setEinheitBegleitung,
+    addEinheit,
+    removeEinheit,
+    setEinheitFelder,
     szenario,
     setSzenario,
     sensitivitaet,
@@ -57,6 +60,9 @@ export default function App() {
             reihe={reihe}
             onEinheitToggle={(einheitId, wert) => setEinheitBegleitung(reihe.id, einheitId, wert)}
             onPresetApply={(preset) => onPresetApply(reihe.id, preset)}
+            onEinheitAdd={() => addEinheit(reihe.id)}
+            onEinheitRemove={(einheitId) => removeEinheit(reihe.id, einheitId)}
+            onEinheitFelderChange={(einheitId, patch) => setEinheitFelder(reihe.id, einheitId, patch)}
           />
         ))
       )}
