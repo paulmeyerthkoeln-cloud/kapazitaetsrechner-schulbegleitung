@@ -84,7 +84,7 @@ export function ReihenEditor({
                 />
               </td>
               <td>
-                <button onClick={() => onEinheitRemove(e.id)} aria-label={`Termin ${e.index} löschen`}>
+                <button onClick={() => onEinheitRemove(e.id)} aria-label={`Termin ${e.index} in ${reihe.titel} löschen`}>
                   🗑
                 </button>
               </td>

@@ -71,7 +71,7 @@ describe('ReihenEditor', () => {
 
   it('calls onEinheitRemove with the correct Einheit id when the delete button is clicked', () => {
     const props = renderReihenEditor()
-    fireEvent.click(screen.getByLabelText('Termin 2 löschen'))
+    fireEvent.click(screen.getByLabelText('Termin 2 in Testreihe löschen'))
     expect(props.onEinheitRemove).toHaveBeenCalledWith('e2')
   })
 
