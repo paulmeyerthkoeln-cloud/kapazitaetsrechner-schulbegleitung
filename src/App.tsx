@@ -51,6 +51,7 @@ export default function App() {
       <div className="card">
         <EngpassBericht topEngpaesse={ergebnis.machbarkeit.topEngpaesse} />
       </div>
+      <h2>Schulen</h2>
       <SchulenAccordion
         schulen={data.schulen}
         settings={data.settings}

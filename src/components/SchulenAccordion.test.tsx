@@ -107,4 +107,24 @@ describe('SchulenAccordion', () => {
     fireEvent.click(within(reiheEinsContainer).getByText('+ Termin hinzufügen'))
     expect(props.onEinheitAdd).toHaveBeenCalledWith('r1')
   })
+
+  it('renders every Schule details element closed by default', () => {
+    renderAccordion()
+    const details = document.querySelectorAll('details')
+    details.forEach((el) => {
+      expect(el).not.toHaveAttribute('open')
+    })
+  })
+
+  it('opens a Schule details element when its summary is clicked, and leaves other Schulen closed', () => {
+    renderAccordion()
+    const schuleEinsSummary = screen.getByText('Schule Eins').closest('summary') as HTMLElement
+    const schuleEinsDetails = schuleEinsSummary.closest('details') as HTMLElement
+    const schuleZweiDetails = screen.getByText('Schule Zwei').closest('details') as HTMLElement
+
+    fireEvent.click(schuleEinsSummary)
+
+    expect(schuleEinsDetails).toHaveAttribute('open')
+    expect(schuleZweiDetails).not.toHaveAttribute('open')
+  })
 })
