@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react'
+import { format } from 'date-fns'
 import seedData from '../data/data.json'
 import { berechneSzenario } from '../lib/szenario'
 import type { SzenarioTyp, SensitivitaetsParameter } from '../lib/szenario'
-import type { Datenbestand, Person } from '../lib/types'
+import type { Datenbestand, Einheit, Person } from '../lib/types'
 
 const PFLICHTFELDER = ['settings', 'personen', 'kalender', 'schulen'] as const
 
@@ -30,6 +31,64 @@ export function useAppData() {
             : {
                 ...reihe,
                 einheiten: reihe.einheiten.map((e) => (e.id === einheitId ? { ...e, wir_begleiten: wert } : e)),
+              }
+        ),
+      })),
+    }))
+  }
+
+  function addEinheit(reiheId: string) {
+    setData((prev) => ({
+      ...prev,
+      schulen: prev.schulen.map((schule) => ({
+        ...schule,
+        reihen: schule.reihen.map((reihe) => {
+          if (reihe.id !== reiheId) return reihe
+          const neueEinheit: Einheit = {
+            id: `${reihe.id}_neu_${Date.now()}`,
+            index: reihe.einheiten.length + 1,
+            datum_oder_kw: format(new Date(), 'yyyy-MM-dd'),
+            kontaktzeit_h: 1.5,
+            personen_parallel: 1,
+            erstdurchfuehrung: false,
+            wir_begleiten: true,
+            typ: 'regulaer',
+          }
+          return { ...reihe, einheiten: [...reihe.einheiten, neueEinheit] }
+        }),
+      })),
+    }))
+  }
+
+  function removeEinheit(reiheId: string, einheitId: string) {
+    setData((prev) => ({
+      ...prev,
+      schulen: prev.schulen.map((schule) => ({
+        ...schule,
+        reihen: schule.reihen.map((reihe) => {
+          if (reihe.id !== reiheId) return reihe
+          const verbleibend = reihe.einheiten.filter((e) => e.id !== einheitId)
+          return { ...reihe, einheiten: verbleibend.map((e, i) => ({ ...e, index: i + 1 })) }
+        }),
+      })),
+    }))
+  }
+
+  function setEinheitFelder(
+    reiheId: string,
+    einheitId: string,
+    patch: Partial<Pick<Einheit, 'datum_oder_kw' | 'kontaktzeit_h'>>
+  ) {
+    setData((prev) => ({
+      ...prev,
+      schulen: prev.schulen.map((schule) => ({
+        ...schule,
+        reihen: schule.reihen.map((reihe) =>
+          reihe.id !== reiheId
+            ? reihe
+            : {
+                ...reihe,
+                einheiten: reihe.einheiten.map((e) => (e.id === einheitId ? { ...e, ...patch } : e)),
               }
         ),
       })),
@@ -64,6 +123,9 @@ export function useAppData() {
     data,
     setPerson,
     setEinheitBegleitung,
+    addEinheit,
+    removeEinheit,
+    setEinheitFelder,
     szenario,
     setSzenario,
     sensitivitaet,
