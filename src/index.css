@@ -1,6 +1,9 @@
 :root {
   font-family: system-ui, sans-serif;
   line-height: 1.5;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
 }
 
 *, *::before, *::after {
@@ -9,4 +12,27 @@
 
 body {
   margin: 0;
+}
+
+.card {
+  border: 1px solid #d0d0d0;
+  border-radius: 0.5rem;
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  background: #fff;
+}
+
+h1 {
+  font-size: 1.75rem;
+  margin: 0 0 var(--spacing-md);
+}
+
+h2 {
+  font-size: 1.25rem;
+  margin: 0 0 var(--spacing-sm);
+}
+
+h3 {
+  font-size: 1.05rem;
+  margin: 0 0 var(--spacing-sm);
 }

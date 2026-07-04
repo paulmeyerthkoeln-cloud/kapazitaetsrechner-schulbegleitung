@@ -1,6 +1,7 @@
 import { SchuleAkkordionItem } from './SchuleAkkordionItem'
 import { wendeBesetzungPreset } from '../lib/besetzung'
 import type { BesetzungsPreset, Schule, Settings } from '../lib/types'
+import './SchulenAccordion.css'
 
 export function SchulenAccordion({
   schulen,

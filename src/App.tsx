@@ -31,16 +31,26 @@ export default function App() {
   return (
     <main style={{ maxWidth: '75rem', margin: '0 auto', padding: '1rem' }}>
       <h1>Kapazitätsrechner Schulbegleitung</h1>
-      <SzenarioAuswahl
-        szenario={szenario}
-        onSzenarioChange={setSzenario}
-        sensitivitaet={sensitivitaet}
-        onSensitivitaetChange={setSensitivitaet}
-      />
-      <AmpelAntwort machbarkeit={ergebnis.machbarkeit} />
-      <WochenHeatmap wochen={ergebnis.wochen} />
-      <BedarfAngebotChart wochen={ergebnis.wochen} settings={data.settings} />
-      <EngpassBericht topEngpaesse={ergebnis.machbarkeit.topEngpaesse} />
+      <div className="card">
+        <SzenarioAuswahl
+          szenario={szenario}
+          onSzenarioChange={setSzenario}
+          sensitivitaet={sensitivitaet}
+          onSensitivitaetChange={setSensitivitaet}
+        />
+      </div>
+      <div className="card">
+        <AmpelAntwort machbarkeit={ergebnis.machbarkeit} />
+      </div>
+      <div className="card">
+        <WochenHeatmap wochen={ergebnis.wochen} />
+      </div>
+      <div className="card">
+        <BedarfAngebotChart wochen={ergebnis.wochen} settings={data.settings} />
+      </div>
+      <div className="card">
+        <EngpassBericht topEngpaesse={ergebnis.machbarkeit.topEngpaesse} />
+      </div>
       <SchulenAccordion
         schulen={data.schulen}
         settings={data.settings}
@@ -50,9 +60,15 @@ export default function App() {
         onEinheitRemove={removeEinheit}
         onEinheitFelderChange={setEinheitFelder}
       />
-      <PersonenTabelle personen={data.personen} onChange={setPerson} />
-      <RestkapazitaetPlanner data={data} />
-      <ExportImport exportJson={exportJson} importJson={importJson} importError={importError} />
+      <div className="card">
+        <PersonenTabelle personen={data.personen} onChange={setPerson} />
+      </div>
+      <div className="card">
+        <RestkapazitaetPlanner data={data} />
+      </div>
+      <div className="card">
+        <ExportImport exportJson={exportJson} importJson={importJson} importError={importError} />
+      </div>
     </main>
   )
 }
