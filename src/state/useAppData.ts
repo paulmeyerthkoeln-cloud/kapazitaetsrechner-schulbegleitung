@@ -112,6 +112,16 @@ export function useAppData() {
     }))
   }
 
+  function setReiheEinheiten(reiheId: string, einheiten: Einheit[]) {
+    setData((prev) => ({
+      ...prev,
+      schulen: prev.schulen.map((schule) => ({
+        ...schule,
+        reihen: schule.reihen.map((reihe) => (reihe.id === reiheId ? { ...reihe, einheiten } : reihe)),
+      })),
+    }))
+  }
+
   function addUmverteilung(ferienName: string, zielWochenKey: string, zusatzStunden: number) {
     setData((prev) => ({
       ...prev,
@@ -162,6 +172,7 @@ export function useAppData() {
     removeEinheit,
     setEinheitFelder,
     setReiheTerminstatus,
+    setReiheEinheiten,
     addUmverteilung,
     removeUmverteilung,
     szenario,

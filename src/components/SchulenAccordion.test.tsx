@@ -72,12 +72,14 @@ function renderAccordion() {
   const props = {
     schulen,
     settings,
+    ferien: [],
     onKoordinationChange: vi.fn(),
     onEinheitToggle: vi.fn(),
     onEinheitAdd: vi.fn(),
     onEinheitRemove: vi.fn(),
     onEinheitFelderChange: vi.fn(),
     onTerminstatusChange: vi.fn(),
+    onEinheitenReplace: vi.fn(),
   }
   render(<SchulenAccordion {...props} />)
   return props
@@ -136,5 +138,21 @@ describe('SchulenAccordion', () => {
     const terminstatusSelect = within(reiheZweiContainer).getByRole('combobox', { name: 'Terminstatus' })
     fireEvent.change(terminstatusSelect, { target: { value: 'teilweise_festgelegt' } })
     expect(props.onTerminstatusChange).toHaveBeenCalledWith('r2', 'teilweise_festgelegt')
+  })
+
+  it('generates weekly Termine for the correct Reihe via onEinheitenReplace', () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    const props = renderAccordion()
+    const reiheZweiUeberschrift = screen.getByRole('heading', { name: 'Reihe Zwei' })
+    const reiheZweiContainer = reiheZweiUeberschrift.closest('div') as HTMLElement
+    const reiheZwei = within(reiheZweiContainer)
+    fireEvent.change(reiheZwei.getByLabelText('Schnelleinrichtung Startdatum'), { target: { value: '2026-09-07' } })
+    fireEvent.change(reiheZwei.getByLabelText('Schnelleinrichtung Unterrichtszeit'), { target: { value: '90' } })
+    fireEvent.change(reiheZwei.getByLabelText('Schnelleinrichtung Anzahl Termine'), { target: { value: '2' } })
+    fireEvent.click(reiheZwei.getByText('Termine generieren'))
+    expect(props.onEinheitenReplace).toHaveBeenCalledWith('r2', [
+      expect.objectContaining({ datum_oder_kw: '2026-09-07', kontaktzeit_h: 1.5 }),
+      expect.objectContaining({ datum_oder_kw: '2026-09-14', kontaktzeit_h: 1.5 }),
+    ])
   })
 })

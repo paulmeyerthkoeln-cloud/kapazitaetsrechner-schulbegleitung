@@ -198,4 +198,28 @@ describe('useAppData', () => {
     expect(wdgReihe.terminstatus).toBe('offen')
     expect(sedanstrasseReihe.terminstatus).toBe(vorherSedanstrasse)
   })
+
+  it('setReiheEinheiten replaces the einheiten of the matching Reihe only', () => {
+    const { result } = renderHook(() => useAppData())
+    const reiheId = result.current.data.schulen.find((s) => s.id === 'wdg')!.reihen[0].id
+    const neueEinheiten = [
+      {
+        id: 'neu_1',
+        index: 1,
+        datum_oder_kw: '2027-03-01',
+        kontaktzeit_h: 1.5,
+        personen_parallel: 1,
+        erstdurchfuehrung: true,
+        wir_begleiten: true,
+        typ: 'regulaer' as const,
+      },
+    ]
+    act(() => {
+      result.current.setReiheEinheiten(reiheId, neueEinheiten)
+    })
+    const aktualisiert = result.current.data.schulen.find((s) => s.id === 'wdg')!.reihen[0]
+    expect(aktualisiert.einheiten).toEqual(neueEinheiten)
+    const andereSchule = result.current.data.schulen.find((s) => s.id === 'sedanstrasse')!
+    expect(andereSchule.reihen[0].einheiten.length).toBeGreaterThan(1)
+  })
 })

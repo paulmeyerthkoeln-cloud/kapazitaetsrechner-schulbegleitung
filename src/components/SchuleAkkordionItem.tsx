@@ -11,6 +11,7 @@ export function SchuleAkkordionItem({
   onEinheitRemove,
   onEinheitFelderChange,
   onTerminstatusChange,
+  onTermineGenerieren,
 }: {
   schule: Schule
   settings: Settings
@@ -25,6 +26,7 @@ export function SchuleAkkordionItem({
     patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema }
   ) => void
   onTerminstatusChange: (reiheId: string, terminstatus: Terminstatus) => void
+  onTermineGenerieren: (reiheId: string, startdatum: string, unterrichtszeitH: number, anzahlTermine: number) => void
 }) {
   return (
     <details className="schule-akkordion-item">
@@ -54,6 +56,9 @@ export function SchuleAkkordionItem({
               onEinheitRemove={(einheitId) => onEinheitRemove(reihe.id, einheitId)}
               onEinheitFelderChange={(einheitId, patch) => onEinheitFelderChange(reihe.id, einheitId, patch)}
               onTerminstatusChange={(wert) => onTerminstatusChange(reihe.id, wert)}
+              onTermineGenerieren={(startdatum, unterrichtszeitH, anzahlTermine) =>
+                onTermineGenerieren(reihe.id, startdatum, unterrichtszeitH, anzahlTermine)
+              }
             />
           </div>
         ))}

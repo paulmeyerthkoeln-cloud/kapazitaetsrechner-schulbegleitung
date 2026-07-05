@@ -33,6 +33,7 @@ function renderItem() {
     onEinheitRemove: vi.fn(),
     onEinheitFelderChange: vi.fn(),
     onTerminstatusChange: vi.fn(),
+    onTermineGenerieren: vi.fn(),
   }
   render(<SchuleAkkordionItem {...props} />)
   return props
@@ -80,6 +81,7 @@ describe('SchuleAkkordionItem', () => {
       onEinheitRemove: vi.fn(),
       onEinheitFelderChange: vi.fn(),
       onTerminstatusChange: vi.fn(),
+      onTermineGenerieren: vi.fn(),
     }
     render(<SchuleAkkordionItem {...props} />)
     const eingabe = screen.getByRole('spinbutton', { name: /Koordination/i })
@@ -101,5 +103,14 @@ describe('SchuleAkkordionItem', () => {
     const terminstatusSelect = within(reiheZweiContainer).getByRole('combobox', { name: 'Terminstatus' })
     fireEvent.change(terminstatusSelect, { target: { value: 'offen' } })
     expect(props.onTerminstatusChange).toHaveBeenCalledWith('r2', 'offen')
+  })
+
+  it("calls onTermineGenerieren with the correct Reihe id when that Reihe's quick-setup button is clicked", () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    const props = renderItem()
+    const reiheZweiUeberschrift = screen.getByRole('heading', { name: 'Reihe Zwei' })
+    const reiheZweiContainer = reiheZweiUeberschrift.closest('div') as HTMLElement
+    fireEvent.click(within(reiheZweiContainer).getByText('Termine generieren'))
+    expect(props.onTermineGenerieren).toHaveBeenCalledWith('r2', expect.any(String), expect.any(Number), expect.any(Number))
   })
 })

@@ -43,6 +43,7 @@ function renderReihenEditor() {
     onEinheitRemove: vi.fn(),
     onEinheitFelderChange: vi.fn(),
     onTerminstatusChange: vi.fn(),
+    onTermineGenerieren: vi.fn(),
   }
   render(<ReihenEditor {...props} />)
   return props
@@ -52,14 +53,14 @@ describe('ReihenEditor', () => {
   it('shows Kontaktzeit in minutes, converted from the stored hours', () => {
     renderReihenEditor()
     const eingaben = screen.getAllByRole('spinbutton') as HTMLInputElement[]
-    expect(eingaben[1].value).toBe('90')
-    expect(eingaben[2].value).toBe('66')
+    expect(eingaben[3].value).toBe('90')
+    expect(eingaben[4].value).toBe('66')
   })
 
   it('calls onEinheitFelderChange with kontaktzeit_h in hours when the minutes input changes', () => {
     const props = renderReihenEditor()
     const eingaben = screen.getAllByRole('spinbutton')
-    fireEvent.change(eingaben[1], { target: { value: '120' } })
+    fireEvent.change(eingaben[3], { target: { value: '120' } })
     expect(props.onEinheitFelderChange).toHaveBeenCalledWith('e1', { kontaktzeit_h: 2 })
   })
 
@@ -123,6 +124,7 @@ describe('ReihenEditor', () => {
         onEinheitRemove={vi.fn()}
         onEinheitFelderChange={vi.fn()}
         onTerminstatusChange={vi.fn()}
+        onTermineGenerieren={vi.fn()}
       />
     )
     expect(screen.queryByText(/zählt nicht in der Bedarfsrechnung/)).not.toBeInTheDocument()
@@ -135,8 +137,44 @@ describe('ReihenEditor', () => {
         onEinheitRemove={vi.fn()}
         onEinheitFelderChange={vi.fn()}
         onTerminstatusChange={vi.fn()}
+        onTermineGenerieren={vi.fn()}
       />
     )
     expect(screen.getByText(/zählt nicht in der Bedarfsrechnung/)).toBeInTheDocument()
+  })
+
+  it('calls onTermineGenerieren with the entered Startdatum, Unterrichtszeit in hours, and Anzahl Termine', () => {
+    const reiheOhneTermine = { ...reihe, einheiten: [] }
+    const props = {
+      reihe: reiheOhneTermine,
+      onEinheitToggle: vi.fn(),
+      onPresetApply: vi.fn(),
+      onEinheitAdd: vi.fn(),
+      onEinheitRemove: vi.fn(),
+      onEinheitFelderChange: vi.fn(),
+      onTerminstatusChange: vi.fn(),
+      onTermineGenerieren: vi.fn(),
+    }
+    render(<ReihenEditor {...props} />)
+    fireEvent.change(screen.getByLabelText('Schnelleinrichtung Startdatum'), { target: { value: '2026-09-07' } })
+    fireEvent.change(screen.getByLabelText('Schnelleinrichtung Unterrichtszeit'), { target: { value: '90' } })
+    fireEvent.change(screen.getByLabelText('Schnelleinrichtung Anzahl Termine'), { target: { value: '4' } })
+    fireEvent.click(screen.getByText('Termine generieren'))
+    expect(props.onTermineGenerieren).toHaveBeenCalledWith('2026-09-07', 1.5, 4)
+  })
+
+  it('asks for confirmation before generating when the Reihe already has Termine, and skips the call when cancelled', () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(false)
+    const props = renderReihenEditor()
+    fireEvent.click(screen.getByText('Termine generieren'))
+    expect(window.confirm).toHaveBeenCalled()
+    expect(props.onTermineGenerieren).not.toHaveBeenCalled()
+  })
+
+  it('proceeds with generation when the confirmation dialog is accepted', () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    const props = renderReihenEditor()
+    fireEvent.click(screen.getByText('Termine generieren'))
+    expect(props.onTermineGenerieren).toHaveBeenCalled()
   })
 })

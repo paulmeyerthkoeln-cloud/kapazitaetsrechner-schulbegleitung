@@ -20,6 +20,7 @@ export default function App() {
     removeEinheit,
     setEinheitFelder,
     setReiheTerminstatus,
+    setReiheEinheiten,
     addUmverteilung,
     removeUmverteilung,
     szenario,
@@ -65,6 +66,8 @@ export default function App() {
         onEinheitRemove={removeEinheit}
         onEinheitFelderChange={setEinheitFelder}
         onTerminstatusChange={setReiheTerminstatus}
+        onEinheitenReplace={setReiheEinheiten}
+        ferien={data.kalender.ferien}
       />
       <div className="card">
         <PersonenTabelle personen={data.personen} onChange={setPerson} />

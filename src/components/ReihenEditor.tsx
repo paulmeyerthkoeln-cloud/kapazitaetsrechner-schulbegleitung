@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { format } from 'date-fns'
 import { berechneUnserAnteil } from '../lib/besetzung'
 import type { BesetzungsPreset, Reihe, Terminstatus, Thema } from '../lib/types'
 
@@ -18,6 +19,7 @@ export function ReihenEditor({
   onEinheitRemove,
   onEinheitFelderChange,
   onTerminstatusChange,
+  onTermineGenerieren,
 }: {
   reihe: Reihe
   onEinheitToggle: (einheitId: string, wert: boolean) => void
@@ -29,9 +31,21 @@ export function ReihenEditor({
     patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema }
   ) => void
   onTerminstatusChange: (wert: Terminstatus) => void
+  onTermineGenerieren: (startdatum: string, unterrichtszeitH: number, anzahlTermine: number) => void
 }) {
   const [n, setN] = useState(1)
   const anteil = berechneUnserAnteil(reihe.einheiten)
+  const [schnellStartdatum, setSchnellStartdatum] = useState(format(new Date(), 'yyyy-MM-dd'))
+  const [schnellUnterrichtszeitMin, setSchnellUnterrichtszeitMin] = useState(90)
+  const [schnellAnzahlTermine, setSchnellAnzahlTermine] = useState(reihe.einheiten.length || 1)
+
+  function termineGenerieren() {
+    if (reihe.einheiten.length > 0) {
+      const bestaetigt = window.confirm('Die bestehenden Termine dieser Reihe werden ersetzt. Fortfahren?')
+      if (!bestaetigt) return
+    }
+    onTermineGenerieren(schnellStartdatum, schnellUnterrichtszeitMin / 60, schnellAnzahlTermine)
+  }
 
   return (
     <div>
@@ -39,6 +53,41 @@ export function ReihenEditor({
       <p>
         {anteil.anzahl} von {anteil.gesamt} Einheiten ({Math.round(anteil.anteil * 100)}%)
       </p>
+      <div className="schnelleinrichtung">
+        <label>
+          Startdatum:{' '}
+          <input
+            type="date"
+            aria-label="Schnelleinrichtung Startdatum"
+            value={schnellStartdatum}
+            onChange={(ev) => setSchnellStartdatum(ev.target.value)}
+          />
+        </label>
+        <label>
+          Unterrichtszeit (min):{' '}
+          <input
+            type="number"
+            step={5}
+            min={0}
+            aria-label="Schnelleinrichtung Unterrichtszeit"
+            value={schnellUnterrichtszeitMin}
+            onChange={(ev) => setSchnellUnterrichtszeitMin(Number(ev.target.value))}
+            style={{ width: '5rem' }}
+          />
+        </label>
+        <label>
+          Anzahl Termine:{' '}
+          <input
+            type="number"
+            min={1}
+            aria-label="Schnelleinrichtung Anzahl Termine"
+            value={schnellAnzahlTermine}
+            onChange={(ev) => setSchnellAnzahlTermine(Number(ev.target.value))}
+            style={{ width: '4rem' }}
+          />
+        </label>
+        <button onClick={termineGenerieren}>Termine generieren</button>
+      </div>
       <div>
         <label>
           Terminstatus:{' '}

@@ -1,20 +1,24 @@
 import { SchuleAkkordionItem } from './SchuleAkkordionItem'
 import { wendeBesetzungPreset } from '../lib/besetzung'
-import type { BesetzungsPreset, Schule, Settings, Terminstatus, Thema } from '../lib/types'
+import { generiereWochentlicheTermine } from '../lib/kalenderwochen'
+import type { BesetzungsPreset, Einheit, FerienZeitraum, Schule, Settings, Terminstatus, Thema } from '../lib/types'
 import './SchulenAccordion.css'
 
 export function SchulenAccordion({
   schulen,
   settings,
+  ferien,
   onKoordinationChange,
   onEinheitToggle,
   onEinheitAdd,
   onEinheitRemove,
   onEinheitFelderChange,
   onTerminstatusChange,
+  onEinheitenReplace,
 }: {
   schulen: Schule[]
   settings: Settings
+  ferien: FerienZeitraum[]
   onKoordinationChange: (schuleId: string, wert: number) => void
   onEinheitToggle: (reiheId: string, einheitId: string, wert: boolean) => void
   onEinheitAdd: (reiheId: string) => void
@@ -25,6 +29,7 @@ export function SchulenAccordion({
     patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema }
   ) => void
   onTerminstatusChange: (reiheId: string, terminstatus: Terminstatus) => void
+  onEinheitenReplace: (reiheId: string, einheiten: Einheit[]) => void
 }) {
   function onPresetApply(reiheId: string, preset: BesetzungsPreset) {
     for (const schule of schulen) {
@@ -33,6 +38,11 @@ export function SchulenAccordion({
       const aktualisiert = wendeBesetzungPreset(reihe.einheiten, preset)
       aktualisiert.forEach((e) => onEinheitToggle(reiheId, e.id, e.wir_begleiten))
     }
+  }
+
+  function onTermineGenerieren(reiheId: string, startdatum: string, unterrichtszeitH: number, anzahlTermine: number) {
+    const einheiten = generiereWochentlicheTermine(reiheId, startdatum, unterrichtszeitH, anzahlTermine, ferien)
+    onEinheitenReplace(reiheId, einheiten)
   }
 
   return (
@@ -49,6 +59,7 @@ export function SchulenAccordion({
           onEinheitRemove={onEinheitRemove}
           onEinheitFelderChange={onEinheitFelderChange}
           onTerminstatusChange={onTerminstatusChange}
+          onTermineGenerieren={onTermineGenerieren}
         />
       ))}
     </div>
