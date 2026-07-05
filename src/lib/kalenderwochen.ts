@@ -1,4 +1,4 @@
-import { getISOWeek, getISOWeekYear, startOfISOWeek, addWeeks, areIntervalsOverlapping, endOfISOWeek, parseISO, format } from 'date-fns'
+import { getISOWeek, getISOWeekYear, startOfISOWeek, addWeeks, areIntervalsOverlapping, endOfISOWeek, parseISO, format, setISOWeek, setISOWeekYear } from 'date-fns'
 import type { FerienZeitraum, Muster, Einheit, Reihe } from './types'
 
 export function getISOWochenKey(date: Date): string {
@@ -77,4 +77,14 @@ export function ermittleFerienName(wochenStartMontag: Date, ferien: FerienZeitra
     areIntervalsOverlapping(wocheInterval, { start: parseISO(f.von), end: parseISO(f.bis) }, { inclusive: true })
   )
   return treffer?.name ?? null
+}
+
+export function formatWochenspanne(wochenKey: string): string {
+  const treffer = KW_REGEX.exec(wochenKey)
+  if (!treffer) return wochenKey
+  const [, jahrStr, wocheStr] = treffer
+  const referenz = setISOWeek(setISOWeekYear(new Date(), Number(jahrStr)), Number(wocheStr))
+  const montag = startOfISOWeek(referenz)
+  const sonntag = endOfISOWeek(referenz)
+  return `${format(montag, 'dd.MM.')}–${format(sonntag, 'dd.MM.yyyy')}`
 }

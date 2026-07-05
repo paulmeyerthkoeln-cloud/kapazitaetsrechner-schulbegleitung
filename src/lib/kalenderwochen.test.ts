@@ -8,6 +8,7 @@ import {
   expandiereMuster,
   berechneReiheZeitraum,
   ermittleFerienName,
+  formatWochenspanne,
 } from './kalenderwochen'
 import type { FerienZeitraum, Muster, Reihe } from './types'
 
@@ -135,5 +136,20 @@ describe('ermittleFerienName', () => {
   it('returns the first matching name when multiple Ferienzeiträume are given', () => {
     const weihnachtsferien: FerienZeitraum = { name: 'Weihnachtsferien NRW', von: '2026-12-23', bis: '2027-01-06' }
     expect(ermittleFerienName(new Date('2026-10-19'), [herbstferien, weihnachtsferien])).toBe('Herbstferien NRW')
+  })
+})
+
+describe('formatWochenspanne', () => {
+  it('formats a week entirely within one month as dd.MM.–dd.MM.yyyy', () => {
+    expect(formatWochenspanne('2026-KW46')).toBe('09.11.–15.11.2026')
+  })
+
+  it('formats a week that spans a month boundary correctly on both ends', () => {
+    // 2026-KW44 runs Mon 2026-10-26 to Sun 2026-11-01.
+    expect(formatWochenspanne('2026-KW44')).toBe('26.10.–01.11.2026')
+  })
+
+  it('returns the input unchanged when it is not a valid KW key', () => {
+    expect(formatWochenspanne('nicht-ein-schluessel')).toBe('nicht-ein-schluessel')
   })
 })
