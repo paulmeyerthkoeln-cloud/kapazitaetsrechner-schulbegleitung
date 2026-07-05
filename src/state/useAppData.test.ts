@@ -222,4 +222,10 @@ describe('useAppData', () => {
     const andereSchule = result.current.data.schulen.find((s) => s.id === 'sedanstrasse')!
     expect(andereSchule.reihen[0].einheiten.length).toBeGreaterThan(1)
   })
+
+  it('exposes themenUebersicht derived from the current data', () => {
+    const { result } = renderHook(() => useAppData())
+    expect(Array.isArray(result.current.themenUebersicht)).toBe(true)
+    expect(result.current.themenUebersicht.length).toBeGreaterThan(0)
+  })
 })

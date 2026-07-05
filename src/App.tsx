@@ -5,6 +5,7 @@ import { BedarfAngebotChart } from './components/BedarfAngebotChart'
 import { SchulenAccordion } from './components/SchulenAccordion'
 import { PersonenTabelle } from './components/PersonenTabelle'
 import { EngpassBericht } from './components/EngpassBericht'
+import { ThemenUebersicht } from './components/ThemenUebersicht'
 import { RestkapazitaetPlanner } from './components/RestkapazitaetPlanner'
 import { KapazitaetsUmverteilung } from './components/KapazitaetsUmverteilung'
 import { SzenarioAuswahl } from './components/SzenarioAuswahl'
@@ -28,6 +29,7 @@ export default function App() {
     sensitivitaet,
     setSensitivitaet,
     ergebnis,
+    themenUebersicht,
     exportJson,
     importJson,
     importError,
@@ -55,6 +57,9 @@ export default function App() {
       </div>
       <div className="card">
         <EngpassBericht topEngpaesse={ergebnis.machbarkeit.topEngpaesse} />
+      </div>
+      <div className="card">
+        <ThemenUebersicht zeilen={themenUebersicht} />
       </div>
       <h2>Schulen</h2>
       <SchulenAccordion
