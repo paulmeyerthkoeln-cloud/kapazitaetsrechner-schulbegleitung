@@ -46,7 +46,11 @@ export function useAppData() {
   const [importError, setImportError] = useState<string | null>(null)
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+    } catch {
+      // localStorage may be unavailable (private browsing, quota exceeded, etc.) — degrade to non-persistent rather than crashing.
+    }
   }, [data])
 
   function setPerson(id: string, patch: Partial<Person>) {
@@ -193,6 +197,7 @@ export function useAppData() {
   }
 
   function zuruecksetzen() {
+    localStorage.removeItem(STORAGE_KEY)
     setData(seedData as Datenbestand)
   }
 

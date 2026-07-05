@@ -18,7 +18,7 @@ export function ThemenUebersicht({ zeilen }: { zeilen: ThemenZeile[] }) {
     return (
       <div>
         <h3>Themen-Übersicht</h3>
-        <p>Keine Einheiten mit Terminstatus ungleich „offen" vorhanden.</p>
+        <p>Keine Einheiten mit Terminstatus ungleich „offen“ vorhanden.</p>
       </div>
     )
   }

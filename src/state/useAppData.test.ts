@@ -1,10 +1,14 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useAppData } from './useAppData'
 
 describe('useAppData', () => {
   beforeEach(() => {
     localStorage.clear()
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
   })
 
   it('loads the seed data with a default szenario of "ziel"', () => {
@@ -287,5 +291,19 @@ describe('useAppData', () => {
     expect(result.current.data.personen[0].stunden_pro_woche_fuer_begleitung).toBe(urspruenglicheStunden)
     const gespeichert = JSON.parse(localStorage.getItem('kapazitaetsrechner:data')!)
     expect(gespeichert.personen[0].stunden_pro_woche_fuer_begleitung).toBe(urspruenglicheStunden)
+  })
+
+  it('does not crash when localStorage.setItem throws (e.g. private browsing / quota exceeded)', () => {
+    const { result } = renderHook(() => useAppData())
+    const setItemSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementationOnce(() => {
+      throw new DOMException('QuotaExceededError')
+    })
+    expect(() => {
+      act(() => {
+        result.current.setPerson(result.current.data.personen[0].id, { stunden_pro_woche_fuer_begleitung: 77 })
+      })
+    }).not.toThrow()
+    expect(result.current.data.personen[0].stunden_pro_woche_fuer_begleitung).toBe(77)
+    setItemSpy.mockRestore()
   })
 })
