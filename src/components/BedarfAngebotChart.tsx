@@ -1,4 +1,5 @@
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { formatWochenspanne } from '../lib/kalenderwochen'
 import type { WochenErgebnis } from '../lib/berechnung'
 import type { Settings } from '../lib/types'
 
@@ -17,7 +18,7 @@ export function BedarfAngebotChart({ wochen, settings }: { wochen: WochenErgebni
       <BarChart data={chartData}>
         <XAxis dataKey="wochenKey" hide />
         <YAxis />
-        <Tooltip />
+        <Tooltip labelFormatter={(label) => formatWochenspanne(String(label))} />
         <Bar dataKey="Angebot" fill="#a5d6a7" />
         <Bar dataKey="Einsatz" stackId="bedarf" fill="#1976d2" />
         <Bar dataKey="Koordination" stackId="bedarf" fill="#64b5f6" />
