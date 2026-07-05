@@ -19,6 +19,7 @@ export default function App() {
     addEinheit,
     removeEinheit,
     setEinheitFelder,
+    setReiheTerminstatus,
     addUmverteilung,
     removeUmverteilung,
     szenario,
@@ -63,6 +64,7 @@ export default function App() {
         onEinheitAdd={addEinheit}
         onEinheitRemove={removeEinheit}
         onEinheitFelderChange={setEinheitFelder}
+        onTerminstatusChange={setReiheTerminstatus}
       />
       <div className="card">
         <PersonenTabelle personen={data.personen} onChange={setPerson} />

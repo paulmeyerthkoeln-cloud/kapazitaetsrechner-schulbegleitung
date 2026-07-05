@@ -185,4 +185,17 @@ describe('useAppData', () => {
     expect(result.current.importError).toBeNull()
     expect(result.current.data.personen.length).toBeGreaterThan(0)
   })
+
+  it('setReiheTerminstatus updates only the matching Reihe and leaves others unchanged', () => {
+    const { result } = renderHook(() => useAppData())
+    const wdgReiheId = result.current.data.schulen.find((s) => s.id === 'wdg')!.reihen[0].id
+    const vorherSedanstrasse = result.current.data.schulen.find((s) => s.id === 'sedanstrasse')!.reihen[0].terminstatus
+    act(() => {
+      result.current.setReiheTerminstatus(wdgReiheId, 'offen')
+    })
+    const wdgReihe = result.current.data.schulen.find((s) => s.id === 'wdg')!.reihen[0]
+    const sedanstrasseReihe = result.current.data.schulen.find((s) => s.id === 'sedanstrasse')!.reihen[0]
+    expect(wdgReihe.terminstatus).toBe('offen')
+    expect(sedanstrasseReihe.terminstatus).toBe(vorherSedanstrasse)
+  })
 })

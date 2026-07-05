@@ -42,6 +42,7 @@ function renderReihenEditor() {
     onEinheitAdd: vi.fn(),
     onEinheitRemove: vi.fn(),
     onEinheitFelderChange: vi.fn(),
+    onTerminstatusChange: vi.fn(),
   }
   render(<ReihenEditor {...props} />)
   return props
@@ -97,5 +98,45 @@ describe('ReihenEditor', () => {
     const thema1 = screen.getByRole('combobox', { name: 'Thema für Termin 1 in Testreihe' })
     fireEvent.change(thema1, { target: { value: 'Mobilität' } })
     expect(props.onEinheitFelderChange).toHaveBeenCalledWith('e1', { thema: 'Mobilität' })
+  })
+
+  it('shows the current Terminstatus in the dropdown', () => {
+    renderReihenEditor()
+    const terminstatusSelect = screen.getByRole('combobox', { name: 'Terminstatus' }) as HTMLSelectElement
+    expect(terminstatusSelect.value).toBe('festgelegt')
+  })
+
+  it('calls onTerminstatusChange when the Terminstatus dropdown changes', () => {
+    const props = renderReihenEditor()
+    const terminstatusSelect = screen.getByRole('combobox', { name: 'Terminstatus' })
+    fireEvent.change(terminstatusSelect, { target: { value: 'offen' } })
+    expect(props.onTerminstatusChange).toHaveBeenCalledWith('offen')
+  })
+
+  it('shows an "offen" badge only when Terminstatus is offen', () => {
+    const { rerender } = render(
+      <ReihenEditor
+        reihe={reihe}
+        onEinheitToggle={vi.fn()}
+        onPresetApply={vi.fn()}
+        onEinheitAdd={vi.fn()}
+        onEinheitRemove={vi.fn()}
+        onEinheitFelderChange={vi.fn()}
+        onTerminstatusChange={vi.fn()}
+      />
+    )
+    expect(screen.queryByText(/zählt nicht in der Bedarfsrechnung/)).not.toBeInTheDocument()
+    rerender(
+      <ReihenEditor
+        reihe={{ ...reihe, terminstatus: 'offen' }}
+        onEinheitToggle={vi.fn()}
+        onPresetApply={vi.fn()}
+        onEinheitAdd={vi.fn()}
+        onEinheitRemove={vi.fn()}
+        onEinheitFelderChange={vi.fn()}
+        onTerminstatusChange={vi.fn()}
+      />
+    )
+    expect(screen.getByText(/zählt nicht in der Bedarfsrechnung/)).toBeInTheDocument()
   })
 })

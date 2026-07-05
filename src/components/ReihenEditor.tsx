@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { berechneUnserAnteil } from '../lib/besetzung'
-import type { BesetzungsPreset, Reihe, Thema } from '../lib/types'
+import type { BesetzungsPreset, Reihe, Terminstatus, Thema } from '../lib/types'
 
 const PRESETS: { label: string; preset: (n: number) => BesetzungsPreset }[] = [
   { label: 'Alle', preset: () => ({ typ: 'alle' }) },
@@ -17,6 +17,7 @@ export function ReihenEditor({
   onEinheitAdd,
   onEinheitRemove,
   onEinheitFelderChange,
+  onTerminstatusChange,
 }: {
   reihe: Reihe
   onEinheitToggle: (einheitId: string, wert: boolean) => void
@@ -27,6 +28,7 @@ export function ReihenEditor({
     einheitId: string,
     patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema }
   ) => void
+  onTerminstatusChange: (wert: Terminstatus) => void
 }) {
   const [n, setN] = useState(1)
   const anteil = berechneUnserAnteil(reihe.einheiten)
@@ -37,6 +39,23 @@ export function ReihenEditor({
       <p>
         {anteil.anzahl} von {anteil.gesamt} Einheiten ({Math.round(anteil.anteil * 100)}%)
       </p>
+      <div>
+        <label>
+          Terminstatus:{' '}
+          <select
+            aria-label="Terminstatus"
+            value={reihe.terminstatus}
+            onChange={(ev) => onTerminstatusChange(ev.target.value as Terminstatus)}
+          >
+            <option value="festgelegt">Festgelegt</option>
+            <option value="teilweise_festgelegt">Teilweise festgelegt</option>
+            <option value="offen">Offen</option>
+          </select>
+        </label>
+        {reihe.terminstatus === 'offen' && (
+          <span className="terminstatus-badge">offen – zählt nicht in der Bedarfsrechnung</span>
+        )}
+      </div>
       <div>
         {PRESETS.map(({ label, preset }) => (
           <button key={label} onClick={() => onPresetApply(preset(n))}>

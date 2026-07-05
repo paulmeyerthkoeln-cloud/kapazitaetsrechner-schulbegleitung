@@ -1,5 +1,5 @@
 import { ReihenEditor } from './ReihenEditor'
-import type { BesetzungsPreset, Schule, Settings, Thema } from '../lib/types'
+import type { BesetzungsPreset, Schule, Settings, Terminstatus, Thema } from '../lib/types'
 
 export function SchuleAkkordionItem({
   schule,
@@ -10,6 +10,7 @@ export function SchuleAkkordionItem({
   onEinheitAdd,
   onEinheitRemove,
   onEinheitFelderChange,
+  onTerminstatusChange,
 }: {
   schule: Schule
   settings: Settings
@@ -23,6 +24,7 @@ export function SchuleAkkordionItem({
     einheitId: string,
     patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema }
   ) => void
+  onTerminstatusChange: (reiheId: string, terminstatus: Terminstatus) => void
 }) {
   return (
     <details className="schule-akkordion-item">
@@ -51,6 +53,7 @@ export function SchuleAkkordionItem({
               onEinheitAdd={() => onEinheitAdd(reihe.id)}
               onEinheitRemove={(einheitId) => onEinheitRemove(reihe.id, einheitId)}
               onEinheitFelderChange={(einheitId, patch) => onEinheitFelderChange(reihe.id, einheitId, patch)}
+              onTerminstatusChange={(wert) => onTerminstatusChange(reihe.id, wert)}
             />
           </div>
         ))}

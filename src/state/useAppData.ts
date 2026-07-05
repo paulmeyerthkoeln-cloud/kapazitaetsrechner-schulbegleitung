@@ -3,7 +3,7 @@ import { format } from 'date-fns'
 import seedData from '../data/data.json'
 import { berechneSzenario } from '../lib/szenario'
 import type { SzenarioTyp, SensitivitaetsParameter } from '../lib/szenario'
-import type { Datenbestand, Einheit, Person } from '../lib/types'
+import type { Datenbestand, Einheit, Person, Terminstatus } from '../lib/types'
 
 const PFLICHTFELDER = ['settings', 'personen', 'kalender', 'schulen'] as const
 
@@ -102,6 +102,16 @@ export function useAppData() {
     }))
   }
 
+  function setReiheTerminstatus(reiheId: string, terminstatus: Terminstatus) {
+    setData((prev) => ({
+      ...prev,
+      schulen: prev.schulen.map((schule) => ({
+        ...schule,
+        reihen: schule.reihen.map((reihe) => (reihe.id === reiheId ? { ...reihe, terminstatus } : reihe)),
+      })),
+    }))
+  }
+
   function addUmverteilung(ferienName: string, zielWochenKey: string, zusatzStunden: number) {
     setData((prev) => ({
       ...prev,
@@ -151,6 +161,7 @@ export function useAppData() {
     addEinheit,
     removeEinheit,
     setEinheitFelder,
+    setReiheTerminstatus,
     addUmverteilung,
     removeUmverteilung,
     szenario,

@@ -32,6 +32,7 @@ function renderItem() {
     onEinheitAdd: vi.fn(),
     onEinheitRemove: vi.fn(),
     onEinheitFelderChange: vi.fn(),
+    onTerminstatusChange: vi.fn(),
   }
   render(<SchuleAkkordionItem {...props} />)
   return props
@@ -78,6 +79,7 @@ describe('SchuleAkkordionItem', () => {
       onEinheitAdd: vi.fn(),
       onEinheitRemove: vi.fn(),
       onEinheitFelderChange: vi.fn(),
+      onTerminstatusChange: vi.fn(),
     }
     render(<SchuleAkkordionItem {...props} />)
     const eingabe = screen.getByRole('spinbutton', { name: /Koordination/i })
@@ -90,5 +92,14 @@ describe('SchuleAkkordionItem', () => {
     const reiheEinsContainer = reiheEinsUeberschrift.closest('div') as HTMLElement
     fireEvent.click(within(reiheEinsContainer).getByText('+ Termin hinzufügen'))
     expect(props.onEinheitAdd).toHaveBeenCalledWith('r1')
+  })
+
+  it('calls onTerminstatusChange with the correct Reihe id when the Terminstatus dropdown changes', () => {
+    const props = renderItem()
+    const reiheZweiUeberschrift = screen.getByRole('heading', { name: 'Reihe Zwei' })
+    const reiheZweiContainer = reiheZweiUeberschrift.closest('div') as HTMLElement
+    const terminstatusSelect = within(reiheZweiContainer).getByRole('combobox', { name: 'Terminstatus' })
+    fireEvent.change(terminstatusSelect, { target: { value: 'offen' } })
+    expect(props.onTerminstatusChange).toHaveBeenCalledWith('r2', 'offen')
   })
 })

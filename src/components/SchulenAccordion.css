@@ -28,3 +28,9 @@
   font-size: 0.9rem;
   margin: var(--spacing-md) 0 0.25rem;
 }
+
+.terminstatus-badge {
+  color: #b45309;
+  font-size: 0.85rem;
+  margin-left: 0.5rem;
+}

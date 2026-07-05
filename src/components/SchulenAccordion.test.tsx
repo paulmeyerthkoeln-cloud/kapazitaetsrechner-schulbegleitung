@@ -77,6 +77,7 @@ function renderAccordion() {
     onEinheitAdd: vi.fn(),
     onEinheitRemove: vi.fn(),
     onEinheitFelderChange: vi.fn(),
+    onTerminstatusChange: vi.fn(),
   }
   render(<SchulenAccordion {...props} />)
   return props
@@ -126,5 +127,14 @@ describe('SchulenAccordion', () => {
 
     expect(schuleEinsDetails).toHaveAttribute('open')
     expect(schuleZweiDetails).not.toHaveAttribute('open')
+  })
+
+  it('forwards onTerminstatusChange with the correct Reihe id for a specific Schule', () => {
+    const props = renderAccordion()
+    const reiheZweiUeberschrift = screen.getByRole('heading', { name: 'Reihe Zwei' })
+    const reiheZweiContainer = reiheZweiUeberschrift.closest('div') as HTMLElement
+    const terminstatusSelect = within(reiheZweiContainer).getByRole('combobox', { name: 'Terminstatus' })
+    fireEvent.change(terminstatusSelect, { target: { value: 'teilweise_festgelegt' } })
+    expect(props.onTerminstatusChange).toHaveBeenCalledWith('r2', 'teilweise_festgelegt')
   })
 })
