@@ -2,10 +2,12 @@ export function ExportImport({
   exportJson,
   importJson,
   importError,
+  zuruecksetzen,
 }: {
   exportJson: () => string
   importJson: (json: string) => void
   importError: string | null
+  zuruecksetzen: () => void
 }) {
   function herunterladen() {
     const blob = new Blob([exportJson()], { type: 'application/json' })
@@ -29,6 +31,7 @@ export function ExportImport({
     <div>
       <button onClick={herunterladen}>Als JSON exportieren</button>
       <input type="file" accept="application/json" onChange={hochladen} />
+      <button onClick={zuruecksetzen}>Zurücksetzen auf Ausgangsdaten</button>
       {importError && <p role="alert" style={{ color: 'crimson' }}>{importError}</p>}
     </div>
   )

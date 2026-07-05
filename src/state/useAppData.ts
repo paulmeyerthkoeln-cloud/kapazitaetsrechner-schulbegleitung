@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { format } from 'date-fns'
 import seedData from '../data/data.json'
 import { berechneSzenario } from '../lib/szenario'
@@ -7,12 +7,47 @@ import type { SzenarioTyp, SensitivitaetsParameter } from '../lib/szenario'
 import type { Datenbestand, Einheit, Person, Terminstatus } from '../lib/types'
 
 const PFLICHTFELDER = ['settings', 'personen', 'kalender', 'schulen'] as const
+const STORAGE_KEY = 'kapazitaetsrechner:data'
+
+function pruefePflichtfelder(geparst: unknown): geparst is Datenbestand {
+  const istObjekt = typeof geparst === 'object' && geparst !== null
+  return istObjekt && !PFLICHTFELDER.some((feld) => !(feld in (geparst as object)))
+}
+
+function migriereDatenbestand(d: Datenbestand): Datenbestand {
+  return {
+    ...d,
+    schulen: d.schulen.map((schule) => ({
+      ...schule,
+      reihen: schule.reihen.map((reihe) => ({
+        ...reihe,
+        terminstatus: reihe.terminstatus ?? ('festgelegt' as Terminstatus),
+      })),
+    })),
+  }
+}
+
+function ladeGespeicherteDaten(): Datenbestand | null {
+  try {
+    const roh = localStorage.getItem(STORAGE_KEY)
+    if (!roh) return null
+    const geparst = JSON.parse(roh)
+    if (!pruefePflichtfelder(geparst)) return null
+    return migriereDatenbestand(geparst as Datenbestand)
+  } catch {
+    return null
+  }
+}
 
 export function useAppData() {
-  const [data, setData] = useState<Datenbestand>(seedData as Datenbestand)
+  const [data, setData] = useState<Datenbestand>(() => ladeGespeicherteDaten() ?? (seedData as Datenbestand))
   const [szenario, setSzenario] = useState<SzenarioTyp>('ziel')
   const [sensitivitaet, setSensitivitaet] = useState<SensitivitaetsParameter>({})
   const [importError, setImportError] = useState<string | null>(null)
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+  }, [data])
 
   function setPerson(id: string, patch: Partial<Person>) {
     setData((prev) => ({
@@ -147,16 +182,18 @@ export function useAppData() {
   function importJson(json: string) {
     try {
       const geparst = JSON.parse(json)
-      const istObjekt = typeof geparst === 'object' && geparst !== null
-      const fehltFeld = !istObjekt || PFLICHTFELDER.some((feld) => !(feld in geparst))
-      if (fehltFeld) {
+      if (!pruefePflichtfelder(geparst)) {
         throw new Error(`JSON fehlt eines der Pflichtfelder: ${PFLICHTFELDER.join(', ')}`)
       }
-      setData(geparst as Datenbestand)
+      setData(migriereDatenbestand(geparst as Datenbestand))
       setImportError(null)
     } catch (fehler) {
       setImportError(fehler instanceof Error ? fehler.message : 'Import fehlgeschlagen: ungültiges JSON')
     }
+  }
+
+  function zuruecksetzen() {
+    setData(seedData as Datenbestand)
   }
 
   const ergebnis = useMemo(
@@ -186,5 +223,6 @@ export function useAppData() {
     exportJson,
     importJson,
     importError,
+    zuruecksetzen,
   }
 }

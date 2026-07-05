@@ -33,6 +33,7 @@ export default function App() {
     exportJson,
     importJson,
     importError,
+    zuruecksetzen,
   } = useAppData()
 
   return (
@@ -90,7 +91,7 @@ export default function App() {
         />
       </div>
       <div className="card">
-        <ExportImport exportJson={exportJson} importJson={importJson} importError={importError} />
+        <ExportImport exportJson={exportJson} importJson={importJson} importError={importError} zuruecksetzen={zuruecksetzen} />
       </div>
     </main>
   )

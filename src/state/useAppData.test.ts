@@ -1,8 +1,12 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useAppData } from './useAppData'
 
 describe('useAppData', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
   it('loads the seed data with a default szenario of "ziel"', () => {
     const { result } = renderHook(() => useAppData())
     expect(result.current.szenario).toBe('ziel')
@@ -227,5 +231,61 @@ describe('useAppData', () => {
     const { result } = renderHook(() => useAppData())
     expect(Array.isArray(result.current.themenUebersicht)).toBe(true)
     expect(result.current.themenUebersicht.length).toBeGreaterThan(0)
+  })
+
+  it('persists data to localStorage after a change and reloads it on next mount', () => {
+    const { result, unmount } = renderHook(() => useAppData())
+    act(() => {
+      result.current.setPerson(result.current.data.personen[0].id, { stunden_pro_woche_fuer_begleitung: 42 })
+    })
+    unmount()
+    const { result: result2 } = renderHook(() => useAppData())
+    expect(result2.current.data.personen[0].stunden_pro_woche_fuer_begleitung).toBe(42)
+  })
+
+  it('falls back to seed data when localStorage contains invalid JSON', () => {
+    localStorage.setItem('kapazitaetsrechner:data', 'not json')
+    const { result } = renderHook(() => useAppData())
+    expect(result.current.data.personen.length).toBeGreaterThan(0)
+  })
+
+  it('defaults terminstatus to festgelegt when loading persisted data missing that field', () => {
+    const roh = JSON.stringify({
+      settings: {
+        planungszeitraum: { start: '2026-09-01', ende: '2027-07-16' },
+        schwellwert_warnung: 0.7,
+        schwellwert_kritisch: 0.9,
+        default_fahrzeit_h: 1,
+        default_vorbereitungsfaktor_erstdurchfuehrung: 0.75,
+        default_vorbereitungsfaktor_wiederholung: 0.25,
+        koordination_h_pro_schule_pro_monat: 1.5,
+      },
+      personen: [],
+      kalender: { ferien: [] },
+      schulen: [
+        {
+          id: 's1',
+          name: 'Test',
+          reihen: [{ id: 'r1', titel: 'x', betreuungsmodell: 'A', fahrzeit_h: 0, status: 'zugesagt', extern_betreut: false, einheiten: [] }],
+        },
+      ],
+    })
+    localStorage.setItem('kapazitaetsrechner:data', roh)
+    const { result } = renderHook(() => useAppData())
+    expect(result.current.data.schulen[0].reihen[0].terminstatus).toBe('festgelegt')
+  })
+
+  it('zuruecksetzen restores seed data and re-persists it', () => {
+    const { result } = renderHook(() => useAppData())
+    const urspruenglicheStunden = result.current.data.personen[0].stunden_pro_woche_fuer_begleitung
+    act(() => {
+      result.current.setPerson(result.current.data.personen[0].id, { stunden_pro_woche_fuer_begleitung: 42 })
+    })
+    act(() => {
+      result.current.zuruecksetzen()
+    })
+    expect(result.current.data.personen[0].stunden_pro_woche_fuer_begleitung).toBe(urspruenglicheStunden)
+    const gespeichert = JSON.parse(localStorage.getItem('kapazitaetsrechner:data')!)
+    expect(gespeichert.personen[0].stunden_pro_woche_fuer_begleitung).toBe(urspruenglicheStunden)
   })
 })
