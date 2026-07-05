@@ -25,4 +25,9 @@ describe('EngpassBericht', () => {
       screen.getByText(/13\.3h Bedarf \(10\.4h Einsatz \+ 2\.9h Koordination\) \/ 32h Angebot/)
     ).toBeInTheDocument()
   })
+
+  it('shows the week as a date range instead of a KW code', () => {
+    render(<EngpassBericht topEngpaesse={[woche()]} />)
+    expect(screen.getByText(/^09\.11\.–15\.11\.2026:/)).toBeInTheDocument()
+  })
 })
