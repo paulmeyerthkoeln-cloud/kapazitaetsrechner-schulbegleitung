@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { berechneUnserAnteil } from '../lib/besetzung'
-import type { BesetzungsPreset, Reihe } from '../lib/types'
+import type { BesetzungsPreset, Reihe, Thema } from '../lib/types'
 
 const PRESETS: { label: string; preset: (n: number) => BesetzungsPreset }[] = [
   { label: 'Alle', preset: () => ({ typ: 'alle' }) },
   { label: 'Keine', preset: () => ({ typ: 'keine' }) },
   { label: 'Erste & Letzte', preset: () => ({ typ: 'erste_und_letzte' }) },
 ]
+
+const THEMEN: Thema[] = ['Ernährung', 'Stadtgrün', 'Mobilität', 'Energie']
 
 export function ReihenEditor({
   reihe,
@@ -21,7 +23,10 @@ export function ReihenEditor({
   onPresetApply: (preset: BesetzungsPreset) => void
   onEinheitAdd: () => void
   onEinheitRemove: (einheitId: string) => void
-  onEinheitFelderChange: (einheitId: string, patch: { datum_oder_kw?: string; kontaktzeit_h?: number }) => void
+  onEinheitFelderChange: (
+    einheitId: string,
+    patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema }
+  ) => void
 }) {
   const [n, setN] = useState(1)
   const anteil = berechneUnserAnteil(reihe.einheiten)
@@ -48,7 +53,8 @@ export function ReihenEditor({
           <tr>
             <th>#</th>
             <th>Datum/KW</th>
-            <th>Kontaktzeit (min)</th>
+            <th>Unterrichtszeit (min)</th>
+            <th>Thema</th>
             <th>Wir begleiten</th>
             <th></th>
           </tr>
@@ -75,6 +81,22 @@ export function ReihenEditor({
                   onChange={(ev) => onEinheitFelderChange(e.id, { kontaktzeit_h: Number(ev.target.value) / 60 })}
                   style={{ width: '5rem' }}
                 />
+              </td>
+              <td>
+                <select
+                  aria-label={`Thema für Termin ${e.index} in ${reihe.titel}`}
+                  value={e.thema ?? ''}
+                  onChange={(ev) =>
+                    onEinheitFelderChange(e.id, { thema: ev.target.value === '' ? undefined : (ev.target.value as Thema) })
+                  }
+                >
+                  <option value="">— kein Thema —</option>
+                  {THEMEN.map((thema) => (
+                    <option key={thema} value={thema}>
+                      {thema}
+                    </option>
+                  ))}
+                </select>
               </td>
               <td>
                 <input

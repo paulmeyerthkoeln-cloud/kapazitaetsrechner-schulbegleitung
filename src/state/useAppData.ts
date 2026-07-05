@@ -84,7 +84,7 @@ export function useAppData() {
   function setEinheitFelder(
     reiheId: string,
     einheitId: string,
-    patch: Partial<Pick<Einheit, 'datum_oder_kw' | 'kontaktzeit_h'>>
+    patch: Partial<Pick<Einheit, 'datum_oder_kw' | 'kontaktzeit_h' | 'thema'>>
   ) {
     setData((prev) => ({
       ...prev,

@@ -80,4 +80,22 @@ describe('ReihenEditor', () => {
     fireEvent.click(screen.getByText('+ Termin hinzufügen'))
     expect(props.onEinheitAdd).toHaveBeenCalled()
   })
+
+  it('labels the Kontaktzeit column as Unterrichtszeit', () => {
+    renderReihenEditor()
+    expect(screen.getByText('Unterrichtszeit (min)')).toBeInTheDocument()
+  })
+
+  it('defaults the Thema select to "— kein Thema —" when the Einheit has no thema', () => {
+    renderReihenEditor()
+    const thema1 = screen.getByRole('combobox', { name: 'Thema für Termin 1 in Testreihe' }) as HTMLSelectElement
+    expect(thema1.value).toBe('')
+  })
+
+  it('calls onEinheitFelderChange with the selected Thema', () => {
+    const props = renderReihenEditor()
+    const thema1 = screen.getByRole('combobox', { name: 'Thema für Termin 1 in Testreihe' })
+    fireEvent.change(thema1, { target: { value: 'Mobilität' } })
+    expect(props.onEinheitFelderChange).toHaveBeenCalledWith('e1', { thema: 'Mobilität' })
+  })
 })

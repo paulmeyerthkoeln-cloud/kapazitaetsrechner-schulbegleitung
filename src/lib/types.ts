@@ -42,6 +42,8 @@ export interface Kalender {
 
 export type EinheitTyp = 'regulaer' | 'exkursion'
 
+export type Thema = 'Ernährung' | 'Stadtgrün' | 'Mobilität' | 'Energie'
+
 export interface Einheit {
   id: string
   index: number
@@ -52,6 +54,7 @@ export interface Einheit {
   wir_begleiten: boolean
   typ: EinheitTyp
   organisationspauschale_h?: number
+  thema?: Thema
 }
 
 export interface Muster {

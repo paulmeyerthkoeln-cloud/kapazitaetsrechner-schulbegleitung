@@ -1,6 +1,6 @@
 import { SchuleAkkordionItem } from './SchuleAkkordionItem'
 import { wendeBesetzungPreset } from '../lib/besetzung'
-import type { BesetzungsPreset, Schule, Settings } from '../lib/types'
+import type { BesetzungsPreset, Schule, Settings, Thema } from '../lib/types'
 import './SchulenAccordion.css'
 
 export function SchulenAccordion({
@@ -21,7 +21,7 @@ export function SchulenAccordion({
   onEinheitFelderChange: (
     reiheId: string,
     einheitId: string,
-    patch: { datum_oder_kw?: string; kontaktzeit_h?: number }
+    patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema }
   ) => void
 }) {
   function onPresetApply(reiheId: string, preset: BesetzungsPreset) {

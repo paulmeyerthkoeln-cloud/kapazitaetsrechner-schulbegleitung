@@ -1,5 +1,5 @@
 import { ReihenEditor } from './ReihenEditor'
-import type { BesetzungsPreset, Schule, Settings } from '../lib/types'
+import type { BesetzungsPreset, Schule, Settings, Thema } from '../lib/types'
 
 export function SchuleAkkordionItem({
   schule,
@@ -21,7 +21,7 @@ export function SchuleAkkordionItem({
   onEinheitFelderChange: (
     reiheId: string,
     einheitId: string,
-    patch: { datum_oder_kw?: string; kontaktzeit_h?: number }
+    patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema }
   ) => void
 }) {
   return (
