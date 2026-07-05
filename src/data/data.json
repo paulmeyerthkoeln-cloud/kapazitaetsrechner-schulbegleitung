@@ -110,10 +110,10 @@
           "extern_betreut": false,
           "terminstatus": "teilweise_festgelegt",
           "einheiten": [
-            { "id": "el_parisa_e1", "index": 1, "datum_oder_kw": "2026-09-08", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": true, "typ": "regulaer" },
-            { "id": "el_parisa_e2", "index": 2, "datum_oder_kw": "2026-09-15", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": false, "typ": "regulaer" },
-            { "id": "el_parisa_e3", "index": 3, "datum_oder_kw": "2026-09-22", "kontaktzeit_h": 4, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": true, "typ": "exkursion", "organisationspauschale_h": 2 },
-            { "id": "el_parisa_e4", "index": 4, "datum_oder_kw": "2026-09-29", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": false, "typ": "regulaer" }
+            { "id": "el_parisa_e1", "index": 1, "datum_oder_kw": "2026-09-08", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": true, "typ": "regulaer", "thema": "Mobilität" },
+            { "id": "el_parisa_e2", "index": 2, "datum_oder_kw": "2026-09-15", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": false, "typ": "regulaer", "thema": "Mobilität" },
+            { "id": "el_parisa_e3", "index": 3, "datum_oder_kw": "2026-09-22", "kontaktzeit_h": 4, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": true, "typ": "exkursion", "organisationspauschale_h": 2, "thema": "Mobilität" },
+            { "id": "el_parisa_e4", "index": 4, "datum_oder_kw": "2026-09-29", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": false, "typ": "regulaer", "thema": "Mobilität" }
           ]
         },
         {
@@ -125,12 +125,12 @@
           "extern_betreut": false,
           "terminstatus": "teilweise_festgelegt",
           "einheiten": [
-            { "id": "el_simone_e1", "index": 1, "datum_oder_kw": "2027-01-11", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": true, "typ": "regulaer" },
-            { "id": "el_simone_e2", "index": 2, "datum_oder_kw": "2027-01-18", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
-            { "id": "el_simone_e3", "index": 3, "datum_oder_kw": "2027-01-25", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
-            { "id": "el_simone_e4", "index": 4, "datum_oder_kw": "2027-02-01", "kontaktzeit_h": 4, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": false, "typ": "exkursion", "organisationspauschale_h": 2 },
-            { "id": "el_simone_e5", "index": 5, "datum_oder_kw": "2027-02-08", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": false, "typ": "regulaer" },
-            { "id": "el_simone_e6", "index": 6, "datum_oder_kw": "2027-02-15", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": false, "typ": "regulaer" }
+            { "id": "el_simone_e1", "index": 1, "datum_oder_kw": "2027-01-11", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": true, "typ": "regulaer", "thema": "Ernährung" },
+            { "id": "el_simone_e2", "index": 2, "datum_oder_kw": "2027-01-18", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer", "thema": "Ernährung" },
+            { "id": "el_simone_e3", "index": 3, "datum_oder_kw": "2027-01-25", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer", "thema": "Ernährung" },
+            { "id": "el_simone_e4", "index": 4, "datum_oder_kw": "2027-02-01", "kontaktzeit_h": 4, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": false, "typ": "exkursion", "organisationspauschale_h": 2, "thema": "Ernährung" },
+            { "id": "el_simone_e5", "index": 5, "datum_oder_kw": "2027-02-08", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": false, "typ": "regulaer", "thema": "Ernährung" },
+            { "id": "el_simone_e6", "index": 6, "datum_oder_kw": "2027-02-15", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": false, "typ": "regulaer", "thema": "Ernährung" }
           ]
         },
         {

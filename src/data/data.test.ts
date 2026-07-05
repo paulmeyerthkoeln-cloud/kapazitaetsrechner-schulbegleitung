@@ -61,4 +61,13 @@ describe('seed data.json', () => {
       expect(schule.reihen.every((r) => r.terminstatus === 'teilweise_festgelegt')).toBe(true)
     }
   })
+
+  it('assigns Mobilität to the Parisa Einheiten and Ernährung to the Simone Einheiten at Else Lasker', () => {
+    const d = data as Datenbestand
+    const elseLasker = d.schulen.find((s) => s.id === 'else_lasker')!
+    const parisa = elseLasker.reihen.find((r) => r.id === 'reihe_else_lasker_parisa')!
+    const simone = elseLasker.reihen.find((r) => r.id === 'reihe_else_lasker_simone')!
+    expect(parisa.einheiten.every((e) => e.thema === 'Mobilität')).toBe(true)
+    expect(simone.einheiten.every((e) => e.thema === 'Ernährung')).toBe(true)
+  })
 })
