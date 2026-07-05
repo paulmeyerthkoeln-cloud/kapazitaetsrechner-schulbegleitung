@@ -1,4 +1,5 @@
 import './WochenHeatmap.css'
+import { formatWochenspanne } from '../lib/kalenderwochen'
 import type { WochenErgebnis } from '../lib/berechnung'
 
 export function WochenHeatmap({
@@ -14,7 +15,7 @@ export function WochenHeatmap({
         <button
           key={w.wochenKey}
           className={`wochen-heatmap-zelle ${w.istFerien ? 'ferien' : w.ampel}`}
-          title={w.istFerien ? `Ferien: ${w.ferienName}` : `${w.wochenKey}: ${Math.round(w.auslastung * 100)}%`}
+          title={w.istFerien ? `Ferien: ${w.ferienName}` : `${formatWochenspanne(w.wochenKey)}: ${Math.round(w.auslastung * 100)}%`}
           onClick={() => onWocheClick?.(w.wochenKey)}
         />
       ))}

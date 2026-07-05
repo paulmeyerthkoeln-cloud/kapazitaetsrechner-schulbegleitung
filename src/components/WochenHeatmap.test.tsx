@@ -21,9 +21,9 @@ function woche(overrides: Partial<WochenErgebnis> = {}): WochenErgebnis {
 }
 
 describe('WochenHeatmap', () => {
-  it('shows the auslastung percentage in the title for a regular week', () => {
+  it('shows the auslastung percentage with a date-range title for a regular week', () => {
     render(<WochenHeatmap wochen={[woche()]} />)
-    expect(screen.getByTitle('2026-KW46: 41%')).toBeInTheDocument()
+    expect(screen.getByTitle('09.11.–15.11.2026: 41%')).toBeInTheDocument()
   })
 
   it('shows the Ferienname instead of a percentage for a Ferienwoche', () => {
