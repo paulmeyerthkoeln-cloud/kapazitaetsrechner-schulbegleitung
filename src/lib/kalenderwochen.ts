@@ -39,7 +39,7 @@ export function alleWochenImZeitraum(start: string, ende: string): Date[] {
 export function expandiereMuster(muster: Muster, reiheId: string, ferien: FerienZeitraum[]): Einheit[] {
   const einheiten: Einheit[] = []
   let cursor = parseISO(muster.von)
-  const ende = parseISO(muster.bis)
+  const ende = parseISO(muster.bis!)
   let index = 0
   while (cursor <= ende) {
     if (!istWocheInFerien(cursor, ferien)) {
@@ -87,4 +87,33 @@ export function formatWochenspanne(wochenKey: string): string {
   const montag = startOfISOWeek(referenz)
   const sonntag = endOfISOWeek(referenz)
   return `${format(montag, 'dd.MM.')}–${format(sonntag, 'dd.MM.yyyy')}`
+}
+
+export function generiereWochentlicheTermine(
+  reiheId: string,
+  startdatum: string,
+  unterrichtszeitH: number,
+  anzahlTermine: number,
+  ferien: FerienZeitraum[]
+): Einheit[] {
+  const einheiten: Einheit[] = []
+  let cursor = parseISO(startdatum)
+  let index = 0
+  while (index < anzahlTermine) {
+    if (!istWocheInFerien(cursor, ferien)) {
+      index += 1
+      einheiten.push({
+        id: `${reiheId}_termin_${index}`,
+        index,
+        datum_oder_kw: format(cursor, 'yyyy-MM-dd'),
+        kontaktzeit_h: unterrichtszeitH,
+        personen_parallel: 1,
+        erstdurchfuehrung: index === 1,
+        wir_begleiten: true,
+        typ: 'regulaer',
+      })
+    }
+    cursor = addWeeks(cursor, 1)
+  }
+  return einheiten
 }

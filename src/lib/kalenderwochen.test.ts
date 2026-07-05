@@ -9,6 +9,7 @@ import {
   berechneReiheZeitraum,
   ermittleFerienName,
   formatWochenspanne,
+  generiereWochentlicheTermine,
 } from './kalenderwochen'
 import type { FerienZeitraum, Muster, Reihe } from './types'
 
@@ -151,5 +152,29 @@ describe('formatWochenspanne', () => {
 
   it('returns the input unchanged when it is not a valid KW key', () => {
     expect(formatWochenspanne('nicht-ein-schluessel')).toBe('nicht-ein-schluessel')
+  })
+})
+
+describe('generiereWochentlicheTermine', () => {
+  it('generates exactly anzahlTermine weekly Einheiten, skipping Ferienwochen without counting them', () => {
+    const einheiten = generiereWochentlicheTermine('reihe_x', '2026-10-12', 1.5, 3, [herbstferien])
+    expect(einheiten).toHaveLength(3)
+    expect(einheiten.map((e) => e.datum_oder_kw)).toEqual(['2026-11-02', '2026-11-09', '2026-11-16'])
+    expect(einheiten.map((e) => e.index)).toEqual([1, 2, 3])
+  })
+
+  it('marks only the first generated Termin as erstdurchfuehrung', () => {
+    const einheiten = generiereWochentlicheTermine('reihe_x', '2026-09-07', 1.5, 3, [])
+    expect(einheiten.map((e) => e.erstdurchfuehrung)).toEqual([true, false, false])
+  })
+
+  it('uses the given unterrichtszeitH as kontaktzeit_h for every generated Termin', () => {
+    const einheiten = generiereWochentlicheTermine('reihe_x', '2026-09-07', 2, 2, [])
+    expect(einheiten.every((e) => e.kontaktzeit_h === 2)).toBe(true)
+  })
+
+  it('ids each generated Termin uniquely using the reiheId and its position', () => {
+    const einheiten = generiereWochentlicheTermine('reihe_test', '2026-09-07', 1.5, 2, [])
+    expect(einheiten.map((e) => e.id)).toEqual(['reihe_test_termin_1', 'reihe_test_termin_2'])
   })
 })

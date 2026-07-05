@@ -60,7 +60,8 @@ export interface Einheit {
 export interface Muster {
   typ: 'woechentlich'
   von: string
-  bis: string
+  bis?: string
+  anzahl_termine?: number
   kontaktzeit_h: number
 }
 
