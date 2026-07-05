@@ -37,4 +37,28 @@ describe('seed data.json', () => {
     const parisa = elseLasker.reihen.find((r) => r.id === 'reihe_else_lasker_parisa')!
     expect(parisa.einheiten.map((e) => e.wir_begleiten)).toEqual([true, false, true, false])
   })
+
+  it('marks Sedanstraße and Kothen as terminstatus "offen" since no real dates were given', () => {
+    const d = data as Datenbestand
+    const sedanstrasse = d.schulen.find((s) => s.id === 'sedanstrasse')!
+    const kothen = d.schulen.find((s) => s.id === 'kothen')!
+    expect(sedanstrasse.reihen[0].terminstatus).toBe('offen')
+    expect(kothen.reihen[0].terminstatus).toBe('offen')
+  })
+
+  it('marks WDG, Berufskolleg Barmen, Hügelstraße, and Alexander Coppel as terminstatus "festgelegt"', () => {
+    const d = data as Datenbestand
+    for (const id of ['wdg', 'berufskolleg_barmen', 'huegelstrasse', 'alexander_coppel']) {
+      const schule = d.schulen.find((s) => s.id === id)!
+      expect(schule.reihen.every((r) => r.terminstatus === 'festgelegt')).toBe(true)
+    }
+  })
+
+  it('marks Else Lasker, Max Planck, and Bayreuther Gymnasium as terminstatus "teilweise_festgelegt"', () => {
+    const d = data as Datenbestand
+    for (const id of ['else_lasker', 'max_planck', 'bayreuther_gymnasium']) {
+      const schule = d.schulen.find((s) => s.id === id)!
+      expect(schule.reihen.every((r) => r.terminstatus === 'teilweise_festgelegt')).toBe(true)
+    }
+  })
 })

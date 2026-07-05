@@ -9,7 +9,7 @@ const reihe: Reihe = {
   betreuungsmodell: 'A',
   fahrzeit_h: 1,
   status: 'zugesagt',
-  extern_betreut: false,
+  extern_betreut: false, terminstatus: 'festgelegt',
   einheiten: [
     {
       id: 'e1',

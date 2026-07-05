@@ -35,6 +35,7 @@
           "fahrzeit_h": 1.0,
           "status": "zugesagt",
           "extern_betreut": false,
+          "terminstatus": "festgelegt",
           "einheiten": [
             { "id": "wdg_e1", "index": 1, "datum_oder_kw": "2026-KW46", "kontaktzeit_h": 4, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": true, "typ": "regulaer" },
             { "id": "wdg_e2", "index": 2, "datum_oder_kw": "2026-KW48", "kontaktzeit_h": 4, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": true, "typ": "regulaer" },
@@ -55,6 +56,7 @@
           "fahrzeit_h": 0.5,
           "status": "zugesagt",
           "extern_betreut": false,
+          "terminstatus": "offen",
           "einheiten": [
             { "id": "sedan_e1", "index": 1, "datum_oder_kw": "2026-09-07", "kontaktzeit_h": 1.5, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": true, "typ": "regulaer" },
             { "id": "sedan_e2", "index": 2, "datum_oder_kw": "2026-09-14", "kontaktzeit_h": 1.5, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
@@ -83,6 +85,7 @@
           "fahrzeit_h": 1.0,
           "status": "in_klaerung",
           "extern_betreut": false,
+          "terminstatus": "offen",
           "einheiten": [
             { "id": "kothen_e1", "index": 1, "datum_oder_kw": "2026-10-05", "kontaktzeit_h": 1.5, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": true, "typ": "regulaer" },
             { "id": "kothen_e2", "index": 2, "datum_oder_kw": "2026-10-12", "kontaktzeit_h": 1.5, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
@@ -105,6 +108,7 @@
           "fahrzeit_h": 1.0,
           "status": "zugesagt",
           "extern_betreut": false,
+          "terminstatus": "teilweise_festgelegt",
           "einheiten": [
             { "id": "el_parisa_e1", "index": 1, "datum_oder_kw": "2026-09-08", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": true, "typ": "regulaer" },
             { "id": "el_parisa_e2", "index": 2, "datum_oder_kw": "2026-09-15", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": false, "typ": "regulaer" },
@@ -119,6 +123,7 @@
           "fahrzeit_h": 1.0,
           "status": "zugesagt",
           "extern_betreut": false,
+          "terminstatus": "teilweise_festgelegt",
           "einheiten": [
             { "id": "el_simone_e1", "index": 1, "datum_oder_kw": "2027-01-11", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": true, "typ": "regulaer" },
             { "id": "el_simone_e2", "index": 2, "datum_oder_kw": "2027-01-18", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
@@ -135,6 +140,7 @@
           "fahrzeit_h": 1.0,
           "status": "zugesagt",
           "extern_betreut": false,
+          "terminstatus": "teilweise_festgelegt",
           "einheiten": [
             { "id": "el_olaf_e1", "index": 1, "datum_oder_kw": "2026-09-14", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": true, "typ": "regulaer" },
             { "id": "el_olaf_e2", "index": 2, "datum_oder_kw": "2026-10-12", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
@@ -159,6 +165,7 @@
           "fahrzeit_h": 1.0,
           "status": "zugesagt",
           "extern_betreut": false,
+          "terminstatus": "festgelegt",
           "einheiten": [
             { "id": "barmen_w1_t1", "index": 1, "datum_oder_kw": "2027-01-18", "kontaktzeit_h": 4.5, "personen_parallel": 2, "erstdurchfuehrung": true, "wir_begleiten": true, "typ": "regulaer" },
             { "id": "barmen_w1_t2", "index": 2, "datum_oder_kw": "2027-01-19", "kontaktzeit_h": 4.5, "personen_parallel": 2, "erstdurchfuehrung": true, "wir_begleiten": true, "typ": "regulaer" },
@@ -183,6 +190,7 @@
           "fahrzeit_h": 1.0,
           "status": "zugesagt",
           "extern_betreut": false,
+          "terminstatus": "festgelegt",
           "einheiten": [
             { "id": "coppel_e1", "index": 1, "datum_oder_kw": "2026-09-21", "kontaktzeit_h": 1.1, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": true, "typ": "regulaer" },
             { "id": "coppel_e2", "index": 2, "datum_oder_kw": "2026-10-19", "kontaktzeit_h": 1.1, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
@@ -210,6 +218,7 @@
           "fahrzeit_h": 0,
           "status": "zugesagt",
           "extern_betreut": true,
+          "terminstatus": "festgelegt",
           "einheiten": [
             { "id": "huegel_e1", "index": 1, "datum_oder_kw": "2026-09-14", "kontaktzeit_h": 0, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": false, "typ": "regulaer" },
             { "id": "huegel_e2", "index": 2, "datum_oder_kw": "2027-01-11", "kontaktzeit_h": 0, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": false, "typ": "regulaer" },
@@ -229,6 +238,7 @@
           "fahrzeit_h": 1.0,
           "status": "zugesagt",
           "extern_betreut": false,
+          "terminstatus": "teilweise_festgelegt",
           "sperrzeiten": [
             { "name": "Praktikum (3 Wochen nach den Osterferien)", "von": "2027-04-05", "bis": "2027-04-25" }
           ],
@@ -256,6 +266,7 @@
           "fahrzeit_h": 1.0,
           "status": "zugesagt",
           "extern_betreut": false,
+          "terminstatus": "teilweise_festgelegt",
           "einheiten": [
             { "id": "bayreuther_e1", "index": 1, "datum_oder_kw": "2026-09-14", "kontaktzeit_h": 3, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": true, "typ": "regulaer" },
             { "id": "bayreuther_e2", "index": 2, "datum_oder_kw": "2027-01-18", "kontaktzeit_h": 3, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": true, "typ": "regulaer" }
@@ -274,6 +285,7 @@
           "fahrzeit_h": 1.0,
           "status": "platzhalter",
           "extern_betreut": false,
+          "terminstatus": "festgelegt",
           "einheiten": [
             { "id": "schulex_e1", "index": 1, "datum_oder_kw": "2027-04-12", "kontaktzeit_h": 1.5, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": true, "typ": "regulaer" },
             { "id": "schulex_e2", "index": 2, "datum_oder_kw": "2027-04-19", "kontaktzeit_h": 1.5, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },

@@ -33,11 +33,12 @@ export function berechneBedarfProWoche(
   let einsatzBedarf = 0
   let koordinationBedarf = 0
   for (const schule of data.schulen) {
-    const istSchuleAktiv = schule.reihen.some((reihe) => {
+    const zaehlendeReihen = schule.reihen.filter((reihe) => reihe.terminstatus !== 'offen')
+    const istSchuleAktiv = zaehlendeReihen.some((reihe) => {
       const zeitraum = berechneReiheZeitraum(reihe)
       return zeitraum !== null && zeitraum.von <= wochenKey && wochenKey <= zeitraum.bis
     })
-    for (const reihe of schule.reihen) {
+    for (const reihe of zaehlendeReihen) {
       for (const einheit of reihe.einheiten) {
         if (parseZuWochenKey(einheit.datum_oder_kw) !== wochenKey) continue
         if (einheit.wir_begleiten) {

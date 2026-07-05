@@ -17,8 +17,8 @@ const schule: Schule = {
   id: 's1',
   name: 'Else Lasker',
   reihen: [
-    { id: 'r1', titel: 'Reihe Eins', betreuungsmodell: 'A', fahrzeit_h: 1, status: 'zugesagt', extern_betreut: false, einheiten: [] },
-    { id: 'r2', titel: 'Reihe Zwei', betreuungsmodell: 'C', fahrzeit_h: 0, status: 'in_klaerung', extern_betreut: false, einheiten: [] },
+    { id: 'r1', titel: 'Reihe Eins', betreuungsmodell: 'A', fahrzeit_h: 1, status: 'zugesagt', extern_betreut: false, terminstatus: 'festgelegt', einheiten: [] },
+    { id: 'r2', titel: 'Reihe Zwei', betreuungsmodell: 'C', fahrzeit_h: 0, status: 'in_klaerung', extern_betreut: false, terminstatus: 'festgelegt', einheiten: [] },
   ],
 }
 

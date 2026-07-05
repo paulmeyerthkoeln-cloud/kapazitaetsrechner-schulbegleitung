@@ -38,7 +38,7 @@ export function pruefeStartmonate(
           betreuungsmodell: 'B' as const,
           fahrzeit_h: konfiguration.fahrzeit_h,
           status: 'platzhalter',
-          extern_betreut: false,
+          extern_betreut: false, terminstatus: 'festgelegt' as const,
           einheiten,
         },
       ],

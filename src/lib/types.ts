@@ -72,6 +72,8 @@ export type BesetzungsPreset =
 
 export type Betreuungsmodell = 'A' | 'B' | 'C' | 'X'
 
+export type Terminstatus = 'festgelegt' | 'teilweise_festgelegt' | 'offen'
+
 export interface Reihe {
   id: string
   titel: string
@@ -79,6 +81,7 @@ export interface Reihe {
   fahrzeit_h: number
   status: string
   extern_betreut: boolean
+  terminstatus: Terminstatus
   einheiten: Einheit[]
   muster?: Muster
   besetzung?: BesetzungsPreset

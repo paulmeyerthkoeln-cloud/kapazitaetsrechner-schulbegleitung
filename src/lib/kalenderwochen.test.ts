@@ -93,7 +93,7 @@ describe('berechneReiheZeitraum', () => {
     betreuungsmodell: 'A',
     fahrzeit_h: 0,
     status: 'zugesagt',
-    extern_betreut: false,
+    extern_betreut: false, terminstatus: 'festgelegt',
     einheiten: [],
   }
 
