@@ -1,7 +1,7 @@
 # Kapazitätsrechner Schulbegleitung
 
 Lokales Planungstool für das Projekt „Zukunft Wuppertal – Schulen gestalten Wandel".
-Spezifikation: `../docs/superpowers/specs/2026-07-02-berechnungstool-kapazitaetsrechner-design.md`
+Spezifikation: `docs/superpowers/specs/2026-07-02-berechnungstool-kapazitaetsrechner-design.md`
 
 ## Starten
 
