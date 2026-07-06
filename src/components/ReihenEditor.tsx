@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
-import { berechneUnserAnteil } from '../lib/besetzung'
+import { berechneUnserAnteil, ermittleHaeufigsteKontaktzeit } from '../lib/besetzung'
 import type { BesetzungsPreset, Reihe, Terminstatus, Thema } from '../lib/types'
 
 const PRESETS: { label: string; preset: (n: number) => BesetzungsPreset }[] = [
@@ -36,7 +36,10 @@ export function ReihenEditor({
   const [n, setN] = useState(1)
   const anteil = berechneUnserAnteil(reihe.einheiten)
   const [schnellStartdatum, setSchnellStartdatum] = useState(format(new Date(), 'yyyy-MM-dd'))
-  const [schnellUnterrichtszeitMin, setSchnellUnterrichtszeitMin] = useState(90)
+  const [schnellUnterrichtszeitMin, setSchnellUnterrichtszeitMin] = useState(() => {
+    const haeufigste = ermittleHaeufigsteKontaktzeit(reihe.einheiten)
+    return haeufigste !== null ? Math.round(haeufigste * 60) : 90
+  })
   const [schnellAnzahlTermine, setSchnellAnzahlTermine] = useState(reihe.einheiten.length || 1)
 
   function termineGenerieren() {

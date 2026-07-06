@@ -177,4 +177,47 @@ describe('ReihenEditor', () => {
     fireEvent.click(screen.getByText('Termine generieren'))
     expect(props.onTermineGenerieren).toHaveBeenCalled()
   })
+
+  it('defaults the Schnelleinrichtung Unterrichtszeit to the most common existing Kontaktzeit, in minutes', () => {
+    const wdgAehnlicheReihe: Reihe = {
+      ...reihe,
+      einheiten: [
+        { ...reihe.einheiten[0], id: 'w1', kontaktzeit_h: 4 },
+        { ...reihe.einheiten[0], id: 'w2', kontaktzeit_h: 4 },
+        { ...reihe.einheiten[0], id: 'w3', kontaktzeit_h: 1.5 },
+      ],
+    }
+    render(
+      <ReihenEditor
+        reihe={wdgAehnlicheReihe}
+        onEinheitToggle={vi.fn()}
+        onPresetApply={vi.fn()}
+        onEinheitAdd={vi.fn()}
+        onEinheitRemove={vi.fn()}
+        onEinheitFelderChange={vi.fn()}
+        onTerminstatusChange={vi.fn()}
+        onTermineGenerieren={vi.fn()}
+      />
+    )
+    const unterrichtszeit = screen.getByLabelText('Schnelleinrichtung Unterrichtszeit') as HTMLInputElement
+    expect(unterrichtszeit.value).toBe('240')
+  })
+
+  it('falls back to 90 minutes for the Schnelleinrichtung Unterrichtszeit when the Reihe has no Termine yet', () => {
+    const reiheOhneTermine = { ...reihe, einheiten: [] }
+    render(
+      <ReihenEditor
+        reihe={reiheOhneTermine}
+        onEinheitToggle={vi.fn()}
+        onPresetApply={vi.fn()}
+        onEinheitAdd={vi.fn()}
+        onEinheitRemove={vi.fn()}
+        onEinheitFelderChange={vi.fn()}
+        onTerminstatusChange={vi.fn()}
+        onTermineGenerieren={vi.fn()}
+      />
+    )
+    const unterrichtszeit = screen.getByLabelText('Schnelleinrichtung Unterrichtszeit') as HTMLInputElement
+    expect(unterrichtszeit.value).toBe('90')
+  })
 })
