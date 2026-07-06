@@ -110,10 +110,10 @@
           "extern_betreut": false,
           "terminstatus": "teilweise_festgelegt",
           "einheiten": [
-            { "id": "el_parisa_e1", "index": 1, "datum_oder_kw": "2026-09-08", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": true, "typ": "regulaer", "thema": "Mobilität" },
-            { "id": "el_parisa_e2", "index": 2, "datum_oder_kw": "2026-09-15", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": false, "typ": "regulaer", "thema": "Mobilität" },
-            { "id": "el_parisa_e3", "index": 3, "datum_oder_kw": "2026-09-22", "kontaktzeit_h": 4, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": true, "typ": "exkursion", "organisationspauschale_h": 2, "thema": "Mobilität" },
-            { "id": "el_parisa_e4", "index": 4, "datum_oder_kw": "2026-09-29", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": false, "typ": "regulaer", "thema": "Mobilität" }
+            { "id": "el_parisa_e1", "index": 1, "datum_oder_kw": "2026-09-08", "kontaktzeit_h": 1.5, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": true, "typ": "regulaer", "thema": "Mobilität" },
+            { "id": "el_parisa_e2", "index": 2, "datum_oder_kw": "2026-09-15", "kontaktzeit_h": 1.5, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": false, "typ": "regulaer", "thema": "Mobilität" },
+            { "id": "el_parisa_e3", "index": 3, "datum_oder_kw": "2026-09-22", "kontaktzeit_h": 1.5, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": true, "typ": "exkursion", "organisationspauschale_h": 2, "thema": "Mobilität" },
+            { "id": "el_parisa_e4", "index": 4, "datum_oder_kw": "2026-09-29", "kontaktzeit_h": 1.5, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": false, "typ": "regulaer", "thema": "Mobilität" }
           ]
         },
         {
@@ -125,12 +125,12 @@
           "extern_betreut": false,
           "terminstatus": "teilweise_festgelegt",
           "einheiten": [
-            { "id": "el_simone_e1", "index": 1, "datum_oder_kw": "2027-01-11", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": true, "typ": "regulaer", "thema": "Ernährung" },
-            { "id": "el_simone_e2", "index": 2, "datum_oder_kw": "2027-01-18", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer", "thema": "Ernährung" },
-            { "id": "el_simone_e3", "index": 3, "datum_oder_kw": "2027-01-25", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer", "thema": "Ernährung" },
-            { "id": "el_simone_e4", "index": 4, "datum_oder_kw": "2027-02-01", "kontaktzeit_h": 4, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": false, "typ": "exkursion", "organisationspauschale_h": 2, "thema": "Ernährung" },
-            { "id": "el_simone_e5", "index": 5, "datum_oder_kw": "2027-02-08", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": false, "typ": "regulaer", "thema": "Ernährung" },
-            { "id": "el_simone_e6", "index": 6, "datum_oder_kw": "2027-02-15", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": false, "typ": "regulaer", "thema": "Ernährung" }
+            { "id": "el_simone_e1", "index": 1, "datum_oder_kw": "2027-01-11", "kontaktzeit_h": 1.5, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": true, "typ": "regulaer", "thema": "Ernährung" },
+            { "id": "el_simone_e2", "index": 2, "datum_oder_kw": "2027-01-18", "kontaktzeit_h": 1.5, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer", "thema": "Ernährung" },
+            { "id": "el_simone_e3", "index": 3, "datum_oder_kw": "2027-01-25", "kontaktzeit_h": 1.5, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer", "thema": "Ernährung" },
+            { "id": "el_simone_e4", "index": 4, "datum_oder_kw": "2027-02-01", "kontaktzeit_h": 1.5, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": false, "typ": "exkursion", "organisationspauschale_h": 2, "thema": "Ernährung" },
+            { "id": "el_simone_e5", "index": 5, "datum_oder_kw": "2027-02-08", "kontaktzeit_h": 1.5, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": false, "typ": "regulaer", "thema": "Ernährung" },
+            { "id": "el_simone_e6", "index": 6, "datum_oder_kw": "2027-02-15", "kontaktzeit_h": 1.5, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": false, "typ": "regulaer", "thema": "Ernährung" }
           ]
         },
         {
@@ -142,14 +142,14 @@
           "extern_betreut": false,
           "terminstatus": "teilweise_festgelegt",
           "einheiten": [
-            { "id": "el_olaf_e1", "index": 1, "datum_oder_kw": "2026-09-14", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": true, "typ": "regulaer" },
-            { "id": "el_olaf_e2", "index": 2, "datum_oder_kw": "2026-10-12", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
-            { "id": "el_olaf_e3", "index": 3, "datum_oder_kw": "2026-11-09", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
-            { "id": "el_olaf_e4", "index": 4, "datum_oder_kw": "2026-12-07", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
-            { "id": "el_olaf_e5", "index": 5, "datum_oder_kw": "2027-01-11", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
-            { "id": "el_olaf_e6", "index": 6, "datum_oder_kw": "2027-02-08", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
-            { "id": "el_olaf_e7", "index": 7, "datum_oder_kw": "2027-05-10", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
-            { "id": "el_olaf_e8", "index": 8, "datum_oder_kw": "2027-06-07", "kontaktzeit_h": 2, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" }
+            { "id": "el_olaf_e1", "index": 1, "datum_oder_kw": "2026-09-14", "kontaktzeit_h": 1.5, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": true, "typ": "regulaer" },
+            { "id": "el_olaf_e2", "index": 2, "datum_oder_kw": "2026-10-12", "kontaktzeit_h": 1.5, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
+            { "id": "el_olaf_e3", "index": 3, "datum_oder_kw": "2026-11-09", "kontaktzeit_h": 1.5, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
+            { "id": "el_olaf_e4", "index": 4, "datum_oder_kw": "2026-12-07", "kontaktzeit_h": 1.5, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
+            { "id": "el_olaf_e5", "index": 5, "datum_oder_kw": "2027-01-11", "kontaktzeit_h": 1.5, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
+            { "id": "el_olaf_e6", "index": 6, "datum_oder_kw": "2027-02-08", "kontaktzeit_h": 1.5, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
+            { "id": "el_olaf_e7", "index": 7, "datum_oder_kw": "2027-05-10", "kontaktzeit_h": 1.5, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
+            { "id": "el_olaf_e8", "index": 8, "datum_oder_kw": "2027-06-07", "kontaktzeit_h": 1.5, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" }
           ]
         }
       ]
@@ -192,16 +192,16 @@
           "extern_betreut": false,
           "terminstatus": "festgelegt",
           "einheiten": [
-            { "id": "coppel_e1", "index": 1, "datum_oder_kw": "2026-09-21", "kontaktzeit_h": 1.1, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": true, "typ": "regulaer" },
-            { "id": "coppel_e2", "index": 2, "datum_oder_kw": "2026-10-19", "kontaktzeit_h": 1.1, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
-            { "id": "coppel_e3", "index": 3, "datum_oder_kw": "2026-11-16", "kontaktzeit_h": 1.1, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
-            { "id": "coppel_e4", "index": 4, "datum_oder_kw": "2026-12-14", "kontaktzeit_h": 1.1, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
-            { "id": "coppel_e5", "index": 5, "datum_oder_kw": "2027-01-18", "kontaktzeit_h": 1.1, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
-            { "id": "coppel_e6", "index": 6, "datum_oder_kw": "2027-02-15", "kontaktzeit_h": 1.1, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
-            { "id": "coppel_e7", "index": 7, "datum_oder_kw": "2027-03-15", "kontaktzeit_h": 1.1, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
-            { "id": "coppel_e8", "index": 8, "datum_oder_kw": "2027-04-19", "kontaktzeit_h": 1.1, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
-            { "id": "coppel_e9", "index": 9, "datum_oder_kw": "2027-05-17", "kontaktzeit_h": 1.1, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
-            { "id": "coppel_e10", "index": 10, "datum_oder_kw": "2027-06-14", "kontaktzeit_h": 1.1, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" }
+            { "id": "coppel_e1", "index": 1, "datum_oder_kw": "2026-09-21", "kontaktzeit_h": 1.0833333333333333, "personen_parallel": 1, "erstdurchfuehrung": true, "wir_begleiten": true, "typ": "regulaer" },
+            { "id": "coppel_e2", "index": 2, "datum_oder_kw": "2026-10-19", "kontaktzeit_h": 1.0833333333333333, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
+            { "id": "coppel_e3", "index": 3, "datum_oder_kw": "2026-11-16", "kontaktzeit_h": 1.0833333333333333, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
+            { "id": "coppel_e4", "index": 4, "datum_oder_kw": "2026-12-14", "kontaktzeit_h": 1.0833333333333333, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
+            { "id": "coppel_e5", "index": 5, "datum_oder_kw": "2027-01-18", "kontaktzeit_h": 1.0833333333333333, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
+            { "id": "coppel_e6", "index": 6, "datum_oder_kw": "2027-02-15", "kontaktzeit_h": 1.0833333333333333, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
+            { "id": "coppel_e7", "index": 7, "datum_oder_kw": "2027-03-15", "kontaktzeit_h": 1.0833333333333333, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
+            { "id": "coppel_e8", "index": 8, "datum_oder_kw": "2027-04-19", "kontaktzeit_h": 1.0833333333333333, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
+            { "id": "coppel_e9", "index": 9, "datum_oder_kw": "2027-05-17", "kontaktzeit_h": 1.0833333333333333, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" },
+            { "id": "coppel_e10", "index": 10, "datum_oder_kw": "2027-06-14", "kontaktzeit_h": 1.0833333333333333, "personen_parallel": 1, "erstdurchfuehrung": false, "wir_begleiten": true, "typ": "regulaer" }
           ]
         }
       ]

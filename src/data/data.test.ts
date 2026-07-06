@@ -70,4 +70,33 @@ describe('seed data.json', () => {
     expect(parisa.einheiten.every((e) => e.thema === 'Mobilität')).toBe(true)
     expect(simone.einheiten.every((e) => e.thema === 'Ernährung')).toBe(true)
   })
+
+  it('sets Alexander-Coppel Unterrichtszeit to exactly 65 minutes per Termin', () => {
+    const d = data as Datenbestand
+    const coppel = d.schulen.find((s) => s.id === 'alexander_coppel')!
+    expect(coppel.reihen[0].einheiten.every((e) => Math.round(e.kontaktzeit_h * 60) === 65)).toBe(true)
+  })
+
+  it('sets every Else-Lasker Termin (including the Exkursionen) to 90 minutes Unterrichtszeit', () => {
+    const d = data as Datenbestand
+    const elseLasker = d.schulen.find((s) => s.id === 'else_lasker')!
+    for (const reihe of elseLasker.reihen) {
+      expect(reihe.einheiten.every((e) => e.kontaktzeit_h === 1.5)).toBe(true)
+    }
+  })
+
+  it('leaves the Exkursions-Organisationspauschale at Else Lasker unchanged', () => {
+    const d = data as Datenbestand
+    const elseLasker = d.schulen.find((s) => s.id === 'else_lasker')!
+    const parisa = elseLasker.reihen.find((r) => r.id === 'reihe_else_lasker_parisa')!
+    const simone = elseLasker.reihen.find((r) => r.id === 'reihe_else_lasker_simone')!
+    expect(parisa.einheiten.find((e) => e.id === 'el_parisa_e3')?.organisationspauschale_h).toBe(2)
+    expect(simone.einheiten.find((e) => e.id === 'el_simone_e4')?.organisationspauschale_h).toBe(2)
+  })
+
+  it('leaves WDG Unterrichtszeit at 4 Stunden per Termin', () => {
+    const d = data as Datenbestand
+    const wdg = d.schulen.find((s) => s.id === 'wdg')!
+    expect(wdg.reihen[0].einheiten.every((e) => e.kontaktzeit_h === 4)).toBe(true)
+  })
 })
