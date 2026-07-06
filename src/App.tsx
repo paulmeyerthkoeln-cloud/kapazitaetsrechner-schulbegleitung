@@ -29,7 +29,8 @@ export default function App() {
     sensitivitaet,
     setSensitivitaet,
     ergebnis,
-    themenUebersicht,
+    themenGanttZeilen,
+    ferienWarnungen,
     exportJson,
     importJson,
     importError,
@@ -60,7 +61,7 @@ export default function App() {
         <EngpassBericht topEngpaesse={ergebnis.machbarkeit.topEngpaesse} />
       </div>
       <div className="card">
-        <ThemenUebersicht zeilen={themenUebersicht} />
+        <ThemenUebersicht zeilen={themenGanttZeilen} wochen={ergebnis.wochen} ferienWarnungen={ferienWarnungen} />
       </div>
       <h2>Schulen</h2>
       <SchulenAccordion

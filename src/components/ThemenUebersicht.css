@@ -1,0 +1,65 @@
+.themen-warnung {
+  background: #fff3cd;
+  border: 1px solid #e1a100;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.themen-warnung ul {
+  margin: 0.25rem 0 0;
+  padding-left: 1.25rem;
+}
+
+.themen-gantt-scroll {
+  overflow-x: auto;
+  padding: 0.5rem 0;
+}
+
+.themen-gantt-grid {
+  display: grid;
+}
+
+.themen-gantt-ecke {
+  position: sticky;
+  left: 0;
+  background: #fff;
+}
+
+.themen-gantt-kw {
+  font-size: 0.75rem;
+  text-align: center;
+  color: #555;
+  border-bottom: 1px solid #d0d0d0;
+  padding-bottom: 0.25rem;
+}
+
+.themen-gantt-label {
+  position: sticky;
+  left: 0;
+  background: #fff;
+  padding-right: 0.5rem;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  z-index: 1;
+}
+
+.themen-gantt-ferien-band {
+  background: repeating-linear-gradient(45deg, #cccccc, #cccccc 4px, #e8e8e8 4px, #e8e8e8 8px);
+}
+
+.themen-gantt-balken {
+  display: flex;
+  align-items: center;
+  padding: 0 0.4rem;
+  border-radius: 0.25rem;
+  color: #fff;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0.2rem 0;
+}

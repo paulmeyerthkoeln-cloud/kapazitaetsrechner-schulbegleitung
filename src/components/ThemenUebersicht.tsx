@@ -1,19 +1,33 @@
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import './ThemenUebersicht.css'
 import { formatWochenspanne } from '../lib/kalenderwochen'
-import type { ThemenZeile } from '../lib/themenUebersicht'
+import { berechneFerienBaender } from '../lib/themenUebersicht'
+import type { ThemenGanttZeile } from '../lib/themenUebersicht'
+import type { FerienWarnung } from '../lib/ferienWarnung'
+import type { WochenErgebnis } from '../lib/berechnung'
 import type { Thema } from '../lib/types'
 
-const ALLE_THEMEN: (Thema | 'Ohne Thema')[] = ['Ernährung', 'Stadtgrün', 'Mobilität', 'Energie', 'Ohne Thema']
-
-const THEMEN_FARBEN: Record<Thema | 'Ohne Thema', string> = {
+const THEMEN_FARBEN: Record<Thema | 'ohne', string> = {
   Ernährung: '#e07a5f',
   Stadtgrün: '#3d9970',
   Mobilität: '#4a7fbf',
   Energie: '#e6b800',
-  'Ohne Thema': '#9e9e9e',
+  ohne: '#8a8a8a',
 }
 
-export function ThemenUebersicht({ zeilen }: { zeilen: ThemenZeile[] }) {
+function kwNummer(wochenKey: string): string {
+  const treffer = /^\d{4}-KW(\d{2})$/.exec(wochenKey)
+  return treffer ? treffer[1] : wochenKey
+}
+
+export function ThemenUebersicht({
+  zeilen,
+  wochen,
+  ferienWarnungen,
+}: {
+  zeilen: ThemenGanttZeile[]
+  wochen: WochenErgebnis[]
+  ferienWarnungen: FerienWarnung[]
+}) {
   if (zeilen.length === 0) {
     return (
       <div>
@@ -23,57 +37,72 @@ export function ThemenUebersicht({ zeilen }: { zeilen: ThemenZeile[] }) {
     )
   }
 
-  const wochenKeys = Array.from(new Set(zeilen.map((z) => z.wochenKey))).sort()
-  const chartData = wochenKeys.map((wochenKey) => {
-    const eintrag: Record<string, number | string> = { wochenspanne: formatWochenspanne(wochenKey) }
-    for (const thema of ALLE_THEMEN) {
-      eintrag[thema] = zeilen
-        .filter((z) => z.wochenKey === wochenKey && z.thema === thema)
-        .reduce((summe, z) => summe + z.stunden, 0)
-    }
-    return eintrag
-  })
-  const chartBreite = Math.max(600, wochenKeys.length * 60)
+  const wochenKeys = wochen.map((w) => w.wochenKey)
+  const indexVon = new Map(wochenKeys.map((key, i) => [key, i]))
+  const ferienBaender = berechneFerienBaender(wochen)
 
   return (
     <div>
       <h3>Themen-Übersicht</h3>
-      <div style={{ overflowX: 'auto' }}>
-        <div style={{ width: `${chartBreite}px`, height: '20rem' }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="wochenspanne" angle={-45} textAnchor="end" height={70} interval={0} />
-              <YAxis label={{ value: 'Stunden', angle: -90, position: 'insideLeft' }} />
-              <Tooltip />
-              <Legend />
-              {ALLE_THEMEN.map((thema) => (
-                <Bar key={thema} dataKey={thema} stackId="themen" fill={THEMEN_FARBEN[thema]} />
-              ))}
-            </BarChart>
-          </ResponsiveContainer>
+      {ferienWarnungen.length > 0 && (
+        <div className="themen-warnung">
+          ⚠️ {ferienWarnungen.length} Termin{ferienWarnungen.length === 1 ? '' : 'e'}{' '}
+          {ferienWarnungen.length === 1 ? 'liegt' : 'liegen'} in den Ferien:
+          <ul>
+            {ferienWarnungen.map((w, i) => (
+              <li key={i}>
+                {w.schule} – {w.reiheTitel}, Termin {w.einheitIndex} ({w.datumOderKw}, {w.ferienName})
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <div className="themen-gantt-scroll">
+        <div
+          className="themen-gantt-grid"
+          style={{
+            gridTemplateColumns: `14rem repeat(${wochenKeys.length}, 2.5rem)`,
+            gridTemplateRows: `1.5rem repeat(${zeilen.length}, 2.25rem)`,
+          }}
+        >
+          <div className="themen-gantt-ecke" style={{ gridColumn: 1, gridRow: 1 }} />
+          {wochenKeys.map((key, i) => (
+            <div key={key} className="themen-gantt-kw" style={{ gridColumn: i + 2, gridRow: 1 }} title={formatWochenspanne(key)}>
+              {kwNummer(key)}
+            </div>
+          ))}
+          {ferienBaender.map((band) => (
+            <div
+              key={`${band.name}-${band.startWochenKey}`}
+              className="themen-gantt-ferien-band"
+              title={band.name}
+              style={{
+                gridColumn: `${(indexVon.get(band.startWochenKey) ?? 0) + 2} / ${(indexVon.get(band.endWochenKey) ?? 0) + 3}`,
+                gridRow: `2 / ${zeilen.length + 2}`,
+              }}
+            />
+          ))}
+          {zeilen.map((z, i) => (
+            <div key={`${z.reiheId}-${z.balkenLabel}-label`} className="themen-gantt-label" style={{ gridColumn: 1, gridRow: i + 2 }}>
+              {z.zeilenLabel}
+            </div>
+          ))}
+          {zeilen.map((z, i) => (
+            <div
+              key={`${z.reiheId}-${z.balkenLabel}-balken`}
+              className="themen-gantt-balken"
+              title={`${z.zeilenLabel} – ${z.thema ?? 'Kein Thema'} – ${formatWochenspanne(z.startWochenKey)} bis ${formatWochenspanne(z.endWochenKey)} – ${Math.round(z.stunden * 10) / 10} Std`}
+              style={{
+                gridColumn: `${(indexVon.get(z.startWochenKey) ?? 0) + 2} / ${(indexVon.get(z.endWochenKey) ?? 0) + 3}`,
+                gridRow: i + 2,
+                background: THEMEN_FARBEN[z.thema ?? 'ohne'],
+              }}
+            >
+              {z.balkenLabel}
+            </div>
+          ))}
         </div>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Woche</th>
-            <th>Schule</th>
-            <th>Thema</th>
-            <th>Stunden</th>
-          </tr>
-        </thead>
-        <tbody>
-          {zeilen.map((z) => (
-            <tr key={`${z.wochenKey}__${z.schule}__${z.thema}`}>
-              <td>{formatWochenspanne(z.wochenKey)}</td>
-              <td>{z.schule}</td>
-              <td>{z.thema}</td>
-              <td>{Math.round(z.stunden * 10) / 10}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
     </div>
   )
 }

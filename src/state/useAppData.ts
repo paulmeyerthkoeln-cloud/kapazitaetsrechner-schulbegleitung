@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { format } from 'date-fns'
 import seedData from '../data/data.json'
 import { berechneSzenario } from '../lib/szenario'
-import { berechneThemenUebersicht } from '../lib/themenUebersicht'
+import { berechneThemenGantt } from '../lib/themenUebersicht'
+import { findeEinheitenInFerien } from '../lib/ferienWarnung'
 import { alleWochenImZeitraum, ermittleFerienName, getISOWochenKey } from '../lib/kalenderwochen'
 import type { SzenarioTyp, SensitivitaetsParameter } from '../lib/szenario'
 import type { Datenbestand, Einheit, Person, Terminstatus } from '../lib/types'
@@ -215,11 +216,13 @@ export function useAppData() {
     () => berechneSzenario(data, szenario, szenario === 'sensitivitaet' ? sensitivitaet : undefined),
     [data, szenario, sensitivitaet]
   )
-  const themenUebersicht = useMemo(() => berechneThemenUebersicht(data), [data])
+  const themenGanttZeilen = useMemo(() => berechneThemenGantt(data), [data])
+  const ferienWarnungen = useMemo(() => findeEinheitenInFerien(data, ergebnis.wochen), [data, ergebnis.wochen])
 
   return {
     data,
-    themenUebersicht,
+    themenGanttZeilen,
+    ferienWarnungen,
     setPerson,
     setEinheitBegleitung,
     setSchuleKoordination,
