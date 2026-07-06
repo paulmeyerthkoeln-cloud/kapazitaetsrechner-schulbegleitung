@@ -1,41 +1,50 @@
 import { useState } from 'react'
-import type { FerienZeitraum, Umverteilung } from '../lib/types'
+import { berechneVerbleibendeFerienstunden } from '../lib/berechnung'
+import { formatWochenspanne } from '../lib/kalenderwochen'
+import type { Umverteilung } from '../lib/types'
 import type { WochenErgebnis } from '../lib/berechnung'
 
 export function KapazitaetsUmverteilung({
   umverteilungen,
-  ferien,
   wochen,
   onAdd,
   onRemove,
 }: {
   umverteilungen: Umverteilung[]
-  ferien: FerienZeitraum[]
   wochen: WochenErgebnis[]
-  onAdd: (ferienName: string, zielWochenKey: string, zusatzStunden: number) => void
+  onAdd: (quelleWochenKey: string, ferienName: string, zielWochenKey: string, zusatzStunden: number) => void
   onRemove: (id: string) => void
 }) {
+  const ferienWochen = wochen.filter((w) => w.istFerien)
   const zielWochen = wochen.filter((w) => !w.istFerien)
-  const [ferienName, setFerienName] = useState(ferien[0]?.name ?? '')
+  const [quelleWochenKey, setQuelleWochenKey] = useState(ferienWochen[0]?.wochenKey ?? '')
   const [zielWochenKey, setZielWochenKey] = useState(zielWochen[0]?.wochenKey ?? '')
   const [zusatzStunden, setZusatzStunden] = useState(5)
 
+  const verbleibend = berechneVerbleibendeFerienstunden(wochen, umverteilungen, quelleWochenKey)
+
   function hinzufuegen() {
-    if (!ferienName || !zielWochenKey) return
-    onAdd(ferienName, zielWochenKey, zusatzStunden)
+    if (!quelleWochenKey || !zielWochenKey || verbleibend <= 0) return
+    const ferienName = wochen.find((w) => w.wochenKey === quelleWochenKey)?.ferienName ?? ''
+    const gekappt = Math.min(zusatzStunden, verbleibend)
+    if (gekappt <= 0) return
+    onAdd(quelleWochenKey, ferienName, zielWochenKey, gekappt)
   }
 
   return (
     <div>
       <h3>Kapazitäts-Umverteilung</h3>
       <label>
-        Ferienzeitraum:{' '}
-        <select value={ferienName} onChange={(e) => setFerienName(e.target.value)}>
-          {ferien.map((f) => (
-            <option key={f.name} value={f.name}>
-              {f.name}
-            </option>
-          ))}
+        Quell-Woche:{' '}
+        <select value={quelleWochenKey} onChange={(e) => setQuelleWochenKey(e.target.value)}>
+          {ferienWochen.map((w) => {
+            const rest = berechneVerbleibendeFerienstunden(wochen, umverteilungen, w.wochenKey)
+            return (
+              <option key={w.wochenKey} value={w.wochenKey} disabled={rest <= 0}>
+                {formatWochenspanne(w.wochenKey)} – {w.ferienName} – {rest <= 0 ? 'ausgeschöpft' : `noch ${rest} Std verfügbar`}
+              </option>
+            )
+          })}
         </select>
       </label>
       <label>
@@ -43,7 +52,7 @@ export function KapazitaetsUmverteilung({
         <select value={zielWochenKey} onChange={(e) => setZielWochenKey(e.target.value)}>
           {zielWochen.map((w) => (
             <option key={w.wochenKey} value={w.wochenKey}>
-              {w.wochenKey}
+              {formatWochenspanne(w.wochenKey)}
             </option>
           ))}
         </select>
@@ -59,11 +68,13 @@ export function KapazitaetsUmverteilung({
           style={{ width: '4rem' }}
         />
       </label>
-      <button onClick={hinzufuegen}>Hinzufügen</button>
+      <button onClick={hinzufuegen} disabled={verbleibend <= 0}>
+        Hinzufügen
+      </button>
       <ul>
         {umverteilungen.map((u) => (
           <li key={u.id}>
-            {u.zusatzStunden} Std aus {u.ferienName} → {u.zielWochenKey}{' '}
+            {u.zusatzStunden} Std aus {formatWochenspanne(u.quelleWochenKey)} ({u.ferienName}) → {formatWochenspanne(u.zielWochenKey)}{' '}
             <button onClick={() => onRemove(u.id)} aria-label={`Umverteilung ${u.id} löschen`}>
               🗑
             </button>

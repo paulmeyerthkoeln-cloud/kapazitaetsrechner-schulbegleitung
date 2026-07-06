@@ -101,6 +101,7 @@ export interface Schule {
 
 export interface Umverteilung {
   id: string
+  quelleWochenKey: string
   ferienName: string
   zielWochenKey: string
   zusatzStunden: number

@@ -3,6 +3,7 @@ import { format } from 'date-fns'
 import seedData from '../data/data.json'
 import { berechneSzenario } from '../lib/szenario'
 import { berechneThemenUebersicht } from '../lib/themenUebersicht'
+import { alleWochenImZeitraum, ermittleFerienName, getISOWochenKey } from '../lib/kalenderwochen'
 import type { SzenarioTyp, SensitivitaetsParameter } from '../lib/szenario'
 import type { Datenbestand, Einheit, Person, Terminstatus } from '../lib/types'
 
@@ -12,6 +13,12 @@ const STORAGE_KEY = 'kapazitaetsrechner:data'
 function pruefePflichtfelder(geparst: unknown): geparst is Datenbestand {
   const istObjekt = typeof geparst === 'object' && geparst !== null
   return istObjekt && !PFLICHTFELDER.some((feld) => !(feld in (geparst as object)))
+}
+
+function ermittleQuelleWochenKeyFuerFerienname(d: Datenbestand, ferienName: string): string {
+  const wochenStarts = alleWochenImZeitraum(d.settings.planungszeitraum.start, d.settings.planungszeitraum.ende)
+  const treffer = wochenStarts.find((montag) => ermittleFerienName(montag, d.kalender.ferien) === ferienName)
+  return treffer ? getISOWochenKey(treffer) : ''
 }
 
 function migriereDatenbestand(d: Datenbestand): Datenbestand {
@@ -24,6 +31,9 @@ function migriereDatenbestand(d: Datenbestand): Datenbestand {
         terminstatus: reihe.terminstatus ?? ('festgelegt' as Terminstatus),
       })),
     })),
+    umverteilungen: (d.umverteilungen ?? []).map((u) =>
+      u.quelleWochenKey ? u : { ...u, quelleWochenKey: ermittleQuelleWochenKeyFuerFerienname(d, u.ferienName) }
+    ),
   }
 }
 
@@ -162,12 +172,12 @@ export function useAppData() {
     }))
   }
 
-  function addUmverteilung(ferienName: string, zielWochenKey: string, zusatzStunden: number) {
+  function addUmverteilung(quelleWochenKey: string, ferienName: string, zielWochenKey: string, zusatzStunden: number) {
     setData((prev) => ({
       ...prev,
       umverteilungen: [
         ...(prev.umverteilungen ?? []),
-        { id: `umverteilung_${Date.now()}`, ferienName, zielWochenKey, zusatzStunden },
+        { id: `umverteilung_${Date.now()}`, quelleWochenKey, ferienName, zielWochenKey, zusatzStunden },
       ],
     }))
   }

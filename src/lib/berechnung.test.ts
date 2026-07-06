@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { berechneAufwandEinheit, berechneKoordinationWoche, berechneBedarfProWoche, berechneAngebotProWoche } from './berechnung'
-import { ampelFarbe, berechneWochenuebersicht, berechneMachbarkeit, berechneZusatzangebotProWoche } from './berechnung'
+import { ampelFarbe, berechneWochenuebersicht, berechneMachbarkeit, berechneZusatzangebotProWoche, berechneVerbleibendeFerienstunden } from './berechnung'
+import type { WochenErgebnis } from './berechnung'
 import type { Einheit, Settings, Schule, Datenbestand, Person, Umverteilung } from './types'
 
 const settings: Settings = {
@@ -389,18 +390,66 @@ describe('ampelFarbe', () => {
 describe('berechneZusatzangebotProWoche', () => {
   it('sums zusatzStunden across all entries matching the given wochenKey', () => {
     const umverteilungen: Umverteilung[] = [
-      { id: 'u1', ferienName: 'Herbstferien NRW', zielWochenKey: '2027-KW04', zusatzStunden: 10 },
-      { id: 'u2', ferienName: 'Weihnachtsferien NRW', zielWochenKey: '2027-KW04', zusatzStunden: 5 },
-      { id: 'u3', ferienName: 'Herbstferien NRW', zielWochenKey: '2027-KW05', zusatzStunden: 20 },
+      { id: 'u1', quelleWochenKey: '2026-KW44', ferienName: 'Herbstferien NRW', zielWochenKey: '2027-KW04', zusatzStunden: 10 },
+      { id: 'u2', quelleWochenKey: '2026-KW44', ferienName: 'Weihnachtsferien NRW', zielWochenKey: '2027-KW04', zusatzStunden: 5 },
+      { id: 'u3', quelleWochenKey: '2026-KW44', ferienName: 'Herbstferien NRW', zielWochenKey: '2027-KW05', zusatzStunden: 20 },
     ]
     expect(berechneZusatzangebotProWoche(umverteilungen, '2027-KW04')).toBe(15)
   })
 
   it('returns 0 when no entry matches the given wochenKey', () => {
     const umverteilungen: Umverteilung[] = [
-      { id: 'u1', ferienName: 'Herbstferien NRW', zielWochenKey: '2027-KW04', zusatzStunden: 10 },
+      { id: 'u1', quelleWochenKey: '2026-KW44', ferienName: 'Herbstferien NRW', zielWochenKey: '2027-KW04', zusatzStunden: 10 },
     ]
     expect(berechneZusatzangebotProWoche(umverteilungen, '2027-KW10')).toBe(0)
+  })
+})
+
+describe('berechneVerbleibendeFerienstunden', () => {
+  const wochen: WochenErgebnis[] = [
+    {
+      wochenKey: '2026-KW44',
+      bedarf: 0,
+      einsatzBedarf: 0,
+      koordinationBedarf: 0,
+      angebot: 32,
+      angebotBasis: 32,
+      zusatzangebot: 0,
+      auslastung: 0,
+      ampel: 'gruen',
+      istFerien: true,
+      ferienName: 'Herbstferien NRW',
+    },
+  ]
+
+  it('returns the full angebotBasis when nothing has been redistributed from that week yet', () => {
+    expect(berechneVerbleibendeFerienstunden(wochen, [], '2026-KW44')).toBe(32)
+  })
+
+  it('subtracts zusatzStunden already redistributed from that week', () => {
+    const umverteilungen: Umverteilung[] = [
+      { id: 'u1', quelleWochenKey: '2026-KW44', ferienName: 'Herbstferien NRW', zielWochenKey: '2027-KW04', zusatzStunden: 10 },
+      { id: 'u2', quelleWochenKey: '2026-KW44', ferienName: 'Herbstferien NRW', zielWochenKey: '2027-KW05', zusatzStunden: 5 },
+    ]
+    expect(berechneVerbleibendeFerienstunden(wochen, umverteilungen, '2026-KW44')).toBe(17)
+  })
+
+  it('ignores Umverteilungen from a different quelleWochenKey', () => {
+    const umverteilungen: Umverteilung[] = [
+      { id: 'u1', quelleWochenKey: '2026-KW45', ferienName: 'Herbstferien NRW', zielWochenKey: '2027-KW04', zusatzStunden: 10 },
+    ]
+    expect(berechneVerbleibendeFerienstunden(wochen, umverteilungen, '2026-KW44')).toBe(32)
+  })
+
+  it('never returns a negative number, even when more was redistributed than available', () => {
+    const umverteilungen: Umverteilung[] = [
+      { id: 'u1', quelleWochenKey: '2026-KW44', ferienName: 'Herbstferien NRW', zielWochenKey: '2027-KW04', zusatzStunden: 50 },
+    ]
+    expect(berechneVerbleibendeFerienstunden(wochen, umverteilungen, '2026-KW44')).toBe(0)
+  })
+
+  it('returns 0 for a quelleWochenKey that is not present in wochen', () => {
+    expect(berechneVerbleibendeFerienstunden(wochen, [], '2099-KW01')).toBe(0)
   })
 })
 
@@ -565,7 +614,7 @@ describe('berechneWochenuebersicht', () => {
     const ohneUmverteilung = berechneWochenuebersicht(basisDaten)
     const mitUmverteilung = berechneWochenuebersicht({
       ...basisDaten,
-      umverteilungen: [{ id: 'u1', ferienName: 'Herbstferien NRW', zielWochenKey: '2026-KW46', zusatzStunden: 10 }],
+      umverteilungen: [{ id: 'u1', quelleWochenKey: '2026-KW44', ferienName: 'Herbstferien NRW', zielWochenKey: '2026-KW46', zusatzStunden: 10 }],
     })
 
     expect(mitUmverteilung[1].wochenKey).toBe('2026-KW46')

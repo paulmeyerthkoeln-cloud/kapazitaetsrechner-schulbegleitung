@@ -137,3 +137,15 @@ export function berechneMachbarkeit(wochen: WochenErgebnis[]): Machbarkeitsergeb
   const topEngpaesse = [...wochen].sort((a, b) => b.auslastung - a.auslastung).slice(0, 5)
   return { machbar, anzahlGelbeWochen, topEngpaesse }
 }
+
+export function berechneVerbleibendeFerienstunden(
+  wochen: WochenErgebnis[],
+  umverteilungen: Umverteilung[],
+  quelleWochenKey: string
+): number {
+  const basis = wochen.find((w) => w.wochenKey === quelleWochenKey)?.angebotBasis ?? 0
+  const bereitsUmverteilt = umverteilungen
+    .filter((u) => u.quelleWochenKey === quelleWochenKey)
+    .reduce((summe, u) => summe + u.zusatzStunden, 0)
+  return Math.max(0, basis - bereitsUmverteilt)
+}

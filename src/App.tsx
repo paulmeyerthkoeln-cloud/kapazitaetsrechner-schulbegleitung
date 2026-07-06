@@ -84,7 +84,6 @@ export default function App() {
       <div className="card">
         <KapazitaetsUmverteilung
           umverteilungen={data.umverteilungen ?? []}
-          ferien={data.kalender.ferien}
           wochen={ergebnis.wochen}
           onAdd={addUmverteilung}
           onRemove={removeUmverteilung}
