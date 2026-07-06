@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { berechneThemenUebersicht } from './themenUebersicht'
+import { berechneThemenUebersicht, berechneThemenGantt, berechneFerienBaender } from './themenUebersicht'
 import type { Datenbestand } from './types'
+import type { WochenErgebnis } from './berechnung'
 
 const settings = {
   planungszeitraum: { start: '2026-09-01', ende: '2027-07-16' },
@@ -155,5 +156,235 @@ describe('berechneThemenUebersicht', () => {
     }
     const zeilen = berechneThemenUebersicht(data)
     expect(zeilen.map((z) => `${z.wochenKey}/${z.schule}`)).toEqual(['2026-KW37/C-Schule', '2026-KW46/A-Schule', '2026-KW46/B-Schule'])
+  })
+})
+
+describe('berechneThemenGantt', () => {
+  it('spans a Zeile from its first to its last Woche with that Thema, summing the Stunden', () => {
+    const data: Datenbestand = {
+      settings,
+      personen: [],
+      kalender: { ferien: [] },
+      schulen: [
+        {
+          id: 's1',
+          name: 'Else Lasker',
+          reihen: [
+            {
+              id: 'r1',
+              titel: 'Parisa',
+              betreuungsmodell: 'B',
+              fahrzeit_h: 1,
+              status: 'zugesagt',
+              extern_betreut: false,
+              terminstatus: 'teilweise_festgelegt',
+              einheiten: [
+                { id: 'e1', index: 1, datum_oder_kw: '2026-09-08', kontaktzeit_h: 1.5, personen_parallel: 1, erstdurchfuehrung: true, wir_begleiten: true, typ: 'regulaer', thema: 'Mobilität' },
+                { id: 'e2', index: 2, datum_oder_kw: '2026-09-29', kontaktzeit_h: 1.5, personen_parallel: 1, erstdurchfuehrung: false, wir_begleiten: true, typ: 'regulaer', thema: 'Mobilität' },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+    expect(berechneThemenGantt(data)).toEqual([
+      { reiheId: 'r1', zeilenLabel: 'Else Lasker – Parisa', balkenLabel: 'Mobilität', thema: 'Mobilität', startWochenKey: '2026-KW37', endWochenKey: '2026-KW40', stunden: 3 },
+    ])
+  })
+
+  it('falls back to the Reihentitel as balkenLabel when no Einheit has a thema', () => {
+    const data: Datenbestand = {
+      settings,
+      personen: [],
+      kalender: { ferien: [] },
+      schulen: [
+        {
+          id: 's1',
+          name: 'WDG',
+          reihen: [
+            {
+              id: 'r1',
+              titel: 'Theorieblöcke',
+              betreuungsmodell: 'A',
+              fahrzeit_h: 1,
+              status: 'zugesagt',
+              extern_betreut: false,
+              terminstatus: 'festgelegt',
+              einheiten: [
+                { id: 'e1', index: 1, datum_oder_kw: '2026-11-09', kontaktzeit_h: 4, personen_parallel: 1, erstdurchfuehrung: true, wir_begleiten: true, typ: 'regulaer' },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+    expect(berechneThemenGantt(data)).toEqual([
+      { reiheId: 'r1', zeilenLabel: 'WDG – Theorieblöcke', balkenLabel: 'Theorieblöcke', thema: null, startWochenKey: '2026-KW46', endWochenKey: '2026-KW46', stunden: 4 },
+    ])
+  })
+
+  it('excludes Reihen with terminstatus "offen"', () => {
+    const data: Datenbestand = {
+      settings,
+      personen: [],
+      kalender: { ferien: [] },
+      schulen: [
+        {
+          id: 's1',
+          name: 'Kothen',
+          reihen: [
+            {
+              id: 'r1',
+              titel: 'x',
+              betreuungsmodell: 'B',
+              fahrzeit_h: 1,
+              status: 'in_klaerung',
+              extern_betreut: false,
+              terminstatus: 'offen',
+              einheiten: [
+                { id: 'e1', index: 1, datum_oder_kw: '2026-10-05', kontaktzeit_h: 1.5, personen_parallel: 1, erstdurchfuehrung: true, wir_begleiten: true, typ: 'regulaer' },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+    expect(berechneThemenGantt(data)).toEqual([])
+  })
+
+  it('excludes a Reihe entirely when none of its Einheiten are wir_begleiten', () => {
+    const data: Datenbestand = {
+      settings,
+      personen: [],
+      kalender: { ferien: [] },
+      schulen: [
+        {
+          id: 's1',
+          name: 'Hügelstraße',
+          reihen: [
+            {
+              id: 'r1',
+              titel: 'x',
+              betreuungsmodell: 'X',
+              fahrzeit_h: 0,
+              status: 'zugesagt',
+              extern_betreut: true,
+              terminstatus: 'festgelegt',
+              einheiten: [
+                { id: 'e1', index: 1, datum_oder_kw: '2026-09-14', kontaktzeit_h: 0, personen_parallel: 1, erstdurchfuehrung: false, wir_begleiten: false, typ: 'regulaer' },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+    expect(berechneThemenGantt(data)).toEqual([])
+  })
+
+  it('creates two separate Zeilen with the same zeilenLabel when a Reihe mixes two Themen', () => {
+    const data: Datenbestand = {
+      settings,
+      personen: [],
+      kalender: { ferien: [] },
+      schulen: [
+        {
+          id: 's1',
+          name: 'Schule X',
+          reihen: [
+            {
+              id: 'r1',
+              titel: 'Mix',
+              betreuungsmodell: 'B',
+              fahrzeit_h: 1,
+              status: 'zugesagt',
+              extern_betreut: false,
+              terminstatus: 'festgelegt',
+              einheiten: [
+                { id: 'e1', index: 1, datum_oder_kw: '2026-09-07', kontaktzeit_h: 1.5, personen_parallel: 1, erstdurchfuehrung: true, wir_begleiten: true, typ: 'regulaer', thema: 'Energie' },
+                { id: 'e2', index: 2, datum_oder_kw: '2026-09-14', kontaktzeit_h: 1.5, personen_parallel: 1, erstdurchfuehrung: false, wir_begleiten: true, typ: 'regulaer', thema: 'Stadtgrün' },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+    const zeilen = berechneThemenGantt(data)
+    expect(zeilen).toHaveLength(2)
+    expect(zeilen.every((z) => z.zeilenLabel === 'Schule X – Mix')).toBe(true)
+    expect(zeilen.map((z) => z.thema).sort()).toEqual(['Energie', 'Stadtgrün'])
+  })
+
+  it('sorts rows by startWochenKey, then by zeilenLabel', () => {
+    const reiheFuer = (id: string, datum: string) => ({
+      id,
+      titel: 'x',
+      betreuungsmodell: 'A' as const,
+      fahrzeit_h: 0,
+      status: 'zugesagt',
+      extern_betreut: false,
+      terminstatus: 'festgelegt' as const,
+      einheiten: [
+        { id: `${id}_e`, index: 1, datum_oder_kw: datum, kontaktzeit_h: 1, personen_parallel: 1, erstdurchfuehrung: false, wir_begleiten: true, typ: 'regulaer' as const },
+      ],
+    })
+    const data: Datenbestand = {
+      settings,
+      personen: [],
+      kalender: { ferien: [] },
+      schulen: [
+        { id: 's_b', name: 'B-Schule', reihen: [reiheFuer('r_b', '2026-11-09')] },
+        { id: 's_a', name: 'A-Schule', reihen: [reiheFuer('r_a', '2026-11-09')] },
+        { id: 's_c', name: 'C-Schule', reihen: [reiheFuer('r_c', '2026-09-07')] },
+      ],
+    }
+    const zeilen = berechneThemenGantt(data)
+    expect(zeilen.map((z) => z.zeilenLabel)).toEqual(['C-Schule – x', 'A-Schule – x', 'B-Schule – x'])
+  })
+})
+
+describe('berechneFerienBaender', () => {
+  function woche(overrides: Partial<WochenErgebnis> = {}): WochenErgebnis {
+    return {
+      wochenKey: '2026-KW01',
+      bedarf: 0,
+      einsatzBedarf: 0,
+      koordinationBedarf: 0,
+      angebot: 32,
+      angebotBasis: 32,
+      zusatzangebot: 0,
+      auslastung: 0,
+      ampel: 'gruen',
+      istFerien: false,
+      ferienName: null,
+      ...overrides,
+    }
+  }
+
+  it('merges consecutive Wochen with the same ferienName into one Band', () => {
+    const wochen = [
+      woche({ wochenKey: '2026-KW42', istFerien: false, ferienName: null }),
+      woche({ wochenKey: '2026-KW43', istFerien: true, ferienName: 'Herbstferien NRW' }),
+      woche({ wochenKey: '2026-KW44', istFerien: true, ferienName: 'Herbstferien NRW' }),
+      woche({ wochenKey: '2026-KW45', istFerien: false, ferienName: null }),
+    ]
+    expect(berechneFerienBaender(wochen)).toEqual([
+      { name: 'Herbstferien NRW', startWochenKey: '2026-KW43', endWochenKey: '2026-KW44' },
+    ])
+  })
+
+  it('creates separate Bänder for non-adjacent Ferienzeiträume', () => {
+    const wochen = [
+      woche({ wochenKey: '2026-KW43', istFerien: true, ferienName: 'Herbstferien NRW' }),
+      woche({ wochenKey: '2026-KW44', istFerien: false, ferienName: null }),
+      woche({ wochenKey: '2026-KW52', istFerien: true, ferienName: 'Weihnachtsferien NRW' }),
+    ]
+    expect(berechneFerienBaender(wochen)).toEqual([
+      { name: 'Herbstferien NRW', startWochenKey: '2026-KW43', endWochenKey: '2026-KW43' },
+      { name: 'Weihnachtsferien NRW', startWochenKey: '2026-KW52', endWochenKey: '2026-KW52' },
+    ])
+  })
+
+  it('returns an empty array when there are no Ferienwochen', () => {
+    expect(berechneFerienBaender([woche()])).toEqual([])
   })
 })
