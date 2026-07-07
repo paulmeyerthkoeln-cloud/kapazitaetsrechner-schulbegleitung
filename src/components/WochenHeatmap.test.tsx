@@ -43,4 +43,9 @@ describe('WochenHeatmap', () => {
     expect(screen.getByText(/Rot/)).toBeInTheDocument()
     expect(screen.getByText(/Ferien/)).toBeInTheDocument()
   })
+
+  it('shows the KW number as a label under each square', () => {
+    render(<WochenHeatmap wochen={[woche()]} />)
+    expect(screen.getByText('46')).toBeInTheDocument()
+  })
 })

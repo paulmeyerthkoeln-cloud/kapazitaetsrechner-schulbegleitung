@@ -28,10 +28,23 @@
   padding: 0.5rem 0;
 }
 
+.wochen-heatmap-zelle-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
 .wochen-heatmap-zelle {
   height: 1.75rem;
   cursor: pointer;
   border: none;
+}
+
+.wochen-heatmap-kw {
+  font-size: 0.65rem;
+  text-align: center;
+  color: #555;
+  margin-top: 0.15rem;
 }
 
 .wochen-heatmap-zelle.gruen,
