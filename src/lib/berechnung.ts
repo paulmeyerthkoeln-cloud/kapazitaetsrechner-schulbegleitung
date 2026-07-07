@@ -46,22 +46,22 @@ export function berechneBedarfProWoche(
   return { einsatzBedarf, koordinationBedarf }
 }
 
-export function berechneAngebotProWoche(personen: Person[], wochenStartMontag: Date): number {
+export function berechnePersonKapazitaetsbasis(person: Person, wochenStartMontag: Date): number {
   const wochenEnde = endOfISOWeek(wochenStartMontag)
-  let angebot = 0
-  for (const person of personen) {
-    const aktivAb = parseISO(person.aktiv_ab)
-    const aktivBis = parseISO(person.aktiv_bis)
-    if (wochenEnde < aktivAb || wochenStartMontag > aktivBis) continue
+  const aktivAb = parseISO(person.aktiv_ab)
+  const aktivBis = parseISO(person.aktiv_bis)
+  if (wochenEnde < aktivAb || wochenStartMontag > aktivBis) return 0
 
-    const wochentage = eachDayOfInterval({ start: wochenStartMontag, end: wochenEnde }).filter((d) => !isWeekend(d))
-    const abwesendeTage = wochentage.filter((tag) =>
-      person.abwesenheiten.some((a) => tag >= parseISO(a.von) && tag <= parseISO(a.bis))
-    ).length
-    const abzugsfaktor = Math.min(1, abwesendeTage * 0.2)
-    angebot += person.stunden_pro_woche_fuer_begleitung * (1 - abzugsfaktor)
-  }
-  return angebot
+  const wochentage = eachDayOfInterval({ start: wochenStartMontag, end: wochenEnde }).filter((d) => !isWeekend(d))
+  const abwesendeTage = wochentage.filter((tag) =>
+    person.abwesenheiten.some((a) => tag >= parseISO(a.von) && tag <= parseISO(a.bis))
+  ).length
+  const abzugsfaktor = Math.min(1, abwesendeTage * 0.2)
+  return person.stunden_pro_woche_fuer_begleitung * (1 - abzugsfaktor)
+}
+
+export function berechneAngebotProWoche(personen: Person[], wochenStartMontag: Date): number {
+  return personen.reduce((summe, person) => summe + berechnePersonKapazitaetsbasis(person, wochenStartMontag), 0)
 }
 
 export function berechneZusatzangebotProWoche(umverteilungen: Umverteilung[], wochenKey: string): number {

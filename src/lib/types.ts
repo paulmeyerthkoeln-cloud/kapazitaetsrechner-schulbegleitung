@@ -56,6 +56,7 @@ export interface Einheit {
   organisationspauschale_h?: number
   thema?: Thema
   koordinationszeit_h?: number
+  begleitperson_id?: string | null
 }
 
 export interface Muster {
@@ -108,10 +109,19 @@ export interface Umverteilung {
   zusatzStunden: number
 }
 
+export interface PersonenUmverteilung {
+  id: string
+  personId: string
+  quelleWochenKey: string
+  zielWochenKey: string
+  stunden: number
+}
+
 export interface Datenbestand {
   settings: Settings
   personen: Person[]
   kalender: Kalender
   schulen: Schule[]
   umverteilungen?: Umverteilung[]
+  personenUmverteilungen?: PersonenUmverteilung[]
 }
