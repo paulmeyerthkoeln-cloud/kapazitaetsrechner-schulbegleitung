@@ -213,6 +213,23 @@ export function useAppData() {
     }))
   }
 
+  function addPersonenUmverteilung(personId: string, quelleWochenKey: string, zielWochenKey: string, stunden: number) {
+    setData((prev) => ({
+      ...prev,
+      personenUmverteilungen: [
+        ...(prev.personenUmverteilungen ?? []),
+        { id: `personen_umverteilung_${Date.now()}`, personId, quelleWochenKey, zielWochenKey, stunden },
+      ],
+    }))
+  }
+
+  function removePersonenUmverteilung(id: string) {
+    setData((prev) => ({
+      ...prev,
+      personenUmverteilungen: (prev.personenUmverteilungen ?? []).filter((u) => u.id !== id),
+    }))
+  }
+
   function exportJson(): string {
     return JSON.stringify(data, null, 2)
   }
@@ -257,6 +274,8 @@ export function useAppData() {
     setReiheEinheiten,
     addUmverteilung,
     removeUmverteilung,
+    addPersonenUmverteilung,
+    removePersonenUmverteilung,
     ergebnis,
     exportJson,
     importJson,

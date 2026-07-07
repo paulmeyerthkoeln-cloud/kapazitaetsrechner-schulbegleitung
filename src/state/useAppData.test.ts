@@ -311,6 +311,34 @@ describe('useAppData', () => {
     expect(result.current.personenKapazitaet).toHaveLength(result.current.data.personen.length)
   })
 
+  it('addPersonenUmverteilung appends a new entry', () => {
+    const { result } = renderHook(() => useAppData())
+    const personId = result.current.data.personen[0].id
+    act(() => {
+      result.current.addPersonenUmverteilung(personId, '2026-KW46', '2026-KW47', 3)
+    })
+    expect(result.current.data.personenUmverteilungen).toHaveLength(1)
+    expect(result.current.data.personenUmverteilungen?.[0]).toMatchObject({
+      personId,
+      quelleWochenKey: '2026-KW46',
+      zielWochenKey: '2026-KW47',
+      stunden: 3,
+    })
+  })
+
+  it('removePersonenUmverteilung deletes the matching entry', () => {
+    const { result } = renderHook(() => useAppData())
+    const personId = result.current.data.personen[0].id
+    act(() => {
+      result.current.addPersonenUmverteilung(personId, '2026-KW46', '2026-KW47', 3)
+    })
+    const id = result.current.data.personenUmverteilungen![0].id
+    act(() => {
+      result.current.removePersonenUmverteilung(id)
+    })
+    expect(result.current.data.personenUmverteilungen).toHaveLength(0)
+  })
+
   it('persists data to localStorage after a change and reloads it on next mount', () => {
     const { result, unmount } = renderHook(() => useAppData())
     act(() => {

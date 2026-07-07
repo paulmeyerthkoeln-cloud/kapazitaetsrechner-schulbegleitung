@@ -8,6 +8,7 @@ import { PersonenKapazitaetsUebersicht } from './components/PersonenKapazitaetsU
 import { EngpassBericht } from './components/EngpassBericht'
 import { ThemenUebersicht } from './components/ThemenUebersicht'
 import { KapazitaetsUmverteilung } from './components/KapazitaetsUmverteilung'
+import { PersonenUmverteilung } from './components/PersonenUmverteilung'
 import { ExportImport } from './components/ExportImport'
 
 export default function App() {
@@ -24,6 +25,8 @@ export default function App() {
     setReiheEinheiten,
     addUmverteilung,
     removeUmverteilung,
+    addPersonenUmverteilung,
+    removePersonenUmverteilung,
     ergebnis,
     themenGanttZeilen,
     personenKapazitaet,
@@ -76,6 +79,15 @@ export default function App() {
           wochen={ergebnis.wochen}
           onAdd={addUmverteilung}
           onRemove={removeUmverteilung}
+        />
+      </div>
+      <div className="card">
+        <PersonenUmverteilung
+          personen={data.personen}
+          personenKapazitaet={personenKapazitaet}
+          personenUmverteilungen={data.personenUmverteilungen ?? []}
+          onAdd={addPersonenUmverteilung}
+          onRemove={removePersonenUmverteilung}
         />
       </div>
       <div className="card">
