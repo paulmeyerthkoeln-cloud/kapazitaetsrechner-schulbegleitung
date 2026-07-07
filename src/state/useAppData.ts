@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
-import { format } from 'date-fns'
 import seedData from '../data/data.json'
 import { berechneMachbarkeit, berechneWochenuebersicht } from '../lib/berechnung'
 import { berechneThemenGantt } from '../lib/themenUebersicht'
-import { alleWochenImZeitraum, ermittleFerienName, getISOWochenKey } from '../lib/kalenderwochen'
+import { alleWochenImZeitraum, ermittleFerienName, getISOWochenKey, naechstesEinheitDatum } from '../lib/kalenderwochen'
 import type { Datenbestand, Einheit, Person, Terminstatus } from '../lib/types'
 
 const PFLICHTFELDER = ['settings', 'personen', 'kalender', 'schulen'] as const
@@ -117,7 +116,7 @@ export function useAppData() {
           const neueEinheit: Einheit = {
             id: `${reihe.id}_neu_${Date.now()}`,
             index: reihe.einheiten.length + 1,
-            datum_oder_kw: format(new Date(), 'yyyy-MM-dd'),
+            datum_oder_kw: naechstesEinheitDatum(reihe.einheiten),
             kontaktzeit_h: 1.5,
             koordinationszeit_h: 0,
             personen_parallel: 1,

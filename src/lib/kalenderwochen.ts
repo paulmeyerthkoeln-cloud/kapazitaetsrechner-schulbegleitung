@@ -122,3 +122,13 @@ export function generiereWochentlicheTermine(
   }
   return einheiten
 }
+
+export function naechstesEinheitDatum(einheiten: Einheit[]): string {
+  if (einheiten.length === 0) return format(new Date(), 'yyyy-MM-dd')
+  const wochenKeys = einheiten.map((e) => parseZuWochenKey(e.datum_oder_kw))
+  const groesstesKey = wochenKeys.reduce((groesstes, key) => (key > groesstes ? key : groesstes))
+  const [, jahrStr, wocheStr] = KW_REGEX.exec(groesstesKey)!
+  const referenz = setISOWeek(setISOWeekYear(new Date(), Number(jahrStr)), Number(wocheStr))
+  const montag = startOfISOWeek(referenz)
+  return format(addWeeks(montag, 1), 'yyyy-MM-dd')
+}

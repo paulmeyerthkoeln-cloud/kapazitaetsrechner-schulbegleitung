@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import { format } from 'date-fns'
 import {
   getISOWochenKey,
   parseZuWochenKey,
@@ -11,8 +12,9 @@ import {
   formatWochenspanne,
   generiereWochentlicheTermine,
   kwNummer,
+  naechstesEinheitDatum,
 } from './kalenderwochen'
-import type { FerienZeitraum, Muster, Reihe } from './types'
+import type { Einheit, FerienZeitraum, Muster, Reihe } from './types'
 
 describe('getISOWochenKey', () => {
   it('formats a Monday in ISO week 46 of 2026', () => {
@@ -187,5 +189,34 @@ describe('generiereWochentlicheTermine', () => {
   it('ids each generated Termin uniquely using the reiheId and its position', () => {
     const einheiten = generiereWochentlicheTermine('reihe_test', '2026-09-07', 1.5, 2, [])
     expect(einheiten.map((e) => e.id)).toEqual(['reihe_test_termin_1', 'reihe_test_termin_2'])
+  })
+})
+
+describe('naechstesEinheitDatum', () => {
+  function einheit(datumOderKw: string): Einheit {
+    return {
+      id: 'x',
+      index: 1,
+      datum_oder_kw: datumOderKw,
+      kontaktzeit_h: 1,
+      personen_parallel: 1,
+      erstdurchfuehrung: false,
+      wir_begleiten: true,
+      typ: 'regulaer',
+    }
+  }
+
+  it('returns the Monday of the week after the latest existing Einheit', () => {
+    const einheiten = [einheit('2026-KW46'), einheit('2026-KW48'), einheit('2026-KW50'), einheit('2026-KW51')]
+    expect(naechstesEinheitDatum(einheiten)).toBe('2026-12-21')
+  })
+
+  it('is not confused by insertion order — it looks at the latest week, not the last element', () => {
+    const einheiten = [einheit('2026-KW51'), einheit('2026-KW46')]
+    expect(naechstesEinheitDatum(einheiten)).toBe('2026-12-21')
+  })
+
+  it('falls back to today when there are no existing Einheiten', () => {
+    expect(naechstesEinheitDatum([])).toBe(format(new Date(), 'yyyy-MM-dd'))
   })
 })

@@ -83,6 +83,18 @@ describe('useAppData', () => {
     expect(andereSchule.reihen[0].einheiten).toHaveLength(12)
   })
 
+  it('addEinheit places the new Einheit one week after the Reihe\'s latest existing Einheit', () => {
+    const { result } = renderHook(() => useAppData())
+    const schule = result.current.data.schulen.find((s) => s.id === 'wdg')!
+    const reihe = schule.reihen[0]
+    act(() => {
+      result.current.addEinheit(reihe.id)
+    })
+    const aktualisierteReihe = result.current.data.schulen.find((s) => s.id === 'wdg')!.reihen[0]
+    // Seed data for wdg's first Reihe has its latest existing Einheit in 2026-KW51 (see src/data/data.json).
+    expect(aktualisierteReihe.einheiten.at(-1)?.datum_oder_kw).toBe('2026-12-21')
+  })
+
   it('removeEinheit deletes the matching Einheit and renumbers the rest', () => {
     const { result } = renderHook(() => useAppData())
     const schule = result.current.data.schulen.find((s) => s.id === 'wdg')!
