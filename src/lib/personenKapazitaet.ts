@@ -22,7 +22,7 @@ function berechneZugewieseneStundenProWoche(data: Datenbestand, personId: string
     const zaehlendeReihen = schule.reihen.filter((reihe) => reihe.terminstatus !== 'offen')
     for (const reihe of zaehlendeReihen) {
       for (const einheit of reihe.einheiten) {
-        if (einheit.begleitperson_id !== personId) continue
+        if (!einheit.wir_begleiten || einheit.begleitperson_id !== personId) continue
         const wochenKey = parseZuWochenKey(einheit.datum_oder_kw)
         zugewiesen.set(wochenKey, (zugewiesen.get(wochenKey) ?? 0) + einheit.kontaktzeit_h)
       }

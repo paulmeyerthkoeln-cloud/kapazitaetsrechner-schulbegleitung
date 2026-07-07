@@ -106,6 +106,16 @@ describe('berechnePersonenKapazitaet', () => {
     expect(kw46.verbleibend).toBe(8)
   })
 
+  it('ignores a stale begleitperson_id on an Einheit where wir_begleiten is false', () => {
+    const data = datenbestand({
+      schulen: [schuleMitEinheit({ begleitperson_id: 'p1', wir_begleiten: false, kontaktzeit_h: 3, datum_oder_kw: '2026-KW46' })],
+    })
+    const ergebnis = berechnePersonenKapazitaet(data)
+    const kw46 = ergebnis[0].wochen.find((w) => w.wochenKey === '2026-KW46')!
+    expect(kw46.zugewiesen).toBe(0)
+    expect(kw46.verbleibend).toBe(8)
+  })
+
   it('nets umverteilt from that Person\'s own PersonenUmverteilung entries, both source and target weeks', () => {
     const data = datenbestand({
       personenUmverteilungen: [{ id: 'u1', personId: 'p1', quelleWochenKey: '2026-KW45', zielWochenKey: '2026-KW47', stunden: 2 }],
