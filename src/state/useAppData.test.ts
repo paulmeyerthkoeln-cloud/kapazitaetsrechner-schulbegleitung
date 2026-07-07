@@ -260,11 +260,6 @@ describe('useAppData', () => {
     expect(result.current.themenGanttZeilen.length).toBeGreaterThan(0)
   })
 
-  it('exposes ferienWarnungen derived from the current data', () => {
-    const { result } = renderHook(() => useAppData())
-    expect(Array.isArray(result.current.ferienWarnungen)).toBe(true)
-  })
-
   it('persists data to localStorage after a change and reloads it on next mount', () => {
     const { result, unmount } = renderHook(() => useAppData())
     act(() => {

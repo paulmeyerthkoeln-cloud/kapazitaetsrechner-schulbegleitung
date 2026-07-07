@@ -2,7 +2,6 @@ import './ThemenUebersicht.css'
 import { formatWochenspanne, kwNummer } from '../lib/kalenderwochen'
 import { berechneFerienBaender } from '../lib/themenUebersicht'
 import type { ThemenGanttZeile } from '../lib/themenUebersicht'
-import type { FerienWarnung } from '../lib/ferienWarnung'
 import type { WochenErgebnis } from '../lib/berechnung'
 import type { Thema } from '../lib/types'
 
@@ -18,11 +17,9 @@ const THEMEN_FARBEN: Record<Thema | 'ohne', string> = {
 export function ThemenUebersicht({
   zeilen,
   wochen,
-  ferienWarnungen,
 }: {
   zeilen: ThemenGanttZeile[]
   wochen: WochenErgebnis[]
-  ferienWarnungen: FerienWarnung[]
 }) {
   if (zeilen.length === 0) {
     return (
@@ -40,19 +37,6 @@ export function ThemenUebersicht({
   return (
     <div>
       <h3>Themen-Übersicht</h3>
-      {ferienWarnungen.length > 0 && (
-        <div className="themen-warnung">
-          ⚠️ {ferienWarnungen.length} Termin{ferienWarnungen.length === 1 ? '' : 'e'}{' '}
-          {ferienWarnungen.length === 1 ? 'liegt' : 'liegen'} in den Ferien:
-          <ul>
-            {ferienWarnungen.map((w, i) => (
-              <li key={i}>
-                {w.schule} – {w.reiheTitel}, Termin {w.einheitIndex} ({w.datumOderKw}, {w.ferienName})
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
       <div className="themen-gantt-scroll">
         <div
           className="themen-gantt-grid"

@@ -3,7 +3,6 @@ import { format } from 'date-fns'
 import seedData from '../data/data.json'
 import { berechneMachbarkeit, berechneWochenuebersicht } from '../lib/berechnung'
 import { berechneThemenGantt } from '../lib/themenUebersicht'
-import { findeEinheitenInFerien } from '../lib/ferienWarnung'
 import { alleWochenImZeitraum, ermittleFerienName, getISOWochenKey } from '../lib/kalenderwochen'
 import type { Datenbestand, Einheit, Person, Terminstatus } from '../lib/types'
 
@@ -231,12 +230,10 @@ export function useAppData() {
     return { wochen, machbarkeit: berechneMachbarkeit(wochen) }
   }, [data])
   const themenGanttZeilen = useMemo(() => berechneThemenGantt(data), [data])
-  const ferienWarnungen = useMemo(() => findeEinheitenInFerien(data, ergebnis.wochen), [data, ergebnis.wochen])
 
   return {
     data,
     themenGanttZeilen,
-    ferienWarnungen,
     setPerson,
     addPerson,
     removePerson,

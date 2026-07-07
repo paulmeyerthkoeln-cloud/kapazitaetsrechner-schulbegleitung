@@ -26,7 +26,6 @@ export default function App() {
     removeUmverteilung,
     ergebnis,
     themenGanttZeilen,
-    ferienWarnungen,
     exportJson,
     importJson,
     importError,
@@ -52,7 +51,7 @@ export default function App() {
         <EngpassBericht topEngpaesse={ergebnis.machbarkeit.topEngpaesse} />
       </div>
       <div className="card">
-        <ThemenUebersicht zeilen={themenGanttZeilen} wochen={ergebnis.wochen} ferienWarnungen={ferienWarnungen} />
+        <ThemenUebersicht zeilen={themenGanttZeilen} wochen={ergebnis.wochen} />
       </div>
       <h2>Schulen</h2>
       <SchulenAccordion
