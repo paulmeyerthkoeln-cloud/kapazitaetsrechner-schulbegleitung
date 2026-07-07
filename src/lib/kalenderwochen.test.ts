@@ -10,12 +10,23 @@ import {
   ermittleFerienName,
   formatWochenspanne,
   generiereWochentlicheTermine,
+  kwNummer,
 } from './kalenderwochen'
 import type { FerienZeitraum, Muster, Reihe } from './types'
 
 describe('getISOWochenKey', () => {
   it('formats a Monday in ISO week 46 of 2026', () => {
     expect(getISOWochenKey(new Date('2026-11-09'))).toBe('2026-KW46')
+  })
+})
+
+describe('kwNummer', () => {
+  it('extracts the week number from a KW key', () => {
+    expect(kwNummer('2026-KW46')).toBe('46')
+  })
+
+  it('returns the input unchanged when it is not a valid KW key', () => {
+    expect(kwNummer('nicht-ein-schluessel')).toBe('nicht-ein-schluessel')
   })
 })
 

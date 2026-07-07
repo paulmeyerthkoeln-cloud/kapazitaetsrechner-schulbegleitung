@@ -14,6 +14,11 @@ export function parseZuWochenKey(datumOderKw: string): string {
   return getISOWochenKey(parseISO(datumOderKw))
 }
 
+export function kwNummer(wochenKey: string): string {
+  const treffer = KW_REGEX.exec(wochenKey)
+  return treffer ? treffer[2] : wochenKey
+}
+
 export function istDatumInFerien(date: Date, ferien: FerienZeitraum[]): boolean {
   return ferien.some((f) => date >= parseISO(f.von) && date <= parseISO(f.bis))
 }

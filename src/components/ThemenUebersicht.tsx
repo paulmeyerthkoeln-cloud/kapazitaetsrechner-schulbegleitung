@@ -1,5 +1,5 @@
 import './ThemenUebersicht.css'
-import { formatWochenspanne } from '../lib/kalenderwochen'
+import { formatWochenspanne, kwNummer } from '../lib/kalenderwochen'
 import { berechneFerienBaender } from '../lib/themenUebersicht'
 import type { ThemenGanttZeile } from '../lib/themenUebersicht'
 import type { FerienWarnung } from '../lib/ferienWarnung'
@@ -13,11 +13,6 @@ const THEMEN_FARBEN: Record<Thema | 'ohne', string> = {
   Energie: '#e6b800',
   Exkursion: '#7b5ea7',
   ohne: '#8a8a8a',
-}
-
-function kwNummer(wochenKey: string): string {
-  const treffer = /^\d{4}-KW(\d{2})$/.exec(wochenKey)
-  return treffer ? treffer[1] : wochenKey
 }
 
 export function ThemenUebersicht({
