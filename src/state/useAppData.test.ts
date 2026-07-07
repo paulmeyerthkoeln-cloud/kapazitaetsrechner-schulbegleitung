@@ -95,6 +95,39 @@ describe('useAppData', () => {
     expect(aktualisierteReihe.einheiten.at(-1)?.datum_oder_kw).toBe('2026-12-21')
   })
 
+  it('setEinheitBegleitung clears begleitperson_id when toggled off', () => {
+    const { result } = renderHook(() => useAppData())
+    const schule = result.current.data.schulen.find((s) => s.id === 'wdg')!
+    const reihe = schule.reihen[0]
+    const einheit = reihe.einheiten[0]
+    const personId = result.current.data.personen[0].id
+    act(() => {
+      result.current.setEinheitFelder(reihe.id, einheit.id, { begleitperson_id: personId })
+    })
+    act(() => {
+      result.current.setEinheitBegleitung(reihe.id, einheit.id, false)
+    })
+    const aktualisierteReihe = result.current.data.schulen.find((s) => s.id === 'wdg')!.reihen[0]
+    expect(aktualisierteReihe.einheiten[0].wir_begleiten).toBe(false)
+    expect(aktualisierteReihe.einheiten[0].begleitperson_id).toBeNull()
+  })
+
+  it('removePerson clears begleitperson_id on any Einheit that referenced the deleted Person', () => {
+    const { result } = renderHook(() => useAppData())
+    const personId = result.current.data.personen[0].id
+    const schule = result.current.data.schulen.find((s) => s.id === 'wdg')!
+    const reihe = schule.reihen[0]
+    const einheit = reihe.einheiten[0]
+    act(() => {
+      result.current.setEinheitFelder(reihe.id, einheit.id, { begleitperson_id: personId })
+    })
+    act(() => {
+      result.current.removePerson(personId)
+    })
+    const aktualisierteReihe = result.current.data.schulen.find((s) => s.id === 'wdg')!.reihen[0]
+    expect(aktualisierteReihe.einheiten[0].begleitperson_id).toBeNull()
+  })
+
   it('removeEinheit deletes the matching Einheit and renumbers the rest', () => {
     const { result } = renderHook(() => useAppData())
     const schule = result.current.data.schulen.find((s) => s.id === 'wdg')!

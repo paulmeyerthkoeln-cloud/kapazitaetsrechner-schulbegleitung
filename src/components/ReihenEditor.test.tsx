@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { ReihenEditor } from './ReihenEditor'
-import type { Reihe } from '../lib/types'
+import type { Person, Reihe } from '../lib/types'
 
 const reihe: Reihe = {
   id: 'r1',
@@ -35,9 +35,15 @@ const reihe: Reihe = {
   ],
 }
 
+const personen: Person[] = [
+  { id: 'p1', name: 'Anna', stunden_pro_woche_fuer_begleitung: 8, aktiv_ab: '2026-09-01', aktiv_bis: '2027-07-16', abwesenheiten: [] },
+  { id: 'p2', name: 'Ben', stunden_pro_woche_fuer_begleitung: 8, aktiv_ab: '2026-09-01', aktiv_bis: '2027-07-16', abwesenheiten: [] },
+]
+
 function renderReihenEditor() {
   const props = {
     reihe,
+    personen,
     onEinheitToggle: vi.fn(),
     onPresetApply: vi.fn(),
     onEinheitAdd: vi.fn(),
@@ -144,6 +150,7 @@ describe('ReihenEditor', () => {
     const { rerender } = render(
       <ReihenEditor
         reihe={reihe}
+        personen={personen}
         onEinheitToggle={vi.fn()}
         onPresetApply={vi.fn()}
         onEinheitAdd={vi.fn()}
@@ -157,6 +164,7 @@ describe('ReihenEditor', () => {
     rerender(
       <ReihenEditor
         reihe={{ ...reihe, terminstatus: 'offen' }}
+        personen={personen}
         onEinheitToggle={vi.fn()}
         onPresetApply={vi.fn()}
         onEinheitAdd={vi.fn()}
@@ -173,6 +181,7 @@ describe('ReihenEditor', () => {
     const reiheOhneTermine = { ...reihe, einheiten: [] }
     const props = {
       reihe: reiheOhneTermine,
+      personen,
       onEinheitToggle: vi.fn(),
       onPresetApply: vi.fn(),
       onEinheitAdd: vi.fn(),
@@ -216,6 +225,7 @@ describe('ReihenEditor', () => {
     render(
       <ReihenEditor
         reihe={wdgAehnlicheReihe}
+        personen={personen}
         onEinheitToggle={vi.fn()}
         onPresetApply={vi.fn()}
         onEinheitAdd={vi.fn()}
@@ -229,11 +239,43 @@ describe('ReihenEditor', () => {
     expect(unterrichtszeit.value).toBe('240')
   })
 
+  it('renders a Begleitperson option for each Person, plus a niemand option', () => {
+    renderReihenEditor()
+    const begleitpersonSelects = screen.getAllByRole('combobox', { name: /Begleitperson für Termin/ })
+    const optionLabels = Array.from(begleitpersonSelects[0].querySelectorAll('option')).map((o) => o.textContent)
+    expect(optionLabels).toEqual(['— niemand —', 'Anna', 'Ben'])
+  })
+
+  it('disables the Begleitperson dropdown when Wir begleiten is off', () => {
+    renderReihenEditor()
+    expect(screen.getByRole('combobox', { name: 'Begleitperson für Termin 2 in Testreihe' })).toBeDisabled()
+  })
+
+  it('enables the Begleitperson dropdown when Wir begleiten is on', () => {
+    renderReihenEditor()
+    expect(screen.getByRole('combobox', { name: 'Begleitperson für Termin 1 in Testreihe' })).not.toBeDisabled()
+  })
+
+  it('calls onEinheitFelderChange with the selected Begleitperson id', () => {
+    const props = renderReihenEditor()
+    const begleitperson = screen.getByRole('combobox', { name: 'Begleitperson für Termin 1 in Testreihe' })
+    fireEvent.change(begleitperson, { target: { value: 'p2' } })
+    expect(props.onEinheitFelderChange).toHaveBeenCalledWith('e1', { begleitperson_id: 'p2' })
+  })
+
+  it('calls onEinheitFelderChange with null when Begleitperson is reset to — niemand —', () => {
+    const props = renderReihenEditor()
+    const begleitperson = screen.getByRole('combobox', { name: 'Begleitperson für Termin 1 in Testreihe' })
+    fireEvent.change(begleitperson, { target: { value: '' } })
+    expect(props.onEinheitFelderChange).toHaveBeenCalledWith('e1', { begleitperson_id: null })
+  })
+
   it('falls back to 90 minutes for the Schnelleinrichtung Unterrichtszeit when the Reihe has no Termine yet', () => {
     const reiheOhneTermine = { ...reihe, einheiten: [] }
     render(
       <ReihenEditor
         reihe={reiheOhneTermine}
+        personen={personen}
         onEinheitToggle={vi.fn()}
         onPresetApply={vi.fn()}
         onEinheitAdd={vi.fn()}

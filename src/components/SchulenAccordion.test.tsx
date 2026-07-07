@@ -72,6 +72,7 @@ function renderAccordion() {
   const props = {
     schulen,
     settings,
+    personen: [],
     ferien: [],
     onEinheitToggle: vi.fn(),
     onEinheitAdd: vi.fn(),

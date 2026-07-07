@@ -26,6 +26,7 @@ function renderItem() {
   const props = {
     schule,
     settings,
+    personen: [],
     onEinheitToggle: vi.fn(),
     onPresetApply: vi.fn(),
     onEinheitAdd: vi.fn(),

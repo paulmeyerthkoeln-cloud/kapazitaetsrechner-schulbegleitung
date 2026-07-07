@@ -1,12 +1,13 @@
 import { SchuleAkkordionItem } from './SchuleAkkordionItem'
 import { wendeBesetzungPreset } from '../lib/besetzung'
 import { generiereWochentlicheTermine } from '../lib/kalenderwochen'
-import type { BesetzungsPreset, Einheit, FerienZeitraum, Schule, Settings, Terminstatus, Thema } from '../lib/types'
+import type { BesetzungsPreset, Einheit, FerienZeitraum, Person, Schule, Settings, Terminstatus, Thema } from '../lib/types'
 import './SchulenAccordion.css'
 
 export function SchulenAccordion({
   schulen,
   settings,
+  personen,
   ferien,
   onEinheitToggle,
   onEinheitAdd,
@@ -17,6 +18,7 @@ export function SchulenAccordion({
 }: {
   schulen: Schule[]
   settings: Settings
+  personen: Person[]
   ferien: FerienZeitraum[]
   onEinheitToggle: (reiheId: string, einheitId: string, wert: boolean) => void
   onEinheitAdd: (reiheId: string) => void
@@ -24,7 +26,7 @@ export function SchulenAccordion({
   onEinheitFelderChange: (
     reiheId: string,
     einheitId: string,
-    patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema; koordinationszeit_h?: number }
+    patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema; koordinationszeit_h?: number; begleitperson_id?: string | null }
   ) => void
   onTerminstatusChange: (reiheId: string, terminstatus: Terminstatus) => void
   onEinheitenReplace: (reiheId: string, einheiten: Einheit[]) => void
@@ -50,6 +52,7 @@ export function SchulenAccordion({
           key={schule.id}
           schule={schule}
           settings={settings}
+          personen={personen}
           onEinheitToggle={onEinheitToggle}
           onPresetApply={onPresetApply}
           onEinheitAdd={onEinheitAdd}

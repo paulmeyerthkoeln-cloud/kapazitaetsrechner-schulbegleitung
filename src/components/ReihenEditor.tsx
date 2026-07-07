@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
 import { berechneUnserAnteil, ermittleHaeufigsteKontaktzeit } from '../lib/besetzung'
-import type { BesetzungsPreset, Reihe, Terminstatus, Thema } from '../lib/types'
+import type { BesetzungsPreset, Person, Reihe, Terminstatus, Thema } from '../lib/types'
 
 const PRESETS: { label: string; preset: (n: number) => BesetzungsPreset }[] = [
   { label: 'Alle', preset: () => ({ typ: 'alle' }) },
@@ -13,6 +13,7 @@ const THEMEN: Thema[] = ['Ernährung', 'Stadtgrün', 'Mobilität', 'Energie', 'E
 
 export function ReihenEditor({
   reihe,
+  personen,
   onEinheitToggle,
   onPresetApply,
   onEinheitAdd,
@@ -22,13 +23,14 @@ export function ReihenEditor({
   onTermineGenerieren,
 }: {
   reihe: Reihe
+  personen: Person[]
   onEinheitToggle: (einheitId: string, wert: boolean) => void
   onPresetApply: (preset: BesetzungsPreset) => void
   onEinheitAdd: () => void
   onEinheitRemove: (einheitId: string) => void
   onEinheitFelderChange: (
     einheitId: string,
-    patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema; koordinationszeit_h?: number }
+    patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema; koordinationszeit_h?: number; begleitperson_id?: string | null }
   ) => void
   onTerminstatusChange: (wert: Terminstatus) => void
   onTermineGenerieren: (startdatum: string, unterrichtszeitH: number, anzahlTermine: number) => void
@@ -128,6 +130,7 @@ export function ReihenEditor({
             <th>Koordination (min)</th>
             <th>Thema</th>
             <th>Wir begleiten</th>
+            <th>Begleitperson</th>
             <th></th>
           </tr>
         </thead>
@@ -187,6 +190,23 @@ export function ReihenEditor({
                   checked={e.wir_begleiten}
                   onChange={(ev) => onEinheitToggle(e.id, ev.target.checked)}
                 />
+              </td>
+              <td>
+                <select
+                  aria-label={`Begleitperson für Termin ${e.index} in ${reihe.titel}`}
+                  value={e.begleitperson_id ?? ''}
+                  disabled={!e.wir_begleiten}
+                  onChange={(ev) =>
+                    onEinheitFelderChange(e.id, { begleitperson_id: ev.target.value === '' ? null : ev.target.value })
+                  }
+                >
+                  <option value="">— niemand —</option>
+                  {personen.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
               </td>
               <td>
                 <button onClick={() => onEinheitRemove(e.id)} aria-label={`Termin ${e.index} in ${reihe.titel} löschen`}>

@@ -86,6 +86,14 @@ export function useAppData() {
     setData((prev) => ({
       ...prev,
       personen: prev.personen.filter((p) => p.id !== id),
+      schulen: prev.schulen.map((schule) => ({
+        ...schule,
+        reihen: schule.reihen.map((reihe) => ({
+          ...reihe,
+          einheiten: reihe.einheiten.map((e) => (e.begleitperson_id === id ? { ...e, begleitperson_id: null } : e)),
+        })),
+      })),
+      personenUmverteilungen: (prev.personenUmverteilungen ?? []).filter((u) => u.personId !== id),
     }))
   }
 
@@ -99,7 +107,9 @@ export function useAppData() {
             ? reihe
             : {
                 ...reihe,
-                einheiten: reihe.einheiten.map((e) => (e.id === einheitId ? { ...e, wir_begleiten: wert } : e)),
+                einheiten: reihe.einheiten.map((e) =>
+                  e.id === einheitId ? { ...e, wir_begleiten: wert, begleitperson_id: wert ? e.begleitperson_id : null } : e
+                ),
               }
         ),
       })),
@@ -147,7 +157,7 @@ export function useAppData() {
   function setEinheitFelder(
     reiheId: string,
     einheitId: string,
-    patch: Partial<Pick<Einheit, 'datum_oder_kw' | 'kontaktzeit_h' | 'thema' | 'koordinationszeit_h'>>
+    patch: Partial<Pick<Einheit, 'datum_oder_kw' | 'kontaktzeit_h' | 'thema' | 'koordinationszeit_h' | 'begleitperson_id'>>
   ) {
     setData((prev) => ({
       ...prev,

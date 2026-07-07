@@ -1,8 +1,9 @@
 import { ReihenEditor } from './ReihenEditor'
-import type { BesetzungsPreset, Schule, Settings, Terminstatus, Thema } from '../lib/types'
+import type { BesetzungsPreset, Person, Schule, Settings, Terminstatus, Thema } from '../lib/types'
 
 export function SchuleAkkordionItem({
   schule,
+  personen,
   onEinheitToggle,
   onPresetApply,
   onEinheitAdd,
@@ -13,6 +14,7 @@ export function SchuleAkkordionItem({
 }: {
   schule: Schule
   settings: Settings
+  personen: Person[]
   onEinheitToggle: (reiheId: string, einheitId: string, wert: boolean) => void
   onPresetApply: (reiheId: string, preset: BesetzungsPreset) => void
   onEinheitAdd: (reiheId: string) => void
@@ -20,7 +22,7 @@ export function SchuleAkkordionItem({
   onEinheitFelderChange: (
     reiheId: string,
     einheitId: string,
-    patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema; koordinationszeit_h?: number }
+    patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema; koordinationszeit_h?: number; begleitperson_id?: string | null }
   ) => void
   onTerminstatusChange: (reiheId: string, terminstatus: Terminstatus) => void
   onTermineGenerieren: (reiheId: string, startdatum: string, unterrichtszeitH: number, anzahlTermine: number) => void
@@ -36,6 +38,7 @@ export function SchuleAkkordionItem({
             </p>
             <ReihenEditor
               reihe={reihe}
+              personen={personen}
               onEinheitToggle={(einheitId, wert) => onEinheitToggle(reihe.id, einheitId, wert)}
               onPresetApply={(preset) => onPresetApply(reihe.id, preset)}
               onEinheitAdd={() => onEinheitAdd(reihe.id)}

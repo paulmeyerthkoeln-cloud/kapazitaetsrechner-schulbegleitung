@@ -56,6 +56,7 @@ export default function App() {
       <SchulenAccordion
         schulen={data.schulen}
         settings={data.settings}
+        personen={data.personen}
         onEinheitToggle={setEinheitBegleitung}
         onEinheitAdd={addEinheit}
         onEinheitRemove={removeEinheit}
