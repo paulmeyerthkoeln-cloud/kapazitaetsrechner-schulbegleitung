@@ -107,11 +107,24 @@ describe('ReihenEditor', () => {
     expect(screen.getAllByRole('option', { name: 'Exkursion' })).toHaveLength(2)
   })
 
-  it('calls onEinheitFelderChange with coordination hours when the coordination field changes', () => {
+  it('shows Koordination in minutes, converted from the stored hours', () => {
+    renderReihenEditor()
+    const koordinationE1 = screen.getByLabelText('Koordinationszeit für Termin 1 in Testreihe') as HTMLInputElement
+    const koordinationE2 = screen.getByLabelText('Koordinationszeit für Termin 2 in Testreihe') as HTMLInputElement
+    expect(koordinationE1.value).toBe('30')
+    expect(koordinationE2.value).toBe('0')
+  })
+
+  it('calls onEinheitFelderChange with koordinationszeit_h in hours when the minutes input changes', () => {
     const props = renderReihenEditor()
     const koordinationszeit = screen.getByLabelText('Koordinationszeit für Termin 1 in Testreihe')
-    fireEvent.change(koordinationszeit, { target: { value: '1.25' } })
+    fireEvent.change(koordinationszeit, { target: { value: '75' } })
     expect(props.onEinheitFelderChange).toHaveBeenCalledWith('e1', { koordinationszeit_h: 1.25 })
+  })
+
+  it('labels the Koordination column in minutes', () => {
+    renderReihenEditor()
+    expect(screen.getByText('Koordination (min)')).toBeInTheDocument()
   })
 
   it('shows the current Terminstatus in the dropdown', () => {

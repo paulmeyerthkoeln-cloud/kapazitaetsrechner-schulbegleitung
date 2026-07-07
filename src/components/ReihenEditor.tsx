@@ -125,7 +125,7 @@ export function ReihenEditor({
             <th>#</th>
             <th>Datum/KW</th>
             <th>Unterrichtszeit (min)</th>
-            <th>Koordination h/KW</th>
+            <th>Koordination (min)</th>
             <th>Thema</th>
             <th>Wir begleiten</th>
             <th></th>
@@ -157,11 +157,11 @@ export function ReihenEditor({
               <td>
                 <input
                   type="number"
-                  step={0.25}
+                  step={5}
                   min={0}
                   aria-label={`Koordinationszeit für Termin ${e.index} in ${reihe.titel}`}
-                  value={e.koordinationszeit_h ?? 0}
-                  onChange={(ev) => onEinheitFelderChange(e.id, { koordinationszeit_h: Number(ev.target.value) })}
+                  value={Math.round((e.koordinationszeit_h ?? 0) * 60)}
+                  onChange={(ev) => onEinheitFelderChange(e.id, { koordinationszeit_h: Number(ev.target.value) / 60 })}
                   style={{ width: '5rem' }}
                 />
               </td>
