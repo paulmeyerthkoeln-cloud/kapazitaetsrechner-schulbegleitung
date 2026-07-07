@@ -9,7 +9,7 @@ const PRESETS: { label: string; preset: (n: number) => BesetzungsPreset }[] = [
   { label: 'Erste & Letzte', preset: () => ({ typ: 'erste_und_letzte' }) },
 ]
 
-const THEMEN: Thema[] = ['Ernährung', 'Stadtgrün', 'Mobilität', 'Energie']
+const THEMEN: Thema[] = ['Ernährung', 'Stadtgrün', 'Mobilität', 'Energie', 'Exkursion']
 
 export function ReihenEditor({
   reihe,
@@ -28,7 +28,7 @@ export function ReihenEditor({
   onEinheitRemove: (einheitId: string) => void
   onEinheitFelderChange: (
     einheitId: string,
-    patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema }
+    patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema; koordinationszeit_h?: number }
   ) => void
   onTerminstatusChange: (wert: Terminstatus) => void
   onTermineGenerieren: (startdatum: string, unterrichtszeitH: number, anzahlTermine: number) => void
@@ -125,6 +125,7 @@ export function ReihenEditor({
             <th>#</th>
             <th>Datum/KW</th>
             <th>Unterrichtszeit (min)</th>
+            <th>Koordination h/KW</th>
             <th>Thema</th>
             <th>Wir begleiten</th>
             <th></th>
@@ -150,6 +151,17 @@ export function ReihenEditor({
                   min={0}
                   value={Math.round(e.kontaktzeit_h * 60)}
                   onChange={(ev) => onEinheitFelderChange(e.id, { kontaktzeit_h: Number(ev.target.value) / 60 })}
+                  style={{ width: '5rem' }}
+                />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  step={0.25}
+                  min={0}
+                  aria-label={`Koordinationszeit für Termin ${e.index} in ${reihe.titel}`}
+                  value={e.koordinationszeit_h ?? 0}
+                  onChange={(ev) => onEinheitFelderChange(e.id, { koordinationszeit_h: Number(ev.target.value) })}
                   style={{ width: '5rem' }}
                 />
               </td>

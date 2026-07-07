@@ -26,7 +26,6 @@ function renderItem() {
   const props = {
     schule,
     settings,
-    onKoordinationChange: vi.fn(),
     onEinheitToggle: vi.fn(),
     onPresetApply: vi.fn(),
     onEinheitAdd: vi.fn(),
@@ -55,37 +54,6 @@ describe('SchuleAkkordionItem', () => {
     renderItem()
     expect(screen.getByRole('heading', { name: 'Reihe Eins' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Reihe Zwei' })).toBeInTheDocument()
-  })
-
-  it('calls onKoordinationChange with the Schule id when the coordination field changes', () => {
-    const props = renderItem()
-    const eingabe = screen.getByRole('spinbutton', { name: /Koordination/i })
-    fireEvent.change(eingabe, { target: { value: '3' } })
-    expect(props.onKoordinationChange).toHaveBeenCalledWith('s1', 3)
-  })
-
-  it('shows the global default Koordination value when the Schule has no override', () => {
-    renderItem()
-    const eingabe = screen.getByRole('spinbutton', { name: /Koordination/i })
-    expect(eingabe).toHaveValue(settings.koordination_h_pro_schule_pro_monat)
-  })
-
-  it('shows the Schule-specific Koordination override value instead of the global default', () => {
-    const props = {
-      schule: { ...schule, koordination_h_pro_monat: 0.5 },
-      settings,
-      onKoordinationChange: vi.fn(),
-      onEinheitToggle: vi.fn(),
-      onPresetApply: vi.fn(),
-      onEinheitAdd: vi.fn(),
-      onEinheitRemove: vi.fn(),
-      onEinheitFelderChange: vi.fn(),
-      onTerminstatusChange: vi.fn(),
-      onTermineGenerieren: vi.fn(),
-    }
-    render(<SchuleAkkordionItem {...props} />)
-    const eingabe = screen.getByRole('spinbutton', { name: /Koordination/i })
-    expect(eingabe).toHaveValue(0.5)
   })
 
   it("calls onEinheitAdd with the correct Reihe id when that Reihe's add button is clicked", () => {

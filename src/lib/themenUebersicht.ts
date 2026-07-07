@@ -1,15 +1,59 @@
 import { parseZuWochenKey } from './kalenderwochen'
-import type { Datenbestand, Thema } from './types'
+import { addWeeks, isEqual, startOfISOWeek, setISOWeek, setISOWeekYear } from 'date-fns'
+import type { Datenbestand, Einheit, Thema } from './types'
 import type { WochenErgebnis } from './berechnung'
 
 export interface ThemenGanttZeile {
   reiheId: string
   zeilenLabel: string
   balkenLabel: string
-  thema: Thema | null
+  thema: Thema
   startWochenKey: string
   endWochenKey: string
   stunden: number
+}
+
+function wochenKeyZuMontag(wochenKey: string): Date {
+  const treffer = /^(\d{4})-KW(\d{2})$/.exec(wochenKey)
+  if (!treffer) return new Date(NaN)
+  const [, jahr, woche] = treffer
+  return startOfISOWeek(setISOWeek(setISOWeekYear(new Date(), Number(jahr)), Number(woche)))
+}
+
+function sindDirektAufeinanderfolgendeWochen(a: string, b: string): boolean {
+  return isEqual(addWeeks(wochenKeyZuMontag(a), 1), wochenKeyZuMontag(b))
+}
+
+function kuerzeSchulname(name: string): string {
+  const bekannteNamen: Record<string, string> = {
+    'Alexander-Coppel-Gesamtschule': 'Coppel',
+    'Gym. Sedanstraße': 'Sedan',
+    'Gym. Kothen': 'Kothen',
+    'Hauptschule Hügelstraße': 'Hügelstraße',
+    'Realschule Max Planck': 'Max Planck',
+    'Bayreuther Gymnasium': 'Bayreuther',
+    'Berufskolleg Barmen': 'Barmen',
+    'Schule X (Platzhalter)': 'Schule X',
+  }
+  return bekannteNamen[name] ?? name.replace(/Gym\.\s*/, '').replace(/Gesamtschule|Gymnasium|Realschule|Hauptschule/g, '').trim()
+}
+
+function kuerzeReihentitel(titel: string): string {
+  return titel
+    .replace(/\s*\([^)]*\)/g, '')
+    .split(/[,—]/)[0]
+    .replace(/UNESCO-Stunde/g, 'UNESCO')
+    .replace(/\bKl\.\s*\d+\b/g, '')
+    .replace(/\b\d+[×x]?\s*/g, '')
+    .trim()
+}
+
+function baueZeilenLabel(schulname: string, reihentitel: string): string {
+  return `${kuerzeSchulname(schulname)} - ${kuerzeReihentitel(reihentitel)}`.slice(0, 34)
+}
+
+function sortiereEinheitenNachWoche(einheiten: Einheit[]): Einheit[] {
+  return [...einheiten].sort((a, b) => parseZuWochenKey(a.datum_oder_kw).localeCompare(parseZuWochenKey(b.datum_oder_kw)))
 }
 
 export function berechneThemenGantt(data: Datenbestand): ThemenGanttZeile[] {
@@ -17,28 +61,45 @@ export function berechneThemenGantt(data: Datenbestand): ThemenGanttZeile[] {
   for (const schule of data.schulen) {
     for (const reihe of schule.reihen) {
       if (reihe.terminstatus === 'offen') continue
-      const begleiteteEinheiten = reihe.einheiten.filter((e) => e.wir_begleiten)
-      if (begleiteteEinheiten.length === 0) continue
+      const themenEinheiten = sortiereEinheitenNachWoche(reihe.einheiten.filter((e) => e.thema))
+      if (themenEinheiten.length === 0) continue
 
-      const gruppen = new Map<Thema | null, { wochenKeys: string[]; stunden: number }>()
-      for (const einheit of begleiteteEinheiten) {
-        const thema = einheit.thema ?? null
+      let aktuelleGruppe: { thema: Thema; startWochenKey: string; endWochenKey: string; stunden: number } | null = null
+      for (const einheit of themenEinheiten) {
+        const thema = einheit.thema!
         const wochenKey = parseZuWochenKey(einheit.datum_oder_kw)
-        const gruppe = gruppen.get(thema) ?? { wochenKeys: [], stunden: 0 }
-        gruppe.wochenKeys.push(wochenKey)
-        gruppe.stunden += einheit.kontaktzeit_h
-        gruppen.set(thema, gruppe)
+        if (
+          aktuelleGruppe &&
+          aktuelleGruppe.thema === thema &&
+          (aktuelleGruppe.endWochenKey === wochenKey || sindDirektAufeinanderfolgendeWochen(aktuelleGruppe.endWochenKey, wochenKey))
+        ) {
+          aktuelleGruppe.endWochenKey = wochenKey
+          aktuelleGruppe.stunden += einheit.kontaktzeit_h
+          continue
+        }
+        if (aktuelleGruppe) {
+          zeilen.push({
+            reiheId: reihe.id,
+            zeilenLabel: baueZeilenLabel(schule.name, reihe.titel),
+            balkenLabel: aktuelleGruppe.thema,
+            thema: aktuelleGruppe.thema,
+            startWochenKey: aktuelleGruppe.startWochenKey,
+            endWochenKey: aktuelleGruppe.endWochenKey,
+            stunden: aktuelleGruppe.stunden,
+          })
+        }
+        aktuelleGruppe = { thema, startWochenKey: wochenKey, endWochenKey: wochenKey, stunden: einheit.kontaktzeit_h }
       }
 
-      for (const [thema, gruppe] of gruppen) {
+      if (aktuelleGruppe) {
         zeilen.push({
           reiheId: reihe.id,
-          zeilenLabel: `${schule.name} – ${reihe.titel}`,
-          balkenLabel: thema ?? reihe.titel,
-          thema,
-          startWochenKey: gruppe.wochenKeys.reduce((kleinstes, k) => (k < kleinstes ? k : kleinstes)),
-          endWochenKey: gruppe.wochenKeys.reduce((groesstes, k) => (k > groesstes ? k : groesstes)),
-          stunden: gruppe.stunden,
+          zeilenLabel: baueZeilenLabel(schule.name, reihe.titel),
+          balkenLabel: aktuelleGruppe.thema,
+          thema: aktuelleGruppe.thema,
+          startWochenKey: aktuelleGruppe.startWochenKey,
+          endWochenKey: aktuelleGruppe.endWochenKey,
+          stunden: aktuelleGruppe.stunden,
         })
       }
     }

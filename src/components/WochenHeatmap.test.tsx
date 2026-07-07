@@ -12,6 +12,7 @@ function woche(overrides: Partial<WochenErgebnis> = {}): WochenErgebnis {
     angebot: 32,
     angebotBasis: 32,
     zusatzangebot: 0,
+    abgezogenesFerienangebot: 0,
     auslastung: 0.414,
     ampel: 'gruen',
     istFerien: false,
@@ -23,7 +24,7 @@ function woche(overrides: Partial<WochenErgebnis> = {}): WochenErgebnis {
 describe('WochenHeatmap', () => {
   it('shows the auslastung percentage with a date-range title for a regular week', () => {
     render(<WochenHeatmap wochen={[woche()]} />)
-    expect(screen.getByTitle('09.11.–15.11.2026: 41%')).toBeInTheDocument()
+    expect(screen.getByTitle(/09\.11\.–15\.11\.2026: 41% Auslastung/)).toBeInTheDocument()
   })
 
   it('shows the Ferienname instead of a percentage for a Ferienwoche', () => {
@@ -33,5 +34,13 @@ describe('WochenHeatmap', () => {
       />
     )
     expect(screen.getByTitle('Ferien: Herbstferien NRW')).toBeInTheDocument()
+  })
+
+  it('renders a visible legend explaining the colors', () => {
+    render(<WochenHeatmap wochen={[woche()]} />)
+    expect(screen.getByText(/Grün/)).toBeInTheDocument()
+    expect(screen.getByText(/Gelb/)).toBeInTheDocument()
+    expect(screen.getByText(/Rot/)).toBeInTheDocument()
+    expect(screen.getByText(/Ferien/)).toBeInTheDocument()
   })
 })

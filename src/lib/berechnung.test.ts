@@ -62,6 +62,39 @@ describe('berechneKoordinationWoche', () => {
 })
 
 describe('berechneBedarfProWoche', () => {
+  it('adds coordination from Einheiten scheduled in the selected week instead of a monthly school average', () => {
+    const data: Datenbestand = {
+      settings,
+      personen: [],
+      kalender: { ferien: [] },
+      schulen: [
+        {
+          id: 's1',
+          name: 'Schule 1',
+          koordination_h_pro_monat: 99,
+          reihen: [
+            {
+              id: 'r1',
+              titel: 'x',
+              betreuungsmodell: 'C',
+              fahrzeit_h: 0,
+              status: 'zugesagt',
+              extern_betreut: false,
+              terminstatus: 'festgelegt',
+              einheiten: [
+                einheit({ id: 'e1', datum_oder_kw: '2026-KW46', wir_begleiten: false, koordinationszeit_h: 2 }),
+                einheit({ id: 'e2', datum_oder_kw: '2026-KW47', wir_begleiten: false, koordinationszeit_h: 4 }),
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    expect(berechneBedarfProWoche(data, '2026-KW46', false).koordinationBedarf).toBe(2)
+    expect(berechneBedarfProWoche(data, '2026-KW47', false).koordinationBedarf).toBe(4)
+  })
+
   it('reproduces the full KW46/2026 hand-calculation from spec section 9 (~13.26h)', () => {
     const data: Datenbestand = {
       settings,
@@ -134,13 +167,11 @@ describe('berechneBedarfProWoche', () => {
       ],
     }
 
-    // 8 Schulen bei Koordination-Default (WDG, Sedanstraße, 6 Füll-Schulen) + Hügelstraße reduziert:
-    // Koordination = (8*1.5 + 0.5) / 4.33 = 2.887h. Aufwand WDG 8.0h + Sedanstraße 2.375h.
-    // Gesamt = 8.0 + 2.375 + 2.887 = 13.262h — matches spec section 9 exactly.
-    // All 8 Schulen have an Einheit dated 2026-KW46, so their Reihe is active that week —
-    // coordination is gated to a Reihe's active date range, not charged year-round.
+    // Per-unit coordination is now entered directly on each Einheit. The legacy monthly
+    // defaults are no longer added automatically.
     const { einsatzBedarf, koordinationBedarf } = berechneBedarfProWoche(data, '2026-KW46', false)
-    expect(einsatzBedarf + koordinationBedarf).toBeCloseTo(13.26, 1)
+    expect(einsatzBedarf + koordinationBedarf).toBeCloseTo(10.375, 5)
+    expect(koordinationBedarf).toBe(0)
   })
 
   it('excludes a Schule\'s coordination before its Reihe has started or after it has ended', () => {
@@ -167,7 +198,7 @@ describe('berechneBedarfProWoche', () => {
       ],
     }
     expect(berechneBedarfProWoche(data, '2026-KW46', false)).toEqual({ einsatzBedarf: 0, koordinationBedarf: 0 })
-    expect(berechneBedarfProWoche(data, '2027-KW10', false).koordinationBedarf).toBeCloseTo(1.5 / 4.33, 5)
+    expect(berechneBedarfProWoche(data, '2027-KW10', false).koordinationBedarf).toBe(0)
   })
 
   it('still charges coordination for a Modell-X Schule with wir_begleiten always false, while its Reihe is active', () => {
@@ -196,7 +227,7 @@ describe('berechneBedarfProWoche', () => {
     }
     const { einsatzBedarf, koordinationBedarf } = berechneBedarfProWoche(data, '2026-KW46', false)
     expect(einsatzBedarf).toBe(0)
-    expect(koordinationBedarf).toBeCloseTo(0.5 / 4.33, 5)
+    expect(koordinationBedarf).toBe(0)
   })
 
   it('counts a Schule\'s coordination only once even when multiple Reihen are simultaneously active', () => {
@@ -231,7 +262,7 @@ describe('berechneBedarfProWoche', () => {
         },
       ],
     }
-    expect(berechneBedarfProWoche(data, '2026-KW46', false).koordinationBedarf).toBeCloseTo(1.5 / 4.33, 5)
+    expect(berechneBedarfProWoche(data, '2026-KW46', false).koordinationBedarf).toBe(0)
   })
 
   it('returns 0 for a Ferienwoche regardless of scheduled Einheiten', () => {
@@ -415,6 +446,7 @@ describe('berechneVerbleibendeFerienstunden', () => {
       angebot: 32,
       angebotBasis: 32,
       zusatzangebot: 0,
+      abgezogenesFerienangebot: 0,
       auslastung: 0,
       ampel: 'gruen',
       istFerien: true,
@@ -454,7 +486,7 @@ describe('berechneVerbleibendeFerienstunden', () => {
 })
 
 describe('berechneWochenuebersicht', () => {
-  it('reproduces 41% Grün for KW46/2026 (spec section 9 end-to-end)', () => {
+  it('reproduces the KW46/2026 end-to-end load without legacy monthly coordination', () => {
     const personen: Person[] = Array.from({ length: 4 }, (_, i) => ({
       id: `p${i}`,
       name: `Person ${i}`,
@@ -537,12 +569,12 @@ describe('berechneWochenuebersicht', () => {
     const wochen = berechneWochenuebersicht(data)
     expect(wochen).toHaveLength(1)
     expect(wochen[0].wochenKey).toBe('2026-KW46')
-    expect(wochen[0].auslastung).toBeCloseTo(0.414, 2)
+    expect(wochen[0].auslastung).toBeCloseTo(0.324, 2)
     expect(wochen[0].ampel).toBe('gruen')
     expect(wochen[0].bedarf).toBeCloseTo(wochen[0].einsatzBedarf + wochen[0].koordinationBedarf, 10)
   })
 
-  it('gates koordinationBedarf to 0 outside a Reihe\'s active week across a multi-week sweep', () => {
+  it('does not add coordination unless an Einheit has explicit coordination time', () => {
     const data: Datenbestand = {
       settings: { ...settings, planungszeitraum: { start: '2026-11-02', ende: '2026-11-16' } },
       personen: [],
@@ -573,10 +605,10 @@ describe('berechneWochenuebersicht', () => {
     expect(wochen[2].wochenKey).toBe('2026-KW47')
     expect(wochen[0].koordinationBedarf).toBe(0)
     expect(wochen[2].koordinationBedarf).toBe(0)
-    expect(wochen[1].koordinationBedarf).toBeGreaterThan(0)
+    expect(wochen[1].koordinationBedarf).toBe(0)
   })
 
-  it('raises angebot and lowers auslastung only in the Zielwoche of an Umverteilung', () => {
+  it('raises angebot in the Zielwoche and subtracts it from the Ferien-Quellwoche', () => {
     const personen: Person[] = [
       {
         id: 'p1',
@@ -605,9 +637,9 @@ describe('berechneWochenuebersicht', () => {
       },
     ]
     const basisDaten: Datenbestand = {
-      settings: { ...settings, planungszeitraum: { start: '2026-11-02', ende: '2026-11-16' } },
+      settings: { ...settings, planungszeitraum: { start: '2026-10-26', ende: '2026-11-16' } },
       personen,
-      kalender: { ferien: [] },
+      kalender: { ferien: [{ name: 'Herbstferien NRW', von: '2026-10-26', bis: '2026-10-31' }] },
       schulen,
     }
 
@@ -617,15 +649,16 @@ describe('berechneWochenuebersicht', () => {
       umverteilungen: [{ id: 'u1', quelleWochenKey: '2026-KW44', ferienName: 'Herbstferien NRW', zielWochenKey: '2026-KW46', zusatzStunden: 10 }],
     })
 
-    expect(mitUmverteilung[1].wochenKey).toBe('2026-KW46')
-    expect(mitUmverteilung[1].zusatzangebot).toBe(10)
-    expect(mitUmverteilung[1].angebot).toBeCloseTo(ohneUmverteilung[1].angebot + 10, 5)
-    expect(mitUmverteilung[1].auslastung).toBeLessThan(ohneUmverteilung[1].auslastung)
+    const quellwoche = mitUmverteilung.find((w) => w.wochenKey === '2026-KW44')!
+    const zielwoche = mitUmverteilung.find((w) => w.wochenKey === '2026-KW46')!
+    const zielwocheOhne = ohneUmverteilung.find((w) => w.wochenKey === '2026-KW46')!
 
-    expect(mitUmverteilung[0].zusatzangebot).toBe(0)
-    expect(mitUmverteilung[0].auslastung).toBeCloseTo(ohneUmverteilung[0].auslastung, 5)
-    expect(mitUmverteilung[2].zusatzangebot).toBe(0)
-    expect(mitUmverteilung[2].auslastung).toBeCloseTo(ohneUmverteilung[2].auslastung, 5)
+    expect(quellwoche.angebotBasis).toBe(8)
+    expect(quellwoche.abgezogenesFerienangebot).toBe(8)
+    expect(quellwoche.angebot).toBe(0)
+    expect(zielwoche.zusatzangebot).toBe(10)
+    expect(zielwoche.angebot).toBeCloseTo(zielwocheOhne.angebot + 10, 5)
+    expect(zielwoche.auslastung).toBeLessThan(zielwocheOhne.auslastung)
   })
 })
 
@@ -638,6 +671,7 @@ describe('berechneMachbarkeit', () => {
     angebot: 32,
     angebotBasis: 32,
     zusatzangebot: 0,
+    abgezogenesFerienangebot: 0,
     auslastung: 0,
     ampel: 'gruen',
     istFerien: false,

@@ -14,6 +14,7 @@ function woche(overrides: Partial<WochenErgebnis> = {}): WochenErgebnis {
     angebot: 32,
     angebotBasis: 32,
     zusatzangebot: 0,
+    abgezogenesFerienangebot: 0,
     auslastung: 0,
     ampel: 'gruen',
     istFerien: false,

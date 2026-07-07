@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { format } from 'date-fns'
 import seedData from '../data/data.json'
-import { berechneSzenario } from '../lib/szenario'
+import { berechneMachbarkeit, berechneWochenuebersicht } from '../lib/berechnung'
 import { berechneThemenGantt } from '../lib/themenUebersicht'
 import { findeEinheitenInFerien } from '../lib/ferienWarnung'
 import { alleWochenImZeitraum, ermittleFerienName, getISOWochenKey } from '../lib/kalenderwochen'
-import type { SzenarioTyp, SensitivitaetsParameter } from '../lib/szenario'
 import type { Datenbestand, Einheit, Person, Terminstatus } from '../lib/types'
 
 const PFLICHTFELDER = ['settings', 'personen', 'kalender', 'schulen'] as const
@@ -25,6 +24,7 @@ function ermittleQuelleWochenKeyFuerFerienname(d: Datenbestand, ferienName: stri
 function migriereDatenbestand(d: Datenbestand): Datenbestand {
   return {
     ...d,
+    personen: d.personen.filter((person) => !person.szenario_optional),
     schulen: d.schulen.map((schule) => ({
       ...schule,
       reihen: schule.reihen.map((reihe) => ({
@@ -51,9 +51,7 @@ function ladeGespeicherteDaten(): Datenbestand | null {
 }
 
 export function useAppData() {
-  const [data, setData] = useState<Datenbestand>(() => ladeGespeicherteDaten() ?? (seedData as Datenbestand))
-  const [szenario, setSzenario] = useState<SzenarioTyp>('ziel')
-  const [sensitivitaet, setSensitivitaet] = useState<SensitivitaetsParameter>({})
+  const [data, setData] = useState<Datenbestand>(() => ladeGespeicherteDaten() ?? migriereDatenbestand(seedData as Datenbestand))
   const [importError, setImportError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -68,6 +66,28 @@ export function useAppData() {
     setData((prev) => ({
       ...prev,
       personen: prev.personen.map((p) => (p.id === id ? { ...p, ...patch } : p)),
+    }))
+  }
+
+  function addPerson() {
+    setData((prev) => {
+      const jetzt = Date.now()
+      const neuePerson: Person = {
+        id: `person_${jetzt}`,
+        name: `Person ${prev.personen.length + 1}`,
+        stunden_pro_woche_fuer_begleitung: 8,
+        aktiv_ab: prev.settings.planungszeitraum.start,
+        aktiv_bis: prev.settings.planungszeitraum.ende,
+        abwesenheiten: [],
+      }
+      return { ...prev, personen: [...prev.personen, neuePerson] }
+    })
+  }
+
+  function removePerson(id: string) {
+    setData((prev) => ({
+      ...prev,
+      personen: prev.personen.filter((p) => p.id !== id),
     }))
   }
 
@@ -88,13 +108,6 @@ export function useAppData() {
     }))
   }
 
-  function setSchuleKoordination(schuleId: string, wert: number) {
-    setData((prev) => ({
-      ...prev,
-      schulen: prev.schulen.map((schule) => (schule.id === schuleId ? { ...schule, koordination_h_pro_monat: wert } : schule)),
-    }))
-  }
-
   function addEinheit(reiheId: string) {
     setData((prev) => ({
       ...prev,
@@ -107,6 +120,7 @@ export function useAppData() {
             index: reihe.einheiten.length + 1,
             datum_oder_kw: format(new Date(), 'yyyy-MM-dd'),
             kontaktzeit_h: 1.5,
+            koordinationszeit_h: 0,
             personen_parallel: 1,
             erstdurchfuehrung: false,
             wir_begleiten: true,
@@ -135,7 +149,7 @@ export function useAppData() {
   function setEinheitFelder(
     reiheId: string,
     einheitId: string,
-    patch: Partial<Pick<Einheit, 'datum_oder_kw' | 'kontaktzeit_h' | 'thema'>>
+    patch: Partial<Pick<Einheit, 'datum_oder_kw' | 'kontaktzeit_h' | 'thema' | 'koordinationszeit_h'>>
   ) {
     setData((prev) => ({
       ...prev,
@@ -209,13 +223,13 @@ export function useAppData() {
 
   function zuruecksetzen() {
     localStorage.removeItem(STORAGE_KEY)
-    setData(seedData as Datenbestand)
+    setData(migriereDatenbestand(seedData as Datenbestand))
   }
 
-  const ergebnis = useMemo(
-    () => berechneSzenario(data, szenario, szenario === 'sensitivitaet' ? sensitivitaet : undefined),
-    [data, szenario, sensitivitaet]
-  )
+  const ergebnis = useMemo(() => {
+    const wochen = berechneWochenuebersicht(data)
+    return { wochen, machbarkeit: berechneMachbarkeit(wochen) }
+  }, [data])
   const themenGanttZeilen = useMemo(() => berechneThemenGantt(data), [data])
   const ferienWarnungen = useMemo(() => findeEinheitenInFerien(data, ergebnis.wochen), [data, ergebnis.wochen])
 
@@ -224,8 +238,9 @@ export function useAppData() {
     themenGanttZeilen,
     ferienWarnungen,
     setPerson,
+    addPerson,
+    removePerson,
     setEinheitBegleitung,
-    setSchuleKoordination,
     addEinheit,
     removeEinheit,
     setEinheitFelder,
@@ -233,10 +248,6 @@ export function useAppData() {
     setReiheEinheiten,
     addUmverteilung,
     removeUmverteilung,
-    szenario,
-    setSzenario,
-    sensitivitaet,
-    setSensitivitaet,
     ergebnis,
     exportJson,
     importJson,

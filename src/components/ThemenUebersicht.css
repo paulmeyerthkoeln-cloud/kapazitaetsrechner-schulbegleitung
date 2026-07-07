@@ -43,6 +43,8 @@
   font-size: 0.85rem;
   display: flex;
   align-items: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
   z-index: 1;
 }

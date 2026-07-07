@@ -11,10 +11,10 @@ describe('useAppData', () => {
     vi.restoreAllMocks()
   })
 
-  it('loads the seed data with a default szenario of "ziel"', () => {
+  it('loads the seed data without legacy optional scenario people', () => {
     const { result } = renderHook(() => useAppData())
-    expect(result.current.szenario).toBe('ziel')
     expect(result.current.data.personen.length).toBeGreaterThan(0)
+    expect(result.current.data.personen.some((p) => p.szenario_optional)).toBe(false)
     expect(result.current.ergebnis.wochen.length).toBeGreaterThan(0)
   })
 
@@ -41,16 +41,25 @@ describe('useAppData', () => {
     expect(aktualisierteReihe.einheiten[0].wir_begleiten).toBe(false)
   })
 
-  it('setSchuleKoordination updates a Schule\'s coordination override and leaves other Schulen unchanged', () => {
+  it('addPerson appends a directly counted person with editable defaults', () => {
     const { result } = renderHook(() => useAppData())
-    const vorherWdg = result.current.data.schulen.find((s) => s.id === 'wdg')!.koordination_h_pro_monat
+    const vorherigeAnzahl = result.current.data.personen.length
+    const vorherigesAngebot = result.current.ergebnis.wochen[0].angebot
     act(() => {
-      result.current.setSchuleKoordination('huegelstrasse', 2)
+      result.current.addPerson()
     })
-    const huegelstrasse = result.current.data.schulen.find((s) => s.id === 'huegelstrasse')!
-    const wdg = result.current.data.schulen.find((s) => s.id === 'wdg')!
-    expect(huegelstrasse.koordination_h_pro_monat).toBe(2)
-    expect(wdg.koordination_h_pro_monat).toBe(vorherWdg)
+    expect(result.current.data.personen).toHaveLength(vorherigeAnzahl + 1)
+    expect(result.current.data.personen.at(-1)?.name).toMatch(/Person/)
+    expect(result.current.ergebnis.wochen[0].angebot).toBeGreaterThan(vorherigesAngebot)
+  })
+
+  it('removePerson deletes the selected person and recomputes the ergebnis', () => {
+    const { result } = renderHook(() => useAppData())
+    const zuLoeschen = result.current.data.personen[0]
+    act(() => {
+      result.current.removePerson(zuLoeschen.id)
+    })
+    expect(result.current.data.personen.find((p) => p.id === zuLoeschen.id)).toBeUndefined()
   })
 
   it('addEinheit appends a new Einheit with default values and the correct index', () => {
@@ -159,14 +168,6 @@ describe('useAppData', () => {
     localStorage.setItem('kapazitaetsrechner:data', roh)
     const { result } = renderHook(() => useAppData())
     expect(result.current.data.umverteilungen?.[0].quelleWochenKey).toBe('2026-KW42')
-  })
-
-  it('setSzenario switches the active scenario and recomputes the ergebnis', () => {
-    const { result } = renderHook(() => useAppData())
-    act(() => {
-      result.current.setSzenario('verstaerkt')
-    })
-    expect(result.current.szenario).toBe('verstaerkt')
   })
 
   it('exportJson then importJson round-trips the data unchanged', () => {

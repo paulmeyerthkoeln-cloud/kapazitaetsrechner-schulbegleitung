@@ -73,7 +73,6 @@ function renderAccordion() {
     schulen,
     settings,
     ferien: [],
-    onKoordinationChange: vi.fn(),
     onEinheitToggle: vi.fn(),
     onEinheitAdd: vi.fn(),
     onEinheitRemove: vi.fn(),

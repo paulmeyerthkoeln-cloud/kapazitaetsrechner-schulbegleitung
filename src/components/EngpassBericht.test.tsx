@@ -11,6 +11,7 @@ const woche = (overrides: Partial<WochenErgebnis> = {}): WochenErgebnis => ({
   angebot: 32,
   angebotBasis: 32,
   zusatzangebot: 0,
+  abgezogenesFerienangebot: 0,
   auslastung: 0.414,
   ampel: 'gruen',
   istFerien: false,
@@ -19,10 +20,10 @@ const woche = (overrides: Partial<WochenErgebnis> = {}): WochenErgebnis => ({
 })
 
 describe('EngpassBericht', () => {
-  it('breaks down Bedarf into Einsatz and Koordination for each top Engpass', () => {
+  it('breaks down Bedarf into Unterrichtszeit and Koordination for each top Engpass', () => {
     render(<EngpassBericht topEngpaesse={[woche()]} />)
     expect(
-      screen.getByText(/13\.3h Bedarf \(10\.4h Einsatz \+ 2\.9h Koordination\) \/ 32h Angebot/)
+      screen.getByText(/13\.3h Bedarf \(10\.4h Unterrichtszeit \+ 2\.9h Koordination\) \/ 32h Angebot/)
     ).toBeInTheDocument()
   })
 

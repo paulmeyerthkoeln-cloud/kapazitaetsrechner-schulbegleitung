@@ -1,3 +1,24 @@
+.wochen-heatmap-legende {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+
+.wochen-heatmap-legende span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.wochen-legende-farbe {
+  width: 0.85rem;
+  height: 0.85rem;
+  display: inline-block;
+  border: 1px solid #666;
+}
+
 .wochen-heatmap {
   display: grid;
   grid-auto-flow: column;
@@ -13,18 +34,22 @@
   border: none;
 }
 
-.wochen-heatmap-zelle.gruen {
+.wochen-heatmap-zelle.gruen,
+.wochen-legende-farbe.gruen {
   background: #2e7d32;
 }
 
-.wochen-heatmap-zelle.gelb {
+.wochen-heatmap-zelle.gelb,
+.wochen-legende-farbe.gelb {
   background: #e1a100;
 }
 
-.wochen-heatmap-zelle.rot {
+.wochen-heatmap-zelle.rot,
+.wochen-legende-farbe.rot {
   background: #c0392b;
 }
 
-.wochen-heatmap-zelle.ferien {
+.wochen-heatmap-zelle.ferien,
+.wochen-legende-farbe.ferien {
   background: repeating-linear-gradient(45deg, #cccccc, #cccccc 4px, #e8e8e8 4px, #e8e8e8 8px);
 }

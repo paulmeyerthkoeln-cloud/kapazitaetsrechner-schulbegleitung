@@ -11,6 +11,7 @@ const THEMEN_FARBEN: Record<Thema | 'ohne', string> = {
   Stadtgrün: '#3d9970',
   Mobilität: '#4a7fbf',
   Energie: '#e6b800',
+  Exkursion: '#7b5ea7',
   ohne: '#8a8a8a',
 }
 
@@ -61,7 +62,7 @@ export function ThemenUebersicht({
         <div
           className="themen-gantt-grid"
           style={{
-            gridTemplateColumns: `14rem repeat(${wochenKeys.length}, 2.5rem)`,
+            gridTemplateColumns: `11rem repeat(${wochenKeys.length}, 2.5rem)`,
             gridTemplateRows: `1.5rem repeat(${zeilen.length}, 2.25rem)`,
           }}
         >
@@ -91,11 +92,11 @@ export function ThemenUebersicht({
             <div
               key={`${z.reiheId}-${z.balkenLabel}-balken`}
               className="themen-gantt-balken"
-              title={`${z.zeilenLabel} – ${z.thema ?? 'Kein Thema'} – ${formatWochenspanne(z.startWochenKey)} bis ${formatWochenspanne(z.endWochenKey)} – ${Math.round(z.stunden * 10) / 10} Std`}
+              title={`${z.zeilenLabel} – ${z.thema} – ${formatWochenspanne(z.startWochenKey)} bis ${formatWochenspanne(z.endWochenKey)} – ${Math.round(z.stunden * 10) / 10} Std`}
               style={{
                 gridColumn: `${(indexVon.get(z.startWochenKey) ?? 0) + 2} / ${(indexVon.get(z.endWochenKey) ?? 0) + 3}`,
                 gridRow: i + 2,
-                background: THEMEN_FARBEN[z.thema ?? 'ohne'],
+                background: THEMEN_FARBEN[z.thema],
               }}
             >
               {z.balkenLabel}

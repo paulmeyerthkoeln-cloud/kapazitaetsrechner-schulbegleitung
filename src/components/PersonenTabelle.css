@@ -1,0 +1,36 @@
+.personen-tabelle-scroll {
+  overflow-x: auto;
+}
+
+.personen-tabelle {
+  width: 100%;
+  min-width: 0;
+}
+
+.personen-tabelle input[type='text'] {
+  width: 100%;
+  max-width: 11rem;
+}
+
+.personen-tabelle input[type='range'] {
+  width: min(10rem, 100%);
+}
+
+@media (max-width: 520px) {
+  .personen-tabelle {
+    font-size: 0.9rem;
+  }
+
+  .personen-tabelle th,
+  .personen-tabelle td {
+    padding-right: 0.25rem;
+  }
+
+  .personen-tabelle input[type='text'] {
+    max-width: 7.5rem;
+  }
+
+  .personen-tabelle input[type='range'] {
+    width: 5.5rem;
+  }
+}

@@ -14,7 +14,7 @@ const settings = {
 }
 
 describe('berechneThemenGantt', () => {
-  it('spans a Zeile from its first to its last Woche with that Thema, summing the Stunden', () => {
+  it('creates one entry for consecutive Wochen with the same Thema, summing the Stunden', () => {
     const data: Datenbestand = {
       settings,
       personen: [],
@@ -34,7 +34,7 @@ describe('berechneThemenGantt', () => {
               terminstatus: 'teilweise_festgelegt',
               einheiten: [
                 { id: 'e1', index: 1, datum_oder_kw: '2026-09-08', kontaktzeit_h: 1.5, personen_parallel: 1, erstdurchfuehrung: true, wir_begleiten: true, typ: 'regulaer', thema: 'Mobilität' },
-                { id: 'e2', index: 2, datum_oder_kw: '2026-09-29', kontaktzeit_h: 1.5, personen_parallel: 1, erstdurchfuehrung: false, wir_begleiten: true, typ: 'regulaer', thema: 'Mobilität' },
+                { id: 'e2', index: 2, datum_oder_kw: '2026-09-15', kontaktzeit_h: 1.5, personen_parallel: 1, erstdurchfuehrung: false, wir_begleiten: false, typ: 'regulaer', thema: 'Mobilität' },
               ],
             },
           ],
@@ -42,11 +42,11 @@ describe('berechneThemenGantt', () => {
       ],
     }
     expect(berechneThemenGantt(data)).toEqual([
-      { reiheId: 'r1', zeilenLabel: 'Else Lasker – Parisa', balkenLabel: 'Mobilität', thema: 'Mobilität', startWochenKey: '2026-KW37', endWochenKey: '2026-KW40', stunden: 3 },
+      { reiheId: 'r1', zeilenLabel: 'Else Lasker - Parisa', balkenLabel: 'Mobilität', thema: 'Mobilität', startWochenKey: '2026-KW37', endWochenKey: '2026-KW38', stunden: 3 },
     ])
   })
 
-  it('falls back to the Reihentitel as balkenLabel when no Einheit has a thema', () => {
+  it('does not create entries for Einheiten without a Thema', () => {
     const data: Datenbestand = {
       settings,
       personen: [],
@@ -72,9 +72,68 @@ describe('berechneThemenGantt', () => {
         },
       ],
     }
-    expect(berechneThemenGantt(data)).toEqual([
-      { reiheId: 'r1', zeilenLabel: 'WDG – Theorieblöcke', balkenLabel: 'Theorieblöcke', thema: null, startWochenKey: '2026-KW46', endWochenKey: '2026-KW46', stunden: 4 },
-    ])
+    expect(berechneThemenGantt(data)).toEqual([])
+  })
+
+  it('splits non-consecutive Wochen with the same Thema into separate entries', () => {
+    const data: Datenbestand = {
+      settings,
+      personen: [],
+      kalender: { ferien: [] },
+      schulen: [
+        {
+          id: 's1',
+          name: 'Else Lasker',
+          reihen: [
+            {
+              id: 'r1',
+              titel: 'Parisa, Kl. 9, Mobilität',
+              betreuungsmodell: 'B',
+              fahrzeit_h: 1,
+              status: 'zugesagt',
+              extern_betreut: false,
+              terminstatus: 'teilweise_festgelegt',
+              einheiten: [
+                { id: 'e1', index: 1, datum_oder_kw: '2026-09-08', kontaktzeit_h: 1.5, personen_parallel: 1, erstdurchfuehrung: true, wir_begleiten: true, typ: 'regulaer', thema: 'Mobilität' },
+                { id: 'e2', index: 2, datum_oder_kw: '2026-09-29', kontaktzeit_h: 1.5, personen_parallel: 1, erstdurchfuehrung: false, wir_begleiten: true, typ: 'regulaer', thema: 'Mobilität' },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+    const zeilen = berechneThemenGantt(data)
+    expect(zeilen).toHaveLength(2)
+    expect(zeilen.map((z) => `${z.startWochenKey}-${z.endWochenKey}`)).toEqual(['2026-KW37-2026-KW37', '2026-KW40-2026-KW40'])
+  })
+
+  it('shortens school and course labels for the left chart column', () => {
+    const data: Datenbestand = {
+      settings,
+      personen: [],
+      kalender: { ferien: [] },
+      schulen: [
+        {
+          id: 's1',
+          name: 'Alexander-Coppel-Gesamtschule',
+          reihen: [
+            {
+              id: 'r1',
+              titel: 'UNESCO-Stunde, 3× 9. Klassen (~80 SuS, Aula) — unser Gastdozenten-Anteil',
+              betreuungsmodell: 'C',
+              fahrzeit_h: 1,
+              status: 'zugesagt',
+              extern_betreut: false,
+              terminstatus: 'festgelegt',
+              einheiten: [
+                { id: 'e1', index: 1, datum_oder_kw: '2026-09-21', kontaktzeit_h: 1, personen_parallel: 1, erstdurchfuehrung: true, wir_begleiten: true, typ: 'regulaer', thema: 'Energie' },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+    expect(berechneThemenGantt(data)[0].zeilenLabel).toBe('Coppel - UNESCO')
   })
 
   it('excludes Reihen with terminstatus "offen"', () => {
@@ -164,7 +223,7 @@ describe('berechneThemenGantt', () => {
     }
     const zeilen = berechneThemenGantt(data)
     expect(zeilen).toHaveLength(2)
-    expect(zeilen.every((z) => z.zeilenLabel === 'Schule X – Mix')).toBe(true)
+    expect(zeilen.every((z) => z.zeilenLabel === 'Schule X - Mix')).toBe(true)
     expect(zeilen.map((z) => z.thema).sort()).toEqual(['Energie', 'Stadtgrün'])
   })
 
@@ -186,13 +245,13 @@ describe('berechneThemenGantt', () => {
       personen: [],
       kalender: { ferien: [] },
       schulen: [
-        { id: 's_b', name: 'B-Schule', reihen: [reiheFuer('r_b', '2026-11-09')] },
-        { id: 's_a', name: 'A-Schule', reihen: [reiheFuer('r_a', '2026-11-09')] },
-        { id: 's_c', name: 'C-Schule', reihen: [reiheFuer('r_c', '2026-09-07')] },
+        { id: 's_b', name: 'B-Schule', reihen: [{ ...reiheFuer('r_b', '2026-11-09'), einheiten: reiheFuer('r_b', '2026-11-09').einheiten.map((e) => ({ ...e, thema: 'Energie' as const })) }] },
+        { id: 's_a', name: 'A-Schule', reihen: [{ ...reiheFuer('r_a', '2026-11-09'), einheiten: reiheFuer('r_a', '2026-11-09').einheiten.map((e) => ({ ...e, thema: 'Energie' as const })) }] },
+        { id: 's_c', name: 'C-Schule', reihen: [{ ...reiheFuer('r_c', '2026-09-07'), einheiten: reiheFuer('r_c', '2026-09-07').einheiten.map((e) => ({ ...e, thema: 'Energie' as const })) }] },
       ],
     }
     const zeilen = berechneThemenGantt(data)
-    expect(zeilen.map((z) => z.zeilenLabel)).toEqual(['C-Schule – x', 'A-Schule – x', 'B-Schule – x'])
+    expect(zeilen.map((z) => z.zeilenLabel)).toEqual(['C-Schule - x', 'A-Schule - x', 'B-Schule - x'])
   })
 })
 
@@ -206,6 +265,7 @@ describe('berechneFerienBaender', () => {
       angebot: 32,
       angebotBasis: 32,
       zusatzangebot: 0,
+      abgezogenesFerienangebot: 0,
       auslastung: 0,
       ampel: 'gruen',
       istFerien: false,

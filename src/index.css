@@ -36,3 +36,24 @@ h3 {
   font-size: 1.05rem;
   margin: 0 0 var(--spacing-sm);
 }
+
+.chart-legende {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.chart-legende span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.chart-legende i {
+  width: 0.85rem;
+  height: 0.85rem;
+  display: inline-block;
+  border: 1px solid #666;
+}

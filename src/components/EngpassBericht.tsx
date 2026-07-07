@@ -9,7 +9,7 @@ export function EngpassBericht({ topEngpaesse }: { topEngpaesse: WochenErgebnis[
         {topEngpaesse.map((w) => (
           <li key={w.wochenKey}>
             {formatWochenspanne(w.wochenKey)}: {Math.round(w.auslastung * 100)}% ({Math.round(w.bedarf * 10) / 10}h Bedarf (
-            {Math.round(w.einsatzBedarf * 10) / 10}h Einsatz + {Math.round(w.koordinationBedarf * 10) / 10}h
+            {Math.round(w.einsatzBedarf * 10) / 10}h Unterrichtszeit + {Math.round(w.koordinationBedarf * 10) / 10}h
             Koordination) / {Math.round(w.angebot * 10) / 10}h Angebot)
           </li>
         ))}

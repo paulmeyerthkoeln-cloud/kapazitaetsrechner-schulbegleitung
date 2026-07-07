@@ -20,6 +20,7 @@ const reihe: Reihe = {
       erstdurchfuehrung: true,
       wir_begleiten: true,
       typ: 'regulaer',
+      koordinationszeit_h: 0.5,
     },
     {
       id: 'e2',
@@ -54,7 +55,7 @@ describe('ReihenEditor', () => {
     renderReihenEditor()
     const eingaben = screen.getAllByRole('spinbutton') as HTMLInputElement[]
     expect(eingaben[3].value).toBe('90')
-    expect(eingaben[4].value).toBe('66')
+    expect(eingaben[5].value).toBe('66')
   })
 
   it('calls onEinheitFelderChange with kontaktzeit_h in hours when the minutes input changes', () => {
@@ -99,6 +100,18 @@ describe('ReihenEditor', () => {
     const thema1 = screen.getByRole('combobox', { name: 'Thema für Termin 1 in Testreihe' })
     fireEvent.change(thema1, { target: { value: 'Mobilität' } })
     expect(props.onEinheitFelderChange).toHaveBeenCalledWith('e1', { thema: 'Mobilität' })
+  })
+
+  it('offers Exkursion as a Thema', () => {
+    renderReihenEditor()
+    expect(screen.getAllByRole('option', { name: 'Exkursion' })).toHaveLength(2)
+  })
+
+  it('calls onEinheitFelderChange with coordination hours when the coordination field changes', () => {
+    const props = renderReihenEditor()
+    const koordinationszeit = screen.getByLabelText('Koordinationszeit für Termin 1 in Testreihe')
+    fireEvent.change(koordinationszeit, { target: { value: '1.25' } })
+    expect(props.onEinheitFelderChange).toHaveBeenCalledWith('e1', { koordinationszeit_h: 1.25 })
   })
 
   it('shows the current Terminstatus in the dropdown', () => {

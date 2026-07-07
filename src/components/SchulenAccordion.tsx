@@ -8,7 +8,6 @@ export function SchulenAccordion({
   schulen,
   settings,
   ferien,
-  onKoordinationChange,
   onEinheitToggle,
   onEinheitAdd,
   onEinheitRemove,
@@ -19,14 +18,13 @@ export function SchulenAccordion({
   schulen: Schule[]
   settings: Settings
   ferien: FerienZeitraum[]
-  onKoordinationChange: (schuleId: string, wert: number) => void
   onEinheitToggle: (reiheId: string, einheitId: string, wert: boolean) => void
   onEinheitAdd: (reiheId: string) => void
   onEinheitRemove: (reiheId: string, einheitId: string) => void
   onEinheitFelderChange: (
     reiheId: string,
     einheitId: string,
-    patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema }
+    patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema; koordinationszeit_h?: number }
   ) => void
   onTerminstatusChange: (reiheId: string, terminstatus: Terminstatus) => void
   onEinheitenReplace: (reiheId: string, einheiten: Einheit[]) => void
@@ -52,7 +50,6 @@ export function SchulenAccordion({
           key={schule.id}
           schule={schule}
           settings={settings}
-          onKoordinationChange={onKoordinationChange}
           onEinheitToggle={onEinheitToggle}
           onPresetApply={onPresetApply}
           onEinheitAdd={onEinheitAdd}

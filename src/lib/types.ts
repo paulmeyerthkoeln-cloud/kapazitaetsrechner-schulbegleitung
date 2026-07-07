@@ -42,7 +42,7 @@ export interface Kalender {
 
 export type EinheitTyp = 'regulaer' | 'exkursion'
 
-export type Thema = 'Ernährung' | 'Stadtgrün' | 'Mobilität' | 'Energie'
+export type Thema = 'Ernährung' | 'Stadtgrün' | 'Mobilität' | 'Energie' | 'Exkursion'
 
 export interface Einheit {
   id: string
@@ -55,6 +55,7 @@ export interface Einheit {
   typ: EinheitTyp
   organisationspauschale_h?: number
   thema?: Thema
+  koordinationszeit_h?: number
 }
 
 export interface Muster {

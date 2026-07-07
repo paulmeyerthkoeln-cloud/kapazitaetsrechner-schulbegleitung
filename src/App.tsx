@@ -8,15 +8,15 @@ import { EngpassBericht } from './components/EngpassBericht'
 import { ThemenUebersicht } from './components/ThemenUebersicht'
 import { RestkapazitaetPlanner } from './components/RestkapazitaetPlanner'
 import { KapazitaetsUmverteilung } from './components/KapazitaetsUmverteilung'
-import { SzenarioAuswahl } from './components/SzenarioAuswahl'
 import { ExportImport } from './components/ExportImport'
 
 export default function App() {
   const {
     data,
     setPerson,
+    addPerson,
+    removePerson,
     setEinheitBegleitung,
-    setSchuleKoordination,
     addEinheit,
     removeEinheit,
     setEinheitFelder,
@@ -24,10 +24,6 @@ export default function App() {
     setReiheEinheiten,
     addUmverteilung,
     removeUmverteilung,
-    szenario,
-    setSzenario,
-    sensitivitaet,
-    setSensitivitaet,
     ergebnis,
     themenGanttZeilen,
     ferienWarnungen,
@@ -41,12 +37,7 @@ export default function App() {
     <main style={{ maxWidth: '75rem', margin: '0 auto', padding: '1rem' }}>
       <h1>Kapazitätsrechner Schulbegleitung</h1>
       <div className="card">
-        <SzenarioAuswahl
-          szenario={szenario}
-          onSzenarioChange={setSzenario}
-          sensitivitaet={sensitivitaet}
-          onSensitivitaetChange={setSensitivitaet}
-        />
+        <PersonenTabelle personen={data.personen} onChange={setPerson} onAdd={addPerson} onRemove={removePerson} />
       </div>
       <div className="card">
         <AmpelAntwort machbarkeit={ergebnis.machbarkeit} />
@@ -55,7 +46,7 @@ export default function App() {
         <WochenHeatmap wochen={ergebnis.wochen} />
       </div>
       <div className="card">
-        <BedarfAngebotChart wochen={ergebnis.wochen} settings={data.settings} />
+        <BedarfAngebotChart wochen={ergebnis.wochen} />
       </div>
       <div className="card">
         <EngpassBericht topEngpaesse={ergebnis.machbarkeit.topEngpaesse} />
@@ -67,7 +58,6 @@ export default function App() {
       <SchulenAccordion
         schulen={data.schulen}
         settings={data.settings}
-        onKoordinationChange={setSchuleKoordination}
         onEinheitToggle={setEinheitBegleitung}
         onEinheitAdd={addEinheit}
         onEinheitRemove={removeEinheit}
@@ -76,9 +66,6 @@ export default function App() {
         onEinheitenReplace={setReiheEinheiten}
         ferien={data.kalender.ferien}
       />
-      <div className="card">
-        <PersonenTabelle personen={data.personen} onChange={setPerson} />
-      </div>
       <div className="card">
         <RestkapazitaetPlanner data={data} />
       </div>
