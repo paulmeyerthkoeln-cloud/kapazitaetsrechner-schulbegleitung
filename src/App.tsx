@@ -6,7 +6,6 @@ import { SchulenAccordion } from './components/SchulenAccordion'
 import { PersonenTabelle } from './components/PersonenTabelle'
 import { EngpassBericht } from './components/EngpassBericht'
 import { ThemenUebersicht } from './components/ThemenUebersicht'
-import { RestkapazitaetPlanner } from './components/RestkapazitaetPlanner'
 import { KapazitaetsUmverteilung } from './components/KapazitaetsUmverteilung'
 import { ExportImport } from './components/ExportImport'
 
@@ -65,9 +64,6 @@ export default function App() {
         onEinheitenReplace={setReiheEinheiten}
         ferien={data.kalender.ferien}
       />
-      <div className="card">
-        <RestkapazitaetPlanner data={data} />
-      </div>
       <div className="card">
         <KapazitaetsUmverteilung
           umverteilungen={data.umverteilungen ?? []}
