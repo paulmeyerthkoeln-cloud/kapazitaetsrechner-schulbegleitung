@@ -1,0 +1,53 @@
+.personen-kapazitaet-scroll {
+  overflow-x: auto;
+  padding: 0.5rem 0;
+}
+
+.personen-kapazitaet-grid {
+  display: grid;
+}
+
+.personen-kapazitaet-ecke {
+  position: sticky;
+  left: 0;
+  background: #fff;
+}
+
+.personen-kapazitaet-kw {
+  font-size: 0.75rem;
+  text-align: center;
+  color: #555;
+  border-bottom: 1px solid #d0d0d0;
+  padding-bottom: 0.25rem;
+}
+
+.personen-kapazitaet-label {
+  position: sticky;
+  left: 0;
+  background: #fff;
+  padding-right: 0.5rem;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  z-index: 1;
+}
+
+.personen-kapazitaet-zelle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  border: 1px solid #d0d0d0;
+}
+
+.personen-kapazitaet-zelle.positiv {
+  background: #c8e6c9;
+}
+
+.personen-kapazitaet-zelle.negativ {
+  background: #ffcdd2;
+  font-weight: bold;
+}

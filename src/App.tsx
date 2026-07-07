@@ -4,6 +4,7 @@ import { WochenHeatmap } from './components/WochenHeatmap'
 import { BedarfAngebotChart } from './components/BedarfAngebotChart'
 import { SchulenAccordion } from './components/SchulenAccordion'
 import { PersonenTabelle } from './components/PersonenTabelle'
+import { PersonenKapazitaetsUebersicht } from './components/PersonenKapazitaetsUebersicht'
 import { EngpassBericht } from './components/EngpassBericht'
 import { ThemenUebersicht } from './components/ThemenUebersicht'
 import { KapazitaetsUmverteilung } from './components/KapazitaetsUmverteilung'
@@ -25,6 +26,7 @@ export default function App() {
     removeUmverteilung,
     ergebnis,
     themenGanttZeilen,
+    personenKapazitaet,
     exportJson,
     importJson,
     importError,
@@ -36,6 +38,9 @@ export default function App() {
       <h1>Kapazitätsrechner Schulbegleitung</h1>
       <div className="card">
         <PersonenTabelle personen={data.personen} onChange={setPerson} onAdd={addPerson} onRemove={removePerson} />
+      </div>
+      <div className="card">
+        <PersonenKapazitaetsUebersicht personenKapazitaet={personenKapazitaet} />
       </div>
       <div className="card">
         <AmpelAntwort machbarkeit={ergebnis.machbarkeit} />

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import seedData from '../data/data.json'
 import { berechneMachbarkeit, berechneWochenuebersicht } from '../lib/berechnung'
 import { berechneThemenGantt } from '../lib/themenUebersicht'
+import { berechnePersonenKapazitaet } from '../lib/personenKapazitaet'
 import { alleWochenImZeitraum, ermittleFerienName, getISOWochenKey, naechstesEinheitDatum } from '../lib/kalenderwochen'
 import type { Datenbestand, Einheit, Person, Terminstatus } from '../lib/types'
 
@@ -239,10 +240,12 @@ export function useAppData() {
     return { wochen, machbarkeit: berechneMachbarkeit(wochen) }
   }, [data])
   const themenGanttZeilen = useMemo(() => berechneThemenGantt(data), [data])
+  const personenKapazitaet = useMemo(() => berechnePersonenKapazitaet(data), [data])
 
   return {
     data,
     themenGanttZeilen,
+    personenKapazitaet,
     setPerson,
     addPerson,
     removePerson,

@@ -305,6 +305,12 @@ describe('useAppData', () => {
     expect(result.current.themenGanttZeilen.length).toBeGreaterThan(0)
   })
 
+  it('exposes personenKapazitaet derived from the current data', () => {
+    const { result } = renderHook(() => useAppData())
+    expect(Array.isArray(result.current.personenKapazitaet)).toBe(true)
+    expect(result.current.personenKapazitaet).toHaveLength(result.current.data.personen.length)
+  })
+
   it('persists data to localStorage after a change and reloads it on next mount', () => {
     const { result, unmount } = renderHook(() => useAppData())
     act(() => {
