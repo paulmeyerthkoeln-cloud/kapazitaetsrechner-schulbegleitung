@@ -4,7 +4,7 @@ import { berechneMachbarkeit, berechneWochenuebersicht } from '../lib/berechnung
 import { berechneThemenGantt } from '../lib/themenUebersicht'
 import { berechnePersonenKapazitaet } from '../lib/personenKapazitaet'
 import { alleWochenImZeitraum, ermittleFerienName, getISOWochenKey, naechstesEinheitDatum } from '../lib/kalenderwochen'
-import type { Datenbestand, Einheit, Person, Terminstatus } from '../lib/types'
+import type { Datenbestand, Einheit, FerienZeitraum, Person, Terminstatus } from '../lib/types'
 
 const PFLICHTFELDER = ['settings', 'personen', 'kalender', 'schulen'] as const
 const STORAGE_KEY = 'kapazitaetsrechner:data'
@@ -70,6 +70,13 @@ export function useAppData() {
     setData((prev) => ({
       ...prev,
       personen: prev.personen.map((p) => (p.id === id ? { ...p, ...patch } : p)),
+    }))
+  }
+
+  function setPersonFerien(personId: string, ferien: FerienZeitraum[]) {
+    setData((prev) => ({
+      ...prev,
+      personen: prev.personen.map((p) => (p.id === personId ? { ...p, ferien } : p)),
     }))
   }
 
@@ -270,6 +277,7 @@ export function useAppData() {
     themenGanttZeilen,
     personenKapazitaet,
     setPerson,
+    setPersonFerien,
     addPerson,
     removePerson,
     setEinheitBegleitung,

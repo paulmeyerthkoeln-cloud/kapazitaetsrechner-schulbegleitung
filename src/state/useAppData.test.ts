@@ -62,6 +62,45 @@ describe('useAppData', () => {
     expect(result.current.data.personen.find((p) => p.id === zuLoeschen.id)).toBeUndefined()
   })
 
+  it('addPerson seeds an empty ferien list', () => {
+    const { result } = renderHook(() => useAppData())
+    act(() => {
+      result.current.addPerson()
+    })
+    expect(result.current.data.personen.at(-1)?.ferien).toEqual([])
+  })
+
+  it('setPersonFerien replaces the ferien list of the matching Person only', () => {
+    const { result } = renderHook(() => useAppData())
+    const [p1, p2] = result.current.data.personen
+    const neueFerien = [{ name: 'Sommerurlaub', von: '2026-11-09', bis: '2026-11-13' }]
+    act(() => {
+      result.current.setPersonFerien(p1.id, neueFerien)
+    })
+    expect(result.current.data.personen.find((p) => p.id === p1.id)?.ferien).toEqual(neueFerien)
+    expect(result.current.data.personen.find((p) => p.id === p2.id)?.ferien).toEqual([])
+  })
+
+  it('backfills an empty ferien list for Personen persisted before the Ferien field existed', () => {
+    const roh = JSON.stringify({
+      settings: {
+        planungszeitraum: { start: '2026-09-01', ende: '2027-07-16' },
+        schwellwert_warnung: 0.7,
+        schwellwert_kritisch: 0.9,
+        default_fahrzeit_h: 1,
+        default_vorbereitungsfaktor_erstdurchfuehrung: 0.75,
+        default_vorbereitungsfaktor_wiederholung: 0.25,
+        koordination_h_pro_schule_pro_monat: 1.5,
+      },
+      personen: [{ id: 'p1', name: 'Anna', stunden_pro_woche_fuer_begleitung: 8, aktiv_ab: '2026-09-01', aktiv_bis: '2027-07-16', abwesenheiten: [] }],
+      kalender: { ferien: [] },
+      schulen: [],
+    })
+    localStorage.setItem('kapazitaetsrechner:data', roh)
+    const { result } = renderHook(() => useAppData())
+    expect(result.current.data.personen[0].ferien).toEqual([])
+  })
+
   it('addEinheit appends a new Einheit with default values and the correct index', () => {
     const { result } = renderHook(() => useAppData())
     const schule = result.current.data.schulen.find((s) => s.id === 'wdg')!
