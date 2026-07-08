@@ -9,11 +9,11 @@
     "koordination_h_pro_schule_pro_monat": 1.5
   },
   "personen": [
-    { "id": "p1", "name": "Person 1", "stunden_pro_woche_fuer_begleitung": 8, "aktiv_ab": "2026-09-01", "aktiv_bis": "2027-07-16", "abwesenheiten": [] },
-    { "id": "p2", "name": "Person 2", "stunden_pro_woche_fuer_begleitung": 8, "aktiv_ab": "2026-09-01", "aktiv_bis": "2027-07-16", "abwesenheiten": [] },
-    { "id": "p3", "name": "Person 3", "stunden_pro_woche_fuer_begleitung": 8, "aktiv_ab": "2026-09-01", "aktiv_bis": "2027-07-16", "abwesenheiten": [] },
-    { "id": "p4", "name": "Person 4", "stunden_pro_woche_fuer_begleitung": 8, "aktiv_ab": "2026-09-01", "aktiv_bis": "2027-07-16", "abwesenheiten": [] },
-    { "id": "p5", "name": "Person 5", "stunden_pro_woche_fuer_begleitung": 8, "aktiv_ab": "2026-09-01", "aktiv_bis": "2027-07-16", "abwesenheiten": [], "szenario_optional": true }
+    { "id": "p1", "name": "Person 1", "stunden_pro_woche_fuer_begleitung": 8, "aktiv_ab": "2026-09-01", "aktiv_bis": "2027-07-16", "abwesenheiten": [], "ferien": [] },
+    { "id": "p2", "name": "Person 2", "stunden_pro_woche_fuer_begleitung": 8, "aktiv_ab": "2026-09-01", "aktiv_bis": "2027-07-16", "abwesenheiten": [], "ferien": [] },
+    { "id": "p3", "name": "Person 3", "stunden_pro_woche_fuer_begleitung": 8, "aktiv_ab": "2026-09-01", "aktiv_bis": "2027-07-16", "abwesenheiten": [], "ferien": [] },
+    { "id": "p4", "name": "Person 4", "stunden_pro_woche_fuer_begleitung": 8, "aktiv_ab": "2026-09-01", "aktiv_bis": "2027-07-16", "abwesenheiten": [], "ferien": [] },
+    { "id": "p5", "name": "Person 5", "stunden_pro_woche_fuer_begleitung": 8, "aktiv_ab": "2026-09-01", "aktiv_bis": "2027-07-16", "abwesenheiten": [], "ferien": [], "szenario_optional": true }
   ],
   "kalender": {
     "ferien": [

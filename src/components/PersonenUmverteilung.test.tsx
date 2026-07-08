@@ -5,8 +5,8 @@ import type { Person, PersonenUmverteilung as PersonenUmverteilungTyp } from '..
 import type { PersonKapazitaetsErgebnis } from '../lib/personenKapazitaet'
 
 const personen: Person[] = [
-  { id: 'p1', name: 'Anna', stunden_pro_woche_fuer_begleitung: 8, aktiv_ab: '2026-09-01', aktiv_bis: '2027-07-16', abwesenheiten: [] },
-  { id: 'p2', name: 'Ben', stunden_pro_woche_fuer_begleitung: 8, aktiv_ab: '2026-09-01', aktiv_bis: '2027-07-16', abwesenheiten: [] },
+  { id: 'p1', name: 'Anna', stunden_pro_woche_fuer_begleitung: 8, aktiv_ab: '2026-09-01', aktiv_bis: '2027-07-16', abwesenheiten: [], ferien: [] },
+  { id: 'p2', name: 'Ben', stunden_pro_woche_fuer_begleitung: 8, aktiv_ab: '2026-09-01', aktiv_bis: '2027-07-16', abwesenheiten: [], ferien: [] },
 ]
 
 const personenKapazitaet: PersonKapazitaetsErgebnis[] = [

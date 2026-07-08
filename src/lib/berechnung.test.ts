@@ -385,6 +385,7 @@ describe('berechneAngebotProWoche', () => {
     aktiv_ab: '2026-09-01',
     aktiv_bis: '2027-07-16',
     abwesenheiten: [],
+    ferien: [],
     ...overrides,
   })
 
@@ -397,6 +398,24 @@ describe('berechneAngebotProWoche', () => {
     const personen = [
       person({ abwesenheiten: [{ von: '2026-11-09', bis: '2026-11-10', grund: 'Urlaub' }] }),
     ]
+    expect(berechneAngebotProWoche(personen, new Date('2026-11-09'))).toBeCloseTo(8 * (1 - 0.4), 5)
+  })
+
+  it('reduces capacity by 20% per weekday covered by a Ferien entry', () => {
+    const personen = [
+      person({ ferien: [{ name: 'Sommerurlaub', von: '2026-11-09', bis: '2026-11-10' }] }),
+    ]
+    expect(berechneAngebotProWoche(personen, new Date('2026-11-09'))).toBeCloseTo(8 * (1 - 0.4), 5)
+  })
+
+  it('counts a weekday covered by both an Abwesenheit and a Ferien entry only once', () => {
+    const personen = [
+      person({
+        abwesenheiten: [{ von: '2026-11-09', bis: '2026-11-09', grund: 'Arzt' }],
+        ferien: [{ name: 'Sommerurlaub', von: '2026-11-09', bis: '2026-11-10' }],
+      }),
+    ]
+    // 2026-11-09 is covered by both; 2026-11-10 only by Ferien -> 2 distinct days off, not 3.
     expect(berechneAngebotProWoche(personen, new Date('2026-11-09'))).toBeCloseTo(8 * (1 - 0.4), 5)
   })
 
@@ -494,6 +513,7 @@ describe('berechneWochenuebersicht', () => {
       aktiv_ab: '2026-09-01',
       aktiv_bis: '2027-07-16',
       abwesenheiten: [],
+      ferien: [],
     }))
     const data: Datenbestand = {
       settings: { ...settings, planungszeitraum: { start: '2026-11-09', ende: '2026-11-09' } },
@@ -617,6 +637,7 @@ describe('berechneWochenuebersicht', () => {
         aktiv_ab: '2026-09-01',
         aktiv_bis: '2027-07-16',
         abwesenheiten: [],
+        ferien: [],
       },
     ]
     const schulen: Schule[] = [

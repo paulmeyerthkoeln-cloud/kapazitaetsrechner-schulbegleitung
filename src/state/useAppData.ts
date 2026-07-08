@@ -23,7 +23,12 @@ function ermittleQuelleWochenKeyFuerFerienname(d: Datenbestand, ferienName: stri
 function migriereDatenbestand(d: Datenbestand): Datenbestand {
   return {
     ...d,
-    personen: d.personen.filter((person) => !person.szenario_optional),
+    personen: d.personen
+      .filter((person) => !person.szenario_optional)
+      .map((person) => ({
+        ...person,
+        ferien: person.ferien ?? [],
+      })),
     schulen: d.schulen.map((schule) => ({
       ...schule,
       reihen: schule.reihen.map((reihe) => ({
@@ -78,6 +83,7 @@ export function useAppData() {
         aktiv_ab: prev.settings.planungszeitraum.start,
         aktiv_bis: prev.settings.planungszeitraum.ende,
         abwesenheiten: [],
+        ferien: [],
       }
       return { ...prev, personen: [...prev.personen, neuePerson] }
     })

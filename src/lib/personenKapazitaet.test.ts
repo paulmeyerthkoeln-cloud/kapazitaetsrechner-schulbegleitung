@@ -20,6 +20,7 @@ function person(overrides: Partial<Person> = {}): Person {
     aktiv_ab: '2026-09-01',
     aktiv_bis: '2027-07-16',
     abwesenheiten: [],
+    ferien: [],
     ...overrides,
   }
 }
@@ -137,6 +138,15 @@ describe('berechnePersonenKapazitaet', () => {
     const ergebnis = berechnePersonenKapazitaet(data)
     const anna = ergebnis.find((p) => p.personId === 'p1')!
     expect(anna.wochen.every((w) => w.umverteilt === 0)).toBe(true)
+  })
+
+  it("reduces a Person's basis capacity during their own Ferien, independent of the school Kalender.ferien", () => {
+    const data = datenbestand({
+      personen: [person({ ferien: [{ name: 'Herbstferien Familie', von: '2026-11-09', bis: '2026-11-13' }] })],
+    })
+    const ergebnis = berechnePersonenKapazitaet(data)
+    const kw46 = ergebnis[0].wochen.find((w) => w.wochenKey === '2026-KW46')!
+    expect(kw46.basis).toBe(0)
   })
 })
 
