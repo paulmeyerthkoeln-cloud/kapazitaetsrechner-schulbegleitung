@@ -136,6 +136,51 @@ describe('berechneThemenGantt', () => {
     expect(berechneThemenGantt(data)[0].zeilenLabel).toBe('Coppel - UNESCO')
   })
 
+  it('keeps a grade-level ordinal like "9." while still stripping a leading count', () => {
+    const data: Datenbestand = {
+      settings,
+      personen: [],
+      kalender: { ferien: [] },
+      schulen: [
+        {
+          id: 's1',
+          name: 'Sedanstraße',
+          reihen: [
+            {
+              id: 'r1',
+              titel: 'GNU-Kurs 9. Klasse',
+              betreuungsmodell: 'B',
+              fahrzeit_h: 1,
+              status: 'zugesagt',
+              extern_betreut: false,
+              terminstatus: 'festgelegt',
+              einheiten: [
+                { id: 'e1', index: 1, datum_oder_kw: '2026-09-07', kontaktzeit_h: 1.5, personen_parallel: 1, erstdurchfuehrung: true, wir_begleiten: true, typ: 'regulaer', thema: 'Energie' },
+              ],
+            },
+            {
+              id: 'r2',
+              titel: '2 SoWi-Kurse 9. Klasse',
+              betreuungsmodell: 'B',
+              fahrzeit_h: 1,
+              status: 'zugesagt',
+              extern_betreut: false,
+              terminstatus: 'festgelegt',
+              einheiten: [
+                { id: 'e2', index: 1, datum_oder_kw: '2026-09-07', kontaktzeit_h: 1.5, personen_parallel: 1, erstdurchfuehrung: true, wir_begleiten: true, typ: 'regulaer', thema: 'Energie' },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+    const zeilen = berechneThemenGantt(data)
+    expect(zeilen.map((z) => z.zeilenLabel)).toEqual([
+      'Sedanstraße - GNU-Kurs 9. Klasse',
+      'Sedanstraße - SoWi-Kurse 9. Klasse',
+    ])
+  })
+
   it('excludes Reihen with terminstatus "offen"', () => {
     const data: Datenbestand = {
       settings,

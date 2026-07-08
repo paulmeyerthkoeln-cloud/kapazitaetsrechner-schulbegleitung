@@ -34,6 +34,13 @@ export function ThemenUebersicht({
   const indexVon = new Map(wochenKeys.map((key, i) => [key, i]))
   const ferienBaender = berechneFerienBaender(wochen)
 
+  const reihenIds: string[] = []
+  for (const z of zeilen) {
+    if (!reihenIds.includes(z.reiheId)) reihenIds.push(z.reiheId)
+  }
+  const zeilenLabelVonReihe = new Map(zeilen.map((z) => [z.reiheId, z.zeilenLabel]))
+  const rowVonReihe = new Map(reihenIds.map((id, i) => [id, i]))
+
   return (
     <div>
       <h3>Themen-Übersicht</h3>
@@ -42,7 +49,7 @@ export function ThemenUebersicht({
           className="themen-gantt-grid"
           style={{
             gridTemplateColumns: `11rem repeat(${wochenKeys.length}, 2.5rem)`,
-            gridTemplateRows: `1.5rem repeat(${zeilen.length}, 2.25rem)`,
+            gridTemplateRows: `1.5rem repeat(${reihenIds.length}, 2.25rem)`,
           }}
         >
           <div className="themen-gantt-ecke" style={{ gridColumn: 1, gridRow: 1 }} />
@@ -58,23 +65,27 @@ export function ThemenUebersicht({
               title={band.name}
               style={{
                 gridColumn: `${(indexVon.get(band.startWochenKey) ?? 0) + 2} / ${(indexVon.get(band.endWochenKey) ?? 0) + 3}`,
-                gridRow: `2 / ${zeilen.length + 2}`,
+                gridRow: `2 / ${reihenIds.length + 2}`,
               }}
             />
           ))}
-          {zeilen.map((z, i) => (
-            <div key={`${z.reiheId}-${z.balkenLabel}-label`} className="themen-gantt-label" style={{ gridColumn: 1, gridRow: i + 2 }}>
-              {z.zeilenLabel}
+          {reihenIds.map((reiheId) => (
+            <div
+              key={`${reiheId}-label`}
+              className="themen-gantt-label"
+              style={{ gridColumn: 1, gridRow: (rowVonReihe.get(reiheId) ?? 0) + 2 }}
+            >
+              {zeilenLabelVonReihe.get(reiheId)}
             </div>
           ))}
-          {zeilen.map((z, i) => (
+          {zeilen.map((z) => (
             <div
-              key={`${z.reiheId}-${z.balkenLabel}-balken`}
+              key={`${z.reiheId}-${z.balkenLabel}-${z.startWochenKey}-balken`}
               className="themen-gantt-balken"
               title={`${z.zeilenLabel} – ${z.thema} – ${formatWochenspanne(z.startWochenKey)} bis ${formatWochenspanne(z.endWochenKey)} – ${Math.round(z.stunden * 10) / 10} Std`}
               style={{
                 gridColumn: `${(indexVon.get(z.startWochenKey) ?? 0) + 2} / ${(indexVon.get(z.endWochenKey) ?? 0) + 3}`,
-                gridRow: i + 2,
+                gridRow: (rowVonReihe.get(z.reiheId) ?? 0) + 2,
                 background: THEMEN_FARBEN[z.thema],
               }}
             >

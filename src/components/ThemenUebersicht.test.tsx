@@ -56,4 +56,31 @@ describe('ThemenUebersicht', () => {
     render(<ThemenUebersicht zeilen={zeilen} wochen={wochen} />)
     expect(screen.getByTitle('Herbstferien NRW')).toBeInTheDocument()
   })
+
+  it('renders one Y-axis row per Reihe even when a course has multiple Themen-Balken', () => {
+    const zweiThemenZeilen: ThemenGanttZeile[] = [
+      {
+        reiheId: 'r1',
+        zeilenLabel: 'Schule X - Mix',
+        balkenLabel: 'Energie',
+        thema: 'Energie',
+        startWochenKey: '2026-KW37',
+        endWochenKey: '2026-KW37',
+        stunden: 1.5,
+      },
+      {
+        reiheId: 'r1',
+        zeilenLabel: 'Schule X - Mix',
+        balkenLabel: 'Mobilität',
+        thema: 'Mobilität',
+        startWochenKey: '2026-KW39',
+        endWochenKey: '2026-KW39',
+        stunden: 1.5,
+      },
+    ]
+    render(<ThemenUebersicht zeilen={zweiThemenZeilen} wochen={wochen} />)
+    expect(screen.getAllByText('Schule X - Mix')).toHaveLength(1)
+    expect(screen.getByText('Energie')).toBeInTheDocument()
+    expect(screen.getByText('Mobilität')).toBeInTheDocument()
+  })
 })

@@ -31,4 +31,10 @@ describe('EngpassBericht', () => {
     render(<EngpassBericht topEngpaesse={[woche()]} />)
     expect(screen.getByText(/^09\.11\.–15\.11\.2026:/)).toBeInTheDocument()
   })
+
+  it('describes the parallel-Begleitpersonen relief option in plain German instead of the raw field name', () => {
+    render(<EngpassBericht topEngpaesse={[woche()]} />)
+    expect(screen.getByText(/Anzahl paralleler Begleitpersonen je Einheit reduzieren/)).toBeInTheDocument()
+    expect(screen.queryByText('personen_parallel')).not.toBeInTheDocument()
+  })
 })

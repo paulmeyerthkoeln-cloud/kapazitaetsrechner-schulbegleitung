@@ -44,7 +44,7 @@ function kuerzeReihentitel(titel: string): string {
     .split(/[,—]/)[0]
     .replace(/UNESCO-Stunde/g, 'UNESCO')
     .replace(/\bKl\.\s*\d+\b/g, '')
-    .replace(/\b\d+[×x]?\s*/g, '')
+    .replace(/\b\d+[×x]?\s*(?!\.)/g, '')
     .trim()
 }
 

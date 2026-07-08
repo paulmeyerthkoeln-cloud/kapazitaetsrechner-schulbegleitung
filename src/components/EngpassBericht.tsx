@@ -15,8 +15,8 @@ export function EngpassBericht({ topEngpaesse }: { topEngpaesse: WochenErgebnis[
         ))}
       </ol>
       <p>
-        Entlastungsoptionen: Einheiten von Modell A auf B herabstufen, Einheit in Nachbarwoche verschieben, oder
-        <code>personen_parallel</code> reduzieren.
+        Entlastungsoptionen: Einheiten von Modell A auf B herabstufen, Einheit in Nachbarwoche verschieben, oder die
+        Anzahl paralleler Begleitpersonen je Einheit reduzieren.
       </p>
     </div>
   )
