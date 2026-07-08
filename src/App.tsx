@@ -17,6 +17,7 @@ export default function App() {
     setPerson,
     addPerson,
     removePerson,
+    setPersonFerien,
     setEinheitBegleitung,
     addEinheit,
     removeEinheit,
@@ -40,7 +41,13 @@ export default function App() {
     <main style={{ maxWidth: '75rem', margin: '0 auto', padding: '1rem' }}>
       <h1>Kapazitätsrechner Schulbegleitung</h1>
       <div className="card">
-        <PersonenTabelle personen={data.personen} onChange={setPerson} onAdd={addPerson} onRemove={removePerson} />
+        <PersonenTabelle
+          personen={data.personen}
+          onChange={setPerson}
+          onAdd={addPerson}
+          onRemove={removePerson}
+          onFerienChange={setPersonFerien}
+        />
       </div>
       <div className="card">
         <PersonenKapazitaetsUebersicht personenKapazitaet={personenKapazitaet} />
