@@ -8,13 +8,12 @@ export function BedarfAngebotChart({ wochen }: { wochen: WochenErgebnis[] }) {
     Unterrichtszeit: Number(w.einsatzBedarf.toFixed(2)),
     Koordination: Number(w.koordinationBedarf.toFixed(2)),
     Angebot: Number(w.angebot.toFixed(2)),
-    'Ferien-Abzug': Number(w.abgezogenesFerienangebot.toFixed(2)),
   }))
 
   return (
     <div>
       <div className="chart-legende" aria-label="Legende Bedarf und Angebot">
-        <span><i style={{ background: '#a5d6a7' }} /> Angebot nach Ferien-Abzug und Umverteilung</span>
+        <span><i style={{ background: '#a5d6a7' }} /> Angebot (Personen-Kapazität)</span>
         <span><i style={{ background: '#1976d2' }} /> Unterrichtszeit inkl. Vorbereitung/Fahrt</span>
         <span><i style={{ background: '#64b5f6' }} /> Koordination je Termin/KW</span>
       </div>

@@ -102,14 +102,6 @@ export interface Schule {
   reihen: Reihe[]
 }
 
-export interface Umverteilung {
-  id: string
-  quelleWochenKey: string
-  ferienName: string
-  zielWochenKey: string
-  zusatzStunden: number
-}
-
 export interface PersonenUmverteilung {
   id: string
   personId: string
@@ -123,6 +115,5 @@ export interface Datenbestand {
   personen: Person[]
   kalender: Kalender
   schulen: Schule[]
-  umverteilungen?: Umverteilung[]
   personenUmverteilungen?: PersonenUmverteilung[]
 }

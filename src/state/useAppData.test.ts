@@ -196,64 +196,6 @@ describe('useAppData', () => {
     expect(aktualisierteEinheit.id).toBe(einheit.id)
   })
 
-  it('addUmverteilung appends a new Umverteilung with the given values and leaves existing entries unchanged', () => {
-    const { result } = renderHook(() => useAppData())
-    act(() => {
-      result.current.addUmverteilung('2026-KW44', 'Herbstferien NRW', '2027-KW04', 10)
-    })
-    const umverteilungen = result.current.data.umverteilungen ?? []
-    expect(umverteilungen).toHaveLength(1)
-    expect(umverteilungen[0].quelleWochenKey).toBe('2026-KW44')
-    expect(umverteilungen[0].ferienName).toBe('Herbstferien NRW')
-    expect(umverteilungen[0].zielWochenKey).toBe('2027-KW04')
-    expect(umverteilungen[0].zusatzStunden).toBe(10)
-    act(() => {
-      result.current.addUmverteilung('2026-KW52', 'Weihnachtsferien NRW', '2027-KW05', 5)
-    })
-    const aktualisiert = result.current.data.umverteilungen ?? []
-    expect(aktualisiert).toHaveLength(2)
-    expect(aktualisiert[0].zielWochenKey).toBe('2027-KW04')
-    expect(aktualisiert[1].zielWochenKey).toBe('2027-KW05')
-  })
-
-  it('removeUmverteilung deletes the matching entry and leaves others unchanged', () => {
-    const { result } = renderHook(() => useAppData())
-    act(() => {
-      result.current.addUmverteilung('2026-KW44', 'Herbstferien NRW', '2027-KW04', 10)
-    })
-    act(() => {
-      result.current.addUmverteilung('2026-KW52', 'Weihnachtsferien NRW', '2027-KW05', 5)
-    })
-    const zuLoeschen = (result.current.data.umverteilungen ?? [])[0]
-    act(() => {
-      result.current.removeUmverteilung(zuLoeschen.id)
-    })
-    const verbleibend = result.current.data.umverteilungen ?? []
-    expect(verbleibend).toHaveLength(1)
-    expect(verbleibend[0].zielWochenKey).toBe('2027-KW05')
-  })
-
-  it('assigns quelleWochenKey to a persisted Umverteilung missing that field, based on its ferienName', () => {
-    const roh = JSON.stringify({
-      settings: {
-        planungszeitraum: { start: '2026-09-01', ende: '2027-07-16' },
-        schwellwert_warnung: 0.7,
-        schwellwert_kritisch: 0.9,
-        default_fahrzeit_h: 1,
-        default_vorbereitungsfaktor_erstdurchfuehrung: 0.75,
-        default_vorbereitungsfaktor_wiederholung: 0.25,
-        koordination_h_pro_schule_pro_monat: 1.5,
-      },
-      personen: [],
-      kalender: { ferien: [{ name: 'Herbstferien NRW', von: '2026-10-17', bis: '2026-10-31' }] },
-      schulen: [],
-      umverteilungen: [{ id: 'u1', ferienName: 'Herbstferien NRW', zielWochenKey: '2027-KW04', zusatzStunden: 10 }],
-    })
-    localStorage.setItem('kapazitaetsrechner:data', roh)
-    const { result } = renderHook(() => useAppData())
-    expect(result.current.data.umverteilungen?.[0].quelleWochenKey).toBe('2026-KW42')
-  })
-
   it('exportJson then importJson round-trips the data unchanged', () => {
     const { result } = renderHook(() => useAppData())
     const exported = result.current.exportJson()

@@ -7,7 +7,6 @@ import { PersonenTabelle } from './components/PersonenTabelle'
 import { PersonenKapazitaetsUebersicht } from './components/PersonenKapazitaetsUebersicht'
 import { EngpassBericht } from './components/EngpassBericht'
 import { ThemenUebersicht } from './components/ThemenUebersicht'
-import { KapazitaetsUmverteilung } from './components/KapazitaetsUmverteilung'
 import { PersonenUmverteilung } from './components/PersonenUmverteilung'
 import { ExportImport } from './components/ExportImport'
 
@@ -24,8 +23,6 @@ export default function App() {
     setEinheitFelder,
     setReiheTerminstatus,
     setReiheEinheiten,
-    addUmverteilung,
-    removeUmverteilung,
     addPersonenUmverteilung,
     removePersonenUmverteilung,
     ergebnis,
@@ -80,14 +77,6 @@ export default function App() {
         onEinheitenReplace={setReiheEinheiten}
         ferien={data.kalender.ferien}
       />
-      <div className="card">
-        <KapazitaetsUmverteilung
-          umverteilungen={data.umverteilungen ?? []}
-          wochen={ergebnis.wochen}
-          onAdd={addUmverteilung}
-          onRemove={removeUmverteilung}
-        />
-      </div>
       <div className="card">
         <PersonenUmverteilung
           personen={data.personen}
