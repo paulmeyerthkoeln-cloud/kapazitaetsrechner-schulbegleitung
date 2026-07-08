@@ -16,7 +16,7 @@ export default function App() {
     setPerson,
     addPerson,
     removePerson,
-    setPersonFerien,
+    setPersonUrlaub,
     setEinheitBegleitung,
     addEinheit,
     removeEinheit,
@@ -43,7 +43,7 @@ export default function App() {
           onChange={setPerson}
           onAdd={addPerson}
           onRemove={removePerson}
-          onFerienChange={setPersonFerien}
+          onUrlaubChange={setPersonUrlaub}
         />
       </div>
       <div className="card">

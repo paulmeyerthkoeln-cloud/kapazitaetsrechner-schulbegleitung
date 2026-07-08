@@ -55,7 +55,7 @@ export function berechnePersonKapazitaetsbasis(person: Person, wochenStartMontag
   const wochentage = eachDayOfInterval({ start: wochenStartMontag, end: wochenEnde }).filter((d) => !isWeekend(d))
   const abwesendeTage = wochentage.filter((tag) =>
     person.abwesenheiten.some((a) => tag >= parseISO(a.von) && tag <= parseISO(a.bis)) ||
-    person.ferien.some((f) => tag >= parseISO(f.von) && tag <= parseISO(f.bis))
+    person.urlaub.some((f) => tag >= parseISO(f.von) && tag <= parseISO(f.bis))
   ).length
   const abzugsfaktor = Math.min(1, abwesendeTage * 0.2)
   return person.stunden_pro_woche_fuer_begleitung * (1 - abzugsfaktor)

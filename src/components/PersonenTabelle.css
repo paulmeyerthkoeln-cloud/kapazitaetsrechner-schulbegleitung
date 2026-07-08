@@ -16,24 +16,24 @@
   width: min(10rem, 100%);
 }
 
-.personen-ferien-liste {
+.personen-urlaub-liste {
   list-style: none;
   margin: 0 0 0.25rem;
   padding: 0;
 }
 
-.personen-ferien-liste li {
+.personen-urlaub-liste li {
   display: flex;
   gap: 0.25rem;
   align-items: center;
   margin-bottom: 0.25rem;
 }
 
-.personen-ferien-liste input[type='text'] {
+.personen-urlaub-liste input[type='text'] {
   max-width: 6rem;
 }
 
-.personen-ferien-liste input[type='date'] {
+.personen-urlaub-liste input[type='date'] {
   max-width: 8.5rem;
 }
 

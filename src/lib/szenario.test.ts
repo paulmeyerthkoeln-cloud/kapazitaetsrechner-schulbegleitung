@@ -20,7 +20,7 @@ function person(id: string, szenario_optional = false): Person {
     aktiv_ab: '2026-09-01',
     aktiv_bis: '2027-07-16',
     abwesenheiten: [],
-    ferien: [],
+    urlaub: [],
     szenario_optional,
   }
 }

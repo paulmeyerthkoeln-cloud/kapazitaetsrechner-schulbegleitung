@@ -6,13 +6,13 @@ export function PersonenTabelle({
   onChange,
   onAdd,
   onRemove,
-  onFerienChange,
+  onUrlaubChange,
 }: {
   personen: Person[]
   onChange: (id: string, patch: Partial<Person>) => void
   onAdd: () => void
   onRemove: (id: string) => void
-  onFerienChange: (personId: string, ferien: FerienZeitraum[]) => void
+  onUrlaubChange: (personId: string, urlaub: FerienZeitraum[]) => void
 }) {
   return (
     <div>
@@ -23,7 +23,7 @@ export function PersonenTabelle({
           <tr>
             <th>Person</th>
             <th>Stunden/Woche für Begleitung</th>
-            <th>Ferien</th>
+            <th>Urlaub</th>
             <th></th>
           </tr>
         </thead>
@@ -50,38 +50,38 @@ export function PersonenTabelle({
                 <span> {p.stunden_pro_woche_fuer_begleitung} h</span>
               </td>
               <td>
-                <ul className="personen-ferien-liste">
-                  {p.ferien.map((f, i) => (
+                <ul className="personen-urlaub-liste">
+                  {p.urlaub.map((u, i) => (
                     <li key={i}>
                       <input
                         type="text"
-                        aria-label={`Ferien-Name ${i + 1} von ${p.name}`}
+                        aria-label={`Urlaub-Name ${i + 1} von ${p.name}`}
                         placeholder="Name"
-                        value={f.name}
+                        value={u.name}
                         onChange={(e) =>
-                          onFerienChange(p.id, p.ferien.map((ff, j) => (j === i ? { ...ff, name: e.target.value } : ff)))
+                          onUrlaubChange(p.id, p.urlaub.map((uu, j) => (j === i ? { ...uu, name: e.target.value } : uu)))
                         }
                       />
                       <input
                         type="date"
-                        aria-label={`Ferien-Von ${i + 1} von ${p.name}`}
-                        value={f.von}
+                        aria-label={`Urlaub-Von ${i + 1} von ${p.name}`}
+                        value={u.von}
                         onChange={(e) =>
-                          onFerienChange(p.id, p.ferien.map((ff, j) => (j === i ? { ...ff, von: e.target.value } : ff)))
+                          onUrlaubChange(p.id, p.urlaub.map((uu, j) => (j === i ? { ...uu, von: e.target.value } : uu)))
                         }
                       />
                       <input
                         type="date"
-                        aria-label={`Ferien-Bis ${i + 1} von ${p.name}`}
-                        value={f.bis}
+                        aria-label={`Urlaub-Bis ${i + 1} von ${p.name}`}
+                        value={u.bis}
                         onChange={(e) =>
-                          onFerienChange(p.id, p.ferien.map((ff, j) => (j === i ? { ...ff, bis: e.target.value } : ff)))
+                          onUrlaubChange(p.id, p.urlaub.map((uu, j) => (j === i ? { ...uu, bis: e.target.value } : uu)))
                         }
                       />
                       <button
                         type="button"
-                        aria-label={`Ferien ${i + 1} von ${p.name} löschen`}
-                        onClick={() => onFerienChange(p.id, p.ferien.filter((_, j) => j !== i))}
+                        aria-label={`Urlaub ${i + 1} von ${p.name} löschen`}
+                        onClick={() => onUrlaubChange(p.id, p.urlaub.filter((_, j) => j !== i))}
                       >
                         🗑
                       </button>
@@ -90,9 +90,9 @@ export function PersonenTabelle({
                 </ul>
                 <button
                   type="button"
-                  onClick={() => onFerienChange(p.id, [...p.ferien, { name: '', von: '', bis: '' }])}
+                  onClick={() => onUrlaubChange(p.id, [...p.urlaub, { name: '', von: '', bis: '' }])}
                 >
-                  + Ferienzeitraum
+                  + Urlaubszeitraum
                 </button>
               </td>
               <td>

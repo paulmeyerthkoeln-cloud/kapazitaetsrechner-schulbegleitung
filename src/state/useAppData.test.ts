@@ -62,26 +62,26 @@ describe('useAppData', () => {
     expect(result.current.data.personen.find((p) => p.id === zuLoeschen.id)).toBeUndefined()
   })
 
-  it('addPerson seeds an empty ferien list', () => {
+  it('addPerson seeds an empty urlaub list', () => {
     const { result } = renderHook(() => useAppData())
     act(() => {
       result.current.addPerson()
     })
-    expect(result.current.data.personen.at(-1)?.ferien).toEqual([])
+    expect(result.current.data.personen.at(-1)?.urlaub).toEqual([])
   })
 
-  it('setPersonFerien replaces the ferien list of the matching Person only', () => {
+  it('setPersonUrlaub replaces the urlaub list of the matching Person only', () => {
     const { result } = renderHook(() => useAppData())
     const [p1, p2] = result.current.data.personen
-    const neueFerien = [{ name: 'Sommerurlaub', von: '2026-11-09', bis: '2026-11-13' }]
+    const neuerUrlaub = [{ name: 'Sommerurlaub', von: '2026-11-09', bis: '2026-11-13' }]
     act(() => {
-      result.current.setPersonFerien(p1.id, neueFerien)
+      result.current.setPersonUrlaub(p1.id, neuerUrlaub)
     })
-    expect(result.current.data.personen.find((p) => p.id === p1.id)?.ferien).toEqual(neueFerien)
-    expect(result.current.data.personen.find((p) => p.id === p2.id)?.ferien).toEqual([])
+    expect(result.current.data.personen.find((p) => p.id === p1.id)?.urlaub).toEqual(neuerUrlaub)
+    expect(result.current.data.personen.find((p) => p.id === p2.id)?.urlaub).toEqual([])
   })
 
-  it('backfills an empty ferien list for Personen persisted before the Ferien field existed', () => {
+  it('backfills an empty urlaub list for Personen persisted before the Urlaub field existed', () => {
     const roh = JSON.stringify({
       settings: {
         planungszeitraum: { start: '2026-09-01', ende: '2027-07-16' },
@@ -98,7 +98,7 @@ describe('useAppData', () => {
     })
     localStorage.setItem('kapazitaetsrechner:data', roh)
     const { result } = renderHook(() => useAppData())
-    expect(result.current.data.personen[0].ferien).toEqual([])
+    expect(result.current.data.personen[0].urlaub).toEqual([])
   })
 
   it('addEinheit appends a new Einheit with default values and the correct index', () => {

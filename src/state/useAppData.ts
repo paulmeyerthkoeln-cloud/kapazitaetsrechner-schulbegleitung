@@ -21,7 +21,7 @@ function migriereDatenbestand(d: Datenbestand): Datenbestand {
       .filter((person) => !person.szenario_optional)
       .map((person) => ({
         ...person,
-        ferien: person.ferien ?? [],
+        urlaub: person.urlaub ?? [],
       })),
     schulen: d.schulen.map((schule) => ({
       ...schule,
@@ -64,10 +64,10 @@ export function useAppData() {
     }))
   }
 
-  function setPersonFerien(personId: string, ferien: FerienZeitraum[]) {
+  function setPersonUrlaub(personId: string, urlaub: FerienZeitraum[]) {
     setData((prev) => ({
       ...prev,
-      personen: prev.personen.map((p) => (p.id === personId ? { ...p, ferien } : p)),
+      personen: prev.personen.map((p) => (p.id === personId ? { ...p, urlaub } : p)),
     }))
   }
 
@@ -81,7 +81,7 @@ export function useAppData() {
         aktiv_ab: prev.settings.planungszeitraum.start,
         aktiv_bis: prev.settings.planungszeitraum.ende,
         abwesenheiten: [],
-        ferien: [],
+        urlaub: [],
       }
       return { ...prev, personen: [...prev.personen, neuePerson] }
     })
@@ -251,7 +251,7 @@ export function useAppData() {
     themenGanttZeilen,
     personenKapazitaet,
     setPerson,
-    setPersonFerien,
+    setPersonUrlaub,
     addPerson,
     removePerson,
     setEinheitBegleitung,

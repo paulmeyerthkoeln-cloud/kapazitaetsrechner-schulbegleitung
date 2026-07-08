@@ -21,7 +21,7 @@ export interface Person {
   aktiv_ab: string
   aktiv_bis: string
   abwesenheiten: Abwesenheit[]
-  ferien: FerienZeitraum[]
+  urlaub: FerienZeitraum[]
   szenario_optional?: boolean
 }
 

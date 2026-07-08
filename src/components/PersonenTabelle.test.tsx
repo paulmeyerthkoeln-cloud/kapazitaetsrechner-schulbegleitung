@@ -11,7 +11,7 @@ const personen: Person[] = [
     aktiv_ab: '2026-09-01',
     aktiv_bis: '2027-07-16',
     abwesenheiten: [],
-    ferien: [{ name: 'Sommerurlaub', von: '2026-07-01', bis: '2026-07-10' }],
+    urlaub: [{ name: 'Sommerurlaub', von: '2026-07-01', bis: '2026-07-10' }],
   },
 ]
 
@@ -21,40 +21,40 @@ function renderTabelle() {
     onChange: vi.fn(),
     onAdd: vi.fn(),
     onRemove: vi.fn(),
-    onFerienChange: vi.fn(),
+    onUrlaubChange: vi.fn(),
   }
   render(<PersonenTabelle {...props} />)
   return props
 }
 
-describe('PersonenTabelle Ferien', () => {
-  it('renders an existing Ferien entry for a Person', () => {
+describe('PersonenTabelle Urlaub', () => {
+  it('renders an existing Urlaub entry for a Person', () => {
     renderTabelle()
-    expect(screen.getByLabelText('Ferien-Name 1 von Anna')).toHaveValue('Sommerurlaub')
-    expect(screen.getByLabelText('Ferien-Von 1 von Anna')).toHaveValue('2026-07-01')
-    expect(screen.getByLabelText('Ferien-Bis 1 von Anna')).toHaveValue('2026-07-10')
+    expect(screen.getByLabelText('Urlaub-Name 1 von Anna')).toHaveValue('Sommerurlaub')
+    expect(screen.getByLabelText('Urlaub-Von 1 von Anna')).toHaveValue('2026-07-01')
+    expect(screen.getByLabelText('Urlaub-Bis 1 von Anna')).toHaveValue('2026-07-10')
   })
 
-  it('clicking "+ Ferienzeitraum" appends a new empty entry', () => {
+  it('clicking "+ Urlaubszeitraum" appends a new empty entry', () => {
     const props = renderTabelle()
-    fireEvent.click(screen.getByText('+ Ferienzeitraum'))
-    expect(props.onFerienChange).toHaveBeenCalledWith('p1', [
+    fireEvent.click(screen.getByText('+ Urlaubszeitraum'))
+    expect(props.onUrlaubChange).toHaveBeenCalledWith('p1', [
       { name: 'Sommerurlaub', von: '2026-07-01', bis: '2026-07-10' },
       { name: '', von: '', bis: '' },
     ])
   })
 
-  it('editing the Von date of an entry calls onFerienChange with the updated entry', () => {
+  it('editing the Von date of an entry calls onUrlaubChange with the updated entry', () => {
     const props = renderTabelle()
-    fireEvent.change(screen.getByLabelText('Ferien-Von 1 von Anna'), { target: { value: '2026-07-02' } })
-    expect(props.onFerienChange).toHaveBeenCalledWith('p1', [
+    fireEvent.change(screen.getByLabelText('Urlaub-Von 1 von Anna'), { target: { value: '2026-07-02' } })
+    expect(props.onUrlaubChange).toHaveBeenCalledWith('p1', [
       { name: 'Sommerurlaub', von: '2026-07-02', bis: '2026-07-10' },
     ])
   })
 
-  it('clicking the delete button removes that Ferien entry', () => {
+  it('clicking the delete button removes that Urlaub entry', () => {
     const props = renderTabelle()
-    fireEvent.click(screen.getByLabelText('Ferien 1 von Anna löschen'))
-    expect(props.onFerienChange).toHaveBeenCalledWith('p1', [])
+    fireEvent.click(screen.getByLabelText('Urlaub 1 von Anna löschen'))
+    expect(props.onUrlaubChange).toHaveBeenCalledWith('p1', [])
   })
 })
