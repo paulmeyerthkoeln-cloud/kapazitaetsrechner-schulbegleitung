@@ -28,7 +28,6 @@ function renderItem() {
     settings,
     personen: [],
     onEinheitToggle: vi.fn(),
-    onPresetApply: vi.fn(),
     onEinheitAdd: vi.fn(),
     onEinheitRemove: vi.fn(),
     onEinheitFelderChange: vi.fn(),
@@ -80,6 +79,6 @@ describe('SchuleAkkordionItem', () => {
     const reiheZweiUeberschrift = screen.getByRole('heading', { name: 'Reihe Zwei' })
     const reiheZweiContainer = reiheZweiUeberschrift.closest('div') as HTMLElement
     fireEvent.click(within(reiheZweiContainer).getByText('Termine generieren'))
-    expect(props.onTermineGenerieren).toHaveBeenCalledWith('r2', expect.any(String), expect.any(Number), expect.any(Number))
+    expect(props.onTermineGenerieren).toHaveBeenCalledWith('r2', expect.any(String), expect.any(Number), expect.any(Number), expect.any(Number))
   })
 })

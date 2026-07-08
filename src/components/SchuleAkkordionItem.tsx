@@ -1,11 +1,10 @@
 import { ReihenEditor } from './ReihenEditor'
-import type { BesetzungsPreset, Person, Schule, Settings, Terminstatus, Thema } from '../lib/types'
+import type { Person, Schule, Settings, Terminstatus, Thema } from '../lib/types'
 
 export function SchuleAkkordionItem({
   schule,
   personen,
   onEinheitToggle,
-  onPresetApply,
   onEinheitAdd,
   onEinheitRemove,
   onEinheitFelderChange,
@@ -16,7 +15,6 @@ export function SchuleAkkordionItem({
   settings: Settings
   personen: Person[]
   onEinheitToggle: (reiheId: string, einheitId: string, wert: boolean) => void
-  onPresetApply: (reiheId: string, preset: BesetzungsPreset) => void
   onEinheitAdd: (reiheId: string) => void
   onEinheitRemove: (reiheId: string, einheitId: string) => void
   onEinheitFelderChange: (
@@ -25,7 +23,7 @@ export function SchuleAkkordionItem({
     patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema; koordinationszeit_h?: number; begleitperson_id?: string | null }
   ) => void
   onTerminstatusChange: (reiheId: string, terminstatus: Terminstatus) => void
-  onTermineGenerieren: (reiheId: string, startdatum: string, unterrichtszeitH: number, anzahlTermine: number) => void
+  onTermineGenerieren: (reiheId: string, startdatum: string, unterrichtszeitH: number, koordinationszeitH: number, anzahlTermine: number) => void
 }) {
   return (
     <details className="schule-akkordion-item">
@@ -40,13 +38,12 @@ export function SchuleAkkordionItem({
               reihe={reihe}
               personen={personen}
               onEinheitToggle={(einheitId, wert) => onEinheitToggle(reihe.id, einheitId, wert)}
-              onPresetApply={(preset) => onPresetApply(reihe.id, preset)}
               onEinheitAdd={() => onEinheitAdd(reihe.id)}
               onEinheitRemove={(einheitId) => onEinheitRemove(reihe.id, einheitId)}
               onEinheitFelderChange={(einheitId, patch) => onEinheitFelderChange(reihe.id, einheitId, patch)}
               onTerminstatusChange={(wert) => onTerminstatusChange(reihe.id, wert)}
-              onTermineGenerieren={(startdatum, unterrichtszeitH, anzahlTermine) =>
-                onTermineGenerieren(reihe.id, startdatum, unterrichtszeitH, anzahlTermine)
+              onTermineGenerieren={(startdatum, unterrichtszeitH, koordinationszeitH, anzahlTermine) =>
+                onTermineGenerieren(reihe.id, startdatum, unterrichtszeitH, koordinationszeitH, anzahlTermine)
               }
             />
           </div>

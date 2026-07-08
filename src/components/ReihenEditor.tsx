@@ -1,13 +1,7 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
 import { berechneUnserAnteil, ermittleHaeufigsteKontaktzeit } from '../lib/besetzung'
-import type { BesetzungsPreset, Person, Reihe, Terminstatus, Thema } from '../lib/types'
-
-const PRESETS: { label: string; preset: (n: number) => BesetzungsPreset }[] = [
-  { label: 'Alle', preset: () => ({ typ: 'alle' }) },
-  { label: 'Keine', preset: () => ({ typ: 'keine' }) },
-  { label: 'Erste & Letzte', preset: () => ({ typ: 'erste_und_letzte' }) },
-]
+import type { Person, Reihe, Terminstatus, Thema } from '../lib/types'
 
 const THEMEN: Thema[] = ['Ernährung', 'Stadtgrün', 'Mobilität', 'Energie', 'Exkursion']
 
@@ -15,7 +9,6 @@ export function ReihenEditor({
   reihe,
   personen,
   onEinheitToggle,
-  onPresetApply,
   onEinheitAdd,
   onEinheitRemove,
   onEinheitFelderChange,
@@ -25,7 +18,6 @@ export function ReihenEditor({
   reihe: Reihe
   personen: Person[]
   onEinheitToggle: (einheitId: string, wert: boolean) => void
-  onPresetApply: (preset: BesetzungsPreset) => void
   onEinheitAdd: () => void
   onEinheitRemove: (einheitId: string) => void
   onEinheitFelderChange: (
@@ -33,15 +25,15 @@ export function ReihenEditor({
     patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema; koordinationszeit_h?: number; begleitperson_id?: string | null }
   ) => void
   onTerminstatusChange: (wert: Terminstatus) => void
-  onTermineGenerieren: (startdatum: string, unterrichtszeitH: number, anzahlTermine: number) => void
+  onTermineGenerieren: (startdatum: string, unterrichtszeitH: number, koordinationszeitH: number, anzahlTermine: number) => void
 }) {
-  const [n, setN] = useState(1)
   const anteil = berechneUnserAnteil(reihe.einheiten)
   const [schnellStartdatum, setSchnellStartdatum] = useState(format(new Date(), 'yyyy-MM-dd'))
   const [schnellUnterrichtszeitMin, setSchnellUnterrichtszeitMin] = useState(() => {
     const haeufigste = ermittleHaeufigsteKontaktzeit(reihe.einheiten)
     return haeufigste !== null ? Math.round(haeufigste * 60) : 90
   })
+  const [schnellKoordinationMin, setSchnellKoordinationMin] = useState(0)
   const [schnellAnzahlTermine, setSchnellAnzahlTermine] = useState(reihe.einheiten.length || 1)
 
   function termineGenerieren() {
@@ -49,7 +41,7 @@ export function ReihenEditor({
       const bestaetigt = window.confirm('Die bestehenden Termine dieser Reihe werden ersetzt. Fortfahren?')
       if (!bestaetigt) return
     }
-    onTermineGenerieren(schnellStartdatum, schnellUnterrichtszeitMin / 60, schnellAnzahlTermine)
+    onTermineGenerieren(schnellStartdatum, schnellUnterrichtszeitMin / 60, schnellKoordinationMin / 60, schnellAnzahlTermine)
   }
 
   return (
@@ -77,6 +69,18 @@ export function ReihenEditor({
             aria-label="Schnelleinrichtung Unterrichtszeit"
             value={schnellUnterrichtszeitMin}
             onChange={(ev) => setSchnellUnterrichtszeitMin(Number(ev.target.value))}
+            style={{ width: '5rem' }}
+          />
+        </label>
+        <label>
+          Koordination (min):{' '}
+          <input
+            type="number"
+            step={5}
+            min={0}
+            aria-label="Schnelleinrichtung Koordination"
+            value={schnellKoordinationMin}
+            onChange={(ev) => setSchnellKoordinationMin(Number(ev.target.value))}
             style={{ width: '5rem' }}
           />
         </label>
@@ -109,17 +113,6 @@ export function ReihenEditor({
         {reihe.terminstatus === 'offen' && (
           <span className="terminstatus-badge">offen – zählt nicht in der Bedarfsrechnung</span>
         )}
-      </div>
-      <div>
-        {PRESETS.map(({ label, preset }) => (
-          <button key={label} onClick={() => onPresetApply(preset(n))}>
-            {label}
-          </button>
-        ))}
-        <button onClick={() => onPresetApply({ typ: 'erste_n', n })}>Erste {n}</button>
-        <button onClick={() => onPresetApply({ typ: 'letzte_n', n })}>Letzte {n}</button>
-        <button onClick={() => onPresetApply({ typ: 'jede_n_te', n })}>Jede {n}. Einheit</button>
-        <input type="number" min={1} value={n} onChange={(e) => setN(Number(e.target.value))} style={{ width: '3rem' }} />
       </div>
       <table>
         <thead>

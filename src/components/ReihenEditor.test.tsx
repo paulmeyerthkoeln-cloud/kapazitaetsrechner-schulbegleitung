@@ -45,7 +45,6 @@ function renderReihenEditor() {
     reihe,
     personen,
     onEinheitToggle: vi.fn(),
-    onPresetApply: vi.fn(),
     onEinheitAdd: vi.fn(),
     onEinheitRemove: vi.fn(),
     onEinheitFelderChange: vi.fn(),
@@ -152,7 +151,6 @@ describe('ReihenEditor', () => {
         reihe={reihe}
         personen={personen}
         onEinheitToggle={vi.fn()}
-        onPresetApply={vi.fn()}
         onEinheitAdd={vi.fn()}
         onEinheitRemove={vi.fn()}
         onEinheitFelderChange={vi.fn()}
@@ -166,7 +164,6 @@ describe('ReihenEditor', () => {
         reihe={{ ...reihe, terminstatus: 'offen' }}
         personen={personen}
         onEinheitToggle={vi.fn()}
-        onPresetApply={vi.fn()}
         onEinheitAdd={vi.fn()}
         onEinheitRemove={vi.fn()}
         onEinheitFelderChange={vi.fn()}
@@ -183,7 +180,6 @@ describe('ReihenEditor', () => {
       reihe: reiheOhneTermine,
       personen,
       onEinheitToggle: vi.fn(),
-      onPresetApply: vi.fn(),
       onEinheitAdd: vi.fn(),
       onEinheitRemove: vi.fn(),
       onEinheitFelderChange: vi.fn(),
@@ -195,7 +191,28 @@ describe('ReihenEditor', () => {
     fireEvent.change(screen.getByLabelText('Schnelleinrichtung Unterrichtszeit'), { target: { value: '90' } })
     fireEvent.change(screen.getByLabelText('Schnelleinrichtung Anzahl Termine'), { target: { value: '4' } })
     fireEvent.click(screen.getByText('Termine generieren'))
-    expect(props.onTermineGenerieren).toHaveBeenCalledWith('2026-09-07', 1.5, 4)
+    expect(props.onTermineGenerieren).toHaveBeenCalledWith('2026-09-07', 1.5, 0, 4)
+  })
+
+  it('calls onTermineGenerieren with the entered Koordination in hours', () => {
+    const reiheOhneTermine = { ...reihe, einheiten: [] }
+    const props = {
+      reihe: reiheOhneTermine,
+      personen,
+      onEinheitToggle: vi.fn(),
+      onEinheitAdd: vi.fn(),
+      onEinheitRemove: vi.fn(),
+      onEinheitFelderChange: vi.fn(),
+      onTerminstatusChange: vi.fn(),
+      onTermineGenerieren: vi.fn(),
+    }
+    render(<ReihenEditor {...props} />)
+    fireEvent.change(screen.getByLabelText('Schnelleinrichtung Startdatum'), { target: { value: '2026-09-07' } })
+    fireEvent.change(screen.getByLabelText('Schnelleinrichtung Unterrichtszeit'), { target: { value: '90' } })
+    fireEvent.change(screen.getByLabelText('Schnelleinrichtung Koordination'), { target: { value: '15' } })
+    fireEvent.change(screen.getByLabelText('Schnelleinrichtung Anzahl Termine'), { target: { value: '4' } })
+    fireEvent.click(screen.getByText('Termine generieren'))
+    expect(props.onTermineGenerieren).toHaveBeenCalledWith('2026-09-07', 1.5, 0.25, 4)
   })
 
   it('asks for confirmation before generating when the Reihe already has Termine, and skips the call when cancelled', () => {
@@ -227,7 +244,6 @@ describe('ReihenEditor', () => {
         reihe={wdgAehnlicheReihe}
         personen={personen}
         onEinheitToggle={vi.fn()}
-        onPresetApply={vi.fn()}
         onEinheitAdd={vi.fn()}
         onEinheitRemove={vi.fn()}
         onEinheitFelderChange={vi.fn()}
@@ -277,7 +293,6 @@ describe('ReihenEditor', () => {
         reihe={reiheOhneTermine}
         personen={personen}
         onEinheitToggle={vi.fn()}
-        onPresetApply={vi.fn()}
         onEinheitAdd={vi.fn()}
         onEinheitRemove={vi.fn()}
         onEinheitFelderChange={vi.fn()}

@@ -68,15 +68,6 @@ export interface Muster {
   kontaktzeit_h: number
 }
 
-export type BesetzungsPreset =
-  | { typ: 'alle' }
-  | { typ: 'keine' }
-  | { typ: 'erste_n'; n: number }
-  | { typ: 'letzte_n'; n: number }
-  | { typ: 'erste_und_letzte' }
-  | { typ: 'jede_n_te'; n: number }
-  | { typ: 'manuell' }
-
 export type Betreuungsmodell = 'A' | 'B' | 'C' | 'X'
 
 export type Terminstatus = 'festgelegt' | 'teilweise_festgelegt' | 'offen'
@@ -91,7 +82,6 @@ export interface Reihe {
   terminstatus: Terminstatus
   einheiten: Einheit[]
   muster?: Muster
-  besetzung?: BesetzungsPreset
   sperrzeiten?: Sperrzeit[]
 }
 

@@ -1,7 +1,6 @@
 import { SchuleAkkordionItem } from './SchuleAkkordionItem'
-import { wendeBesetzungPreset } from '../lib/besetzung'
 import { generiereWochentlicheTermine } from '../lib/kalenderwochen'
-import type { BesetzungsPreset, Einheit, FerienZeitraum, Person, Schule, Settings, Terminstatus, Thema } from '../lib/types'
+import type { Einheit, FerienZeitraum, Person, Schule, Settings, Terminstatus, Thema } from '../lib/types'
 import './SchulenAccordion.css'
 
 export function SchulenAccordion({
@@ -31,17 +30,8 @@ export function SchulenAccordion({
   onTerminstatusChange: (reiheId: string, terminstatus: Terminstatus) => void
   onEinheitenReplace: (reiheId: string, einheiten: Einheit[]) => void
 }) {
-  function onPresetApply(reiheId: string, preset: BesetzungsPreset) {
-    for (const schule of schulen) {
-      const reihe = schule.reihen.find((r) => r.id === reiheId)
-      if (!reihe) continue
-      const aktualisiert = wendeBesetzungPreset(reihe.einheiten, preset)
-      aktualisiert.forEach((e) => onEinheitToggle(reiheId, e.id, e.wir_begleiten))
-    }
-  }
-
-  function onTermineGenerieren(reiheId: string, startdatum: string, unterrichtszeitH: number, anzahlTermine: number) {
-    const einheiten = generiereWochentlicheTermine(reiheId, startdatum, unterrichtszeitH, anzahlTermine, ferien)
+  function onTermineGenerieren(reiheId: string, startdatum: string, unterrichtszeitH: number, koordinationszeitH: number, anzahlTermine: number) {
+    const einheiten = generiereWochentlicheTermine(reiheId, startdatum, unterrichtszeitH, koordinationszeitH, anzahlTermine, ferien)
     onEinheitenReplace(reiheId, einheiten)
   }
 
@@ -54,7 +44,6 @@ export function SchulenAccordion({
           settings={settings}
           personen={personen}
           onEinheitToggle={onEinheitToggle}
-          onPresetApply={onPresetApply}
           onEinheitAdd={onEinheitAdd}
           onEinheitRemove={onEinheitRemove}
           onEinheitFelderChange={onEinheitFelderChange}

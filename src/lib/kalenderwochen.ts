@@ -98,6 +98,7 @@ export function generiereWochentlicheTermine(
   reiheId: string,
   startdatum: string,
   unterrichtszeitH: number,
+  koordinationszeitH: number,
   anzahlTermine: number,
   ferien: FerienZeitraum[]
 ): Einheit[] {
@@ -112,6 +113,7 @@ export function generiereWochentlicheTermine(
         index,
         datum_oder_kw: format(cursor, 'yyyy-MM-dd'),
         kontaktzeit_h: unterrichtszeitH,
+        koordinationszeit_h: koordinationszeitH,
         personen_parallel: 1,
         erstdurchfuehrung: index === 1,
         wir_begleiten: true,

@@ -89,6 +89,16 @@ describe('berechnePersonenKapazitaet', () => {
     expect(kw45.verbleibend).toBe(8)
   })
 
+  it("includes an assigned Einheit's koordinationszeit_h in zugewiesen and verbleibend, alongside kontaktzeit_h", () => {
+    const data = datenbestand({
+      schulen: [schuleMitEinheit({ begleitperson_id: 'p1', kontaktzeit_h: 3, koordinationszeit_h: 1, datum_oder_kw: '2026-KW46' })],
+    })
+    const ergebnis = berechnePersonenKapazitaet(data)
+    const kw46 = ergebnis[0].wochen.find((w) => w.wochenKey === '2026-KW46')!
+    expect(kw46.zugewiesen).toBe(4)
+    expect(kw46.verbleibend).toBe(4)
+  })
+
   it('ignores Einheiten in Reihen with terminstatus "offen"', () => {
     const data = datenbestand({
       schulen: [schuleMitEinheit({ begleitperson_id: 'p1', kontaktzeit_h: 3, datum_oder_kw: '2026-KW46' }, 'offen')],

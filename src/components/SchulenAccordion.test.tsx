@@ -94,15 +94,6 @@ describe('SchulenAccordion', () => {
     expect(screen.getByText('Schule Zwei').closest('summary')).not.toBeNull()
   })
 
-  it('applies a Besetzung-Preset only to the matching Reihe, scoped to the correct Schule', () => {
-    const props = renderAccordion()
-    const reiheZweiUeberschrift = screen.getByRole('heading', { name: 'Reihe Zwei' })
-    const reiheZweiContainer = reiheZweiUeberschrift.closest('div') as HTMLElement
-    fireEvent.click(within(reiheZweiContainer).getByText('Alle'))
-    expect(props.onEinheitToggle).toHaveBeenCalledWith('r2', 'e2', true)
-    expect(props.onEinheitToggle).not.toHaveBeenCalledWith('r1', 'e1', true)
-  })
-
   it('forwards onEinheitAdd with the correct Reihe id for a specific Schule', () => {
     const props = renderAccordion()
     const reiheEinsUeberschrift = screen.getByRole('heading', { name: 'Reihe Eins' })
