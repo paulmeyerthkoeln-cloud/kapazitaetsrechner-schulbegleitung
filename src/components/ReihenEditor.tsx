@@ -185,7 +185,7 @@ export function ReihenEditor({
               <td>
                 <input
                   type="text"
-                  list="themenwochen-optionen"
+                  list={`themenwochen-optionen-${reihe.id}`}
                   aria-label={`Themenwoche für Termin ${e.index} in ${reihe.titel}`}
                   value={e.themenwoche ?? ''}
                   onChange={(ev) =>
@@ -227,7 +227,7 @@ export function ReihenEditor({
           ))}
         </tbody>
       </table>
-      <datalist id="themenwochen-optionen">
+      <datalist id={`themenwochen-optionen-${reihe.id}`}>
         {themenwochen.map((tw) => (
           <option key={tw} value={tw} />
         ))}
