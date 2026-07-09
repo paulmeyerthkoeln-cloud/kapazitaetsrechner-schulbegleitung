@@ -4,7 +4,7 @@ import { berechneMachbarkeit, berechneWochenuebersicht } from '../lib/berechnung
 import { berechneThemenGantt } from '../lib/themenUebersicht'
 import { berechnePersonenKapazitaet } from '../lib/personenKapazitaet'
 import { naechstesEinheitDatum } from '../lib/kalenderwochen'
-import type { Datenbestand, Einheit, FerienZeitraum, Person, Terminstatus } from '../lib/types'
+import type { Datenbestand, Einheit, FerienZeitraum, Person, Reihe, Terminstatus } from '../lib/types'
 
 const PFLICHTFELDER = ['settings', 'personen', 'kalender', 'schulen'] as const
 const STORAGE_KEY = 'kapazitaetsrechner:data'
@@ -180,6 +180,45 @@ export function useAppData() {
     }))
   }
 
+  function addReihe(schuleId: string) {
+    setData((prev) => ({
+      ...prev,
+      schulen: prev.schulen.map((schule) => {
+        if (schule.id !== schuleId) return schule
+        const neueReihe: Reihe = {
+          id: `reihe_${Date.now()}`,
+          titel: 'Neuer Kurs',
+          betreuungsmodell: 'A',
+          fahrzeit_h: prev.settings.default_fahrzeit_h,
+          status: '',
+          extern_betreut: false,
+          terminstatus: 'offen',
+          einheiten: [],
+        }
+        return { ...schule, reihen: [...schule.reihen, neueReihe] }
+      }),
+    }))
+  }
+
+  function removeReihe(schuleId: string, reiheId: string) {
+    setData((prev) => ({
+      ...prev,
+      schulen: prev.schulen.map((schule) =>
+        schule.id !== schuleId ? schule : { ...schule, reihen: schule.reihen.filter((r) => r.id !== reiheId) }
+      ),
+    }))
+  }
+
+  function setReiheTitel(reiheId: string, titel: string) {
+    setData((prev) => ({
+      ...prev,
+      schulen: prev.schulen.map((schule) => ({
+        ...schule,
+        reihen: schule.reihen.map((reihe) => (reihe.id === reiheId ? { ...reihe, titel } : reihe)),
+      })),
+    }))
+  }
+
   function setReiheTerminstatus(reiheId: string, terminstatus: Terminstatus) {
     setData((prev) => ({
       ...prev,
@@ -258,6 +297,9 @@ export function useAppData() {
     addEinheit,
     removeEinheit,
     setEinheitFelder,
+    addReihe,
+    removeReihe,
+    setReiheTitel,
     setReiheTerminstatus,
     setReiheEinheiten,
     addPersonenUmverteilung,

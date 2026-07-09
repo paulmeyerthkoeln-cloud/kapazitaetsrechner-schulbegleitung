@@ -14,6 +14,7 @@ export function ReihenEditor({
   onEinheitFelderChange,
   onTerminstatusChange,
   onTermineGenerieren,
+  onTitelChange,
 }: {
   reihe: Reihe
   personen: Person[]
@@ -26,6 +27,7 @@ export function ReihenEditor({
   ) => void
   onTerminstatusChange: (wert: Terminstatus) => void
   onTermineGenerieren: (startdatum: string, unterrichtszeitH: number, koordinationszeitH: number, anzahlTermine: number) => void
+  onTitelChange: (titel: string) => void
 }) {
   const anteil = berechneUnserAnteil(reihe.einheiten)
   const [schnellStartdatum, setSchnellStartdatum] = useState(format(new Date(), 'yyyy-MM-dd'))
@@ -46,7 +48,7 @@ export function ReihenEditor({
 
   return (
     <div>
-      <h3>{reihe.titel}</h3>
+      <input type="text" aria-label="Titel" value={reihe.titel} onChange={(ev) => onTitelChange(ev.target.value)} />
       <p>
         {anteil.anzahl} von {anteil.gesamt} Einheiten ({Math.round(anteil.anteil * 100)}%)
       </p>

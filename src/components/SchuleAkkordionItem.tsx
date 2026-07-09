@@ -10,6 +10,9 @@ export function SchuleAkkordionItem({
   onEinheitFelderChange,
   onTerminstatusChange,
   onTermineGenerieren,
+  onReiheAdd,
+  onReiheRemove,
+  onReiheTitelChange,
 }: {
   schule: Schule
   settings: Settings
@@ -24,6 +27,9 @@ export function SchuleAkkordionItem({
   ) => void
   onTerminstatusChange: (reiheId: string, terminstatus: Terminstatus) => void
   onTermineGenerieren: (reiheId: string, startdatum: string, unterrichtszeitH: number, koordinationszeitH: number, anzahlTermine: number) => void
+  onReiheAdd: () => void
+  onReiheRemove: (reiheId: string) => void
+  onReiheTitelChange: (reiheId: string, titel: string) => void
 }) {
   return (
     <details className="schule-akkordion-item">
@@ -34,10 +40,14 @@ export function SchuleAkkordionItem({
             <p className="reihe-meta">
               Modell {reihe.betreuungsmodell} · Status: {reihe.status}
             </p>
+            <button onClick={() => onReiheRemove(reihe.id)} aria-label={`${reihe.titel} löschen`}>
+              🗑
+            </button>
             <ReihenEditor
               reihe={reihe}
               personen={personen}
               onEinheitToggle={(einheitId, wert) => onEinheitToggle(reihe.id, einheitId, wert)}
+              onTitelChange={(titel) => onReiheTitelChange(reihe.id, titel)}
               onEinheitAdd={() => onEinheitAdd(reihe.id)}
               onEinheitRemove={(einheitId) => onEinheitRemove(reihe.id, einheitId)}
               onEinheitFelderChange={(einheitId, patch) => onEinheitFelderChange(reihe.id, einheitId, patch)}
@@ -48,6 +58,7 @@ export function SchuleAkkordionItem({
             />
           </div>
         ))}
+        <button onClick={onReiheAdd}>+ Kurs hinzufügen</button>
       </div>
     </details>
   )

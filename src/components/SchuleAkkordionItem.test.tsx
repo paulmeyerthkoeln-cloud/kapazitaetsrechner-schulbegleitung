@@ -33,6 +33,9 @@ function renderItem() {
     onEinheitFelderChange: vi.fn(),
     onTerminstatusChange: vi.fn(),
     onTermineGenerieren: vi.fn(),
+    onReiheAdd: vi.fn(),
+    onReiheRemove: vi.fn(),
+    onReiheTitelChange: vi.fn(),
   }
   render(<SchuleAkkordionItem {...props} />)
   return props
@@ -50,15 +53,15 @@ describe('SchuleAkkordionItem', () => {
     expect(screen.getByText('Modell C · Status: in_klaerung')).toBeInTheDocument()
   })
 
-  it('renders one ReihenEditor per Reihe, identifiable by its title heading', () => {
+  it('renders one ReihenEditor per Reihe, identifiable by its title input', () => {
     renderItem()
-    expect(screen.getByRole('heading', { name: 'Reihe Eins' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Reihe Zwei' })).toBeInTheDocument()
+    expect(screen.getByDisplayValue('Reihe Eins')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('Reihe Zwei')).toBeInTheDocument()
   })
 
   it("calls onEinheitAdd with the correct Reihe id when that Reihe's add button is clicked", () => {
     const props = renderItem()
-    const reiheEinsUeberschrift = screen.getByRole('heading', { name: 'Reihe Eins' })
+    const reiheEinsUeberschrift = screen.getByDisplayValue('Reihe Eins')
     const reiheEinsContainer = reiheEinsUeberschrift.closest('div') as HTMLElement
     fireEvent.click(within(reiheEinsContainer).getByText('+ Termin hinzufügen'))
     expect(props.onEinheitAdd).toHaveBeenCalledWith('r1')
@@ -66,7 +69,7 @@ describe('SchuleAkkordionItem', () => {
 
   it('calls onTerminstatusChange with the correct Reihe id when the Terminstatus dropdown changes', () => {
     const props = renderItem()
-    const reiheZweiUeberschrift = screen.getByRole('heading', { name: 'Reihe Zwei' })
+    const reiheZweiUeberschrift = screen.getByDisplayValue('Reihe Zwei')
     const reiheZweiContainer = reiheZweiUeberschrift.closest('div') as HTMLElement
     const terminstatusSelect = within(reiheZweiContainer).getByRole('combobox', { name: 'Terminstatus' })
     fireEvent.change(terminstatusSelect, { target: { value: 'offen' } })
@@ -76,9 +79,21 @@ describe('SchuleAkkordionItem', () => {
   it("calls onTermineGenerieren with the correct Reihe id when that Reihe's quick-setup button is clicked", () => {
     vi.spyOn(window, 'confirm').mockReturnValue(true)
     const props = renderItem()
-    const reiheZweiUeberschrift = screen.getByRole('heading', { name: 'Reihe Zwei' })
+    const reiheZweiUeberschrift = screen.getByDisplayValue('Reihe Zwei')
     const reiheZweiContainer = reiheZweiUeberschrift.closest('div') as HTMLElement
     fireEvent.click(within(reiheZweiContainer).getByText('Termine generieren'))
     expect(props.onTermineGenerieren).toHaveBeenCalledWith('r2', expect.any(String), expect.any(Number), expect.any(Number), expect.any(Number))
+  })
+
+  it('calls onReiheAdd when the "+ Kurs hinzufügen" button is clicked', () => {
+    const props = renderItem()
+    fireEvent.click(screen.getByText('+ Kurs hinzufügen'))
+    expect(props.onReiheAdd).toHaveBeenCalled()
+  })
+
+  it("calls onReiheRemove with the correct Reihe id when that Reihe's delete button is clicked", () => {
+    const props = renderItem()
+    fireEvent.click(screen.getByLabelText('Reihe Zwei löschen'))
+    expect(props.onReiheRemove).toHaveBeenCalledWith('r2')
   })
 })

@@ -50,12 +50,25 @@ function renderReihenEditor() {
     onEinheitFelderChange: vi.fn(),
     onTerminstatusChange: vi.fn(),
     onTermineGenerieren: vi.fn(),
+    onTitelChange: vi.fn(),
   }
   render(<ReihenEditor {...props} />)
   return props
 }
 
 describe('ReihenEditor', () => {
+  it('renders the Titel as an editable input', () => {
+    renderReihenEditor()
+    const titel = screen.getByLabelText('Titel') as HTMLInputElement
+    expect(titel.value).toBe('Testreihe')
+  })
+
+  it('calls onTitelChange when the Titel input changes', () => {
+    const props = renderReihenEditor()
+    fireEvent.change(screen.getByLabelText('Titel'), { target: { value: 'Neuer Titel' } })
+    expect(props.onTitelChange).toHaveBeenCalledWith('Neuer Titel')
+  })
+
   it('shows Kontaktzeit in minutes, converted from the stored hours', () => {
     renderReihenEditor()
     const eingaben = screen.getAllByRole('spinbutton') as HTMLInputElement[]
@@ -156,6 +169,7 @@ describe('ReihenEditor', () => {
         onEinheitFelderChange={vi.fn()}
         onTerminstatusChange={vi.fn()}
         onTermineGenerieren={vi.fn()}
+        onTitelChange={vi.fn()}
       />
     )
     expect(screen.queryByText(/zählt nicht in der Bedarfsrechnung/)).not.toBeInTheDocument()
@@ -169,6 +183,7 @@ describe('ReihenEditor', () => {
         onEinheitFelderChange={vi.fn()}
         onTerminstatusChange={vi.fn()}
         onTermineGenerieren={vi.fn()}
+        onTitelChange={vi.fn()}
       />
     )
     expect(screen.getByText(/zählt nicht in der Bedarfsrechnung/)).toBeInTheDocument()
@@ -185,6 +200,7 @@ describe('ReihenEditor', () => {
       onEinheitFelderChange: vi.fn(),
       onTerminstatusChange: vi.fn(),
       onTermineGenerieren: vi.fn(),
+      onTitelChange: vi.fn(),
     }
     render(<ReihenEditor {...props} />)
     fireEvent.change(screen.getByLabelText('Schnelleinrichtung Startdatum'), { target: { value: '2026-09-07' } })
@@ -205,6 +221,7 @@ describe('ReihenEditor', () => {
       onEinheitFelderChange: vi.fn(),
       onTerminstatusChange: vi.fn(),
       onTermineGenerieren: vi.fn(),
+      onTitelChange: vi.fn(),
     }
     render(<ReihenEditor {...props} />)
     fireEvent.change(screen.getByLabelText('Schnelleinrichtung Startdatum'), { target: { value: '2026-09-07' } })
@@ -249,6 +266,7 @@ describe('ReihenEditor', () => {
         onEinheitFelderChange={vi.fn()}
         onTerminstatusChange={vi.fn()}
         onTermineGenerieren={vi.fn()}
+        onTitelChange={vi.fn()}
       />
     )
     const unterrichtszeit = screen.getByLabelText('Schnelleinrichtung Unterrichtszeit') as HTMLInputElement
@@ -298,6 +316,7 @@ describe('ReihenEditor', () => {
         onEinheitFelderChange={vi.fn()}
         onTerminstatusChange={vi.fn()}
         onTermineGenerieren={vi.fn()}
+        onTitelChange={vi.fn()}
       />
     )
     const unterrichtszeit = screen.getByLabelText('Schnelleinrichtung Unterrichtszeit') as HTMLInputElement

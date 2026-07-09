@@ -80,6 +80,9 @@ function renderAccordion() {
     onEinheitFelderChange: vi.fn(),
     onTerminstatusChange: vi.fn(),
     onEinheitenReplace: vi.fn(),
+    onReiheAdd: vi.fn(),
+    onReiheRemove: vi.fn(),
+    onReiheTitelChange: vi.fn(),
   }
   render(<SchulenAccordion {...props} />)
   return props
@@ -96,7 +99,7 @@ describe('SchulenAccordion', () => {
 
   it('forwards onEinheitAdd with the correct Reihe id for a specific Schule', () => {
     const props = renderAccordion()
-    const reiheEinsUeberschrift = screen.getByRole('heading', { name: 'Reihe Eins' })
+    const reiheEinsUeberschrift = screen.getByDisplayValue('Reihe Eins')
     const reiheEinsContainer = reiheEinsUeberschrift.closest('div') as HTMLElement
     fireEvent.click(within(reiheEinsContainer).getByText('+ Termin hinzufügen'))
     expect(props.onEinheitAdd).toHaveBeenCalledWith('r1')
@@ -124,7 +127,7 @@ describe('SchulenAccordion', () => {
 
   it('forwards onTerminstatusChange with the correct Reihe id for a specific Schule', () => {
     const props = renderAccordion()
-    const reiheZweiUeberschrift = screen.getByRole('heading', { name: 'Reihe Zwei' })
+    const reiheZweiUeberschrift = screen.getByDisplayValue('Reihe Zwei')
     const reiheZweiContainer = reiheZweiUeberschrift.closest('div') as HTMLElement
     const terminstatusSelect = within(reiheZweiContainer).getByRole('combobox', { name: 'Terminstatus' })
     fireEvent.change(terminstatusSelect, { target: { value: 'teilweise_festgelegt' } })
@@ -134,7 +137,7 @@ describe('SchulenAccordion', () => {
   it('generates weekly Termine for the correct Reihe via onEinheitenReplace', () => {
     vi.spyOn(window, 'confirm').mockReturnValue(true)
     const props = renderAccordion()
-    const reiheZweiUeberschrift = screen.getByRole('heading', { name: 'Reihe Zwei' })
+    const reiheZweiUeberschrift = screen.getByDisplayValue('Reihe Zwei')
     const reiheZweiContainer = reiheZweiUeberschrift.closest('div') as HTMLElement
     const reiheZwei = within(reiheZweiContainer)
     fireEvent.change(reiheZwei.getByLabelText('Schnelleinrichtung Startdatum'), { target: { value: '2026-09-07' } })
@@ -145,5 +148,19 @@ describe('SchulenAccordion', () => {
       expect.objectContaining({ datum_oder_kw: '2026-09-07', kontaktzeit_h: 1.5 }),
       expect.objectContaining({ datum_oder_kw: '2026-09-14', kontaktzeit_h: 1.5 }),
     ])
+  })
+
+  it('forwards onReiheAdd with the correct Schule id', () => {
+    const props = renderAccordion()
+    const schuleZweiSummary = screen.getByText('Schule Zwei').closest('summary') as HTMLElement
+    const schuleZweiDetails = schuleZweiSummary.closest('details') as HTMLElement
+    fireEvent.click(within(schuleZweiDetails).getByText('+ Kurs hinzufügen'))
+    expect(props.onReiheAdd).toHaveBeenCalledWith('s2')
+  })
+
+  it('forwards onReiheRemove with the correct Schule and Reihe id', () => {
+    const props = renderAccordion()
+    fireEvent.click(screen.getByLabelText('Reihe Zwei löschen'))
+    expect(props.onReiheRemove).toHaveBeenCalledWith('s2', 'r2')
   })
 })

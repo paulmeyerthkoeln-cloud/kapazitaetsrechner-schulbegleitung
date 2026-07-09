@@ -21,6 +21,9 @@ export default function App() {
     addEinheit,
     removeEinheit,
     setEinheitFelder,
+    addReihe,
+    removeReihe,
+    setReiheTitel,
     setReiheTerminstatus,
     setReiheEinheiten,
     addPersonenUmverteilung,
@@ -75,6 +78,9 @@ export default function App() {
         onEinheitFelderChange={setEinheitFelder}
         onTerminstatusChange={setReiheTerminstatus}
         onEinheitenReplace={setReiheEinheiten}
+        onReiheAdd={addReihe}
+        onReiheRemove={removeReihe}
+        onReiheTitelChange={setReiheTitel}
         ferien={data.kalender.ferien}
       />
       <div className="card">

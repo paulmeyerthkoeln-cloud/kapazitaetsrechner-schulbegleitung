@@ -17,7 +17,7 @@ describe('App', () => {
     // "... löschen" delete buttons. ReihenEditor renders <h3>{reihe.titel}</h3> as
     // the direct child of the Reihe's single wrapping <div>, so the heading's
     // nearest ancestor <div> is exactly that Reihe's container.
-    const wdgUeberschrift = screen.getByRole('heading', { name: 'Theorieblöcke Begabtenförderung' })
+    const wdgUeberschrift = screen.getByDisplayValue('Theorieblöcke Begabtenförderung')
     const wdgContainer = wdgUeberschrift.closest('div') as HTMLElement
     expect(wdgContainer).not.toBeNull()
     const wdg = within(wdgContainer)

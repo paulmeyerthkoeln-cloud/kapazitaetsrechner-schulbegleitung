@@ -181,6 +181,45 @@ describe('useAppData', () => {
     expect(aktualisierteReihe.einheiten.map((e) => e.index)).toEqual([1, 2, 3])
   })
 
+  it('addReihe appends a new Reihe with sensible defaults to the correct Schule only', () => {
+    const { result } = renderHook(() => useAppData())
+    const schule = result.current.data.schulen.find((s) => s.id === 'wdg')!
+    const vorherigeAnzahl = schule.reihen.length
+    act(() => {
+      result.current.addReihe('wdg')
+    })
+    const aktualisierteSchule = result.current.data.schulen.find((s) => s.id === 'wdg')!
+    expect(aktualisierteSchule.reihen).toHaveLength(vorherigeAnzahl + 1)
+    const neueReihe = aktualisierteSchule.reihen.at(-1)!
+    expect(neueReihe.titel).toBe('Neuer Kurs')
+    expect(neueReihe.betreuungsmodell).toBe('A')
+    expect(neueReihe.terminstatus).toBe('offen')
+    expect(neueReihe.einheiten).toEqual([])
+    const andereSchule = result.current.data.schulen.find((s) => s.id === 'sedanstrasse')!
+    expect(andereSchule.reihen).toHaveLength(1)
+  })
+
+  it('removeReihe deletes the matching Reihe and leaves other Reihen/Schulen unchanged', () => {
+    const { result } = renderHook(() => useAppData())
+    const schule = result.current.data.schulen.find((s) => s.id === 'wdg')!
+    const reiheId = schule.reihen[0].id
+    act(() => {
+      result.current.removeReihe('wdg', reiheId)
+    })
+    const aktualisierteSchule = result.current.data.schulen.find((s) => s.id === 'wdg')!
+    expect(aktualisierteSchule.reihen.find((r) => r.id === reiheId)).toBeUndefined()
+  })
+
+  it('setReiheTitel updates only the matching Reihe\'s titel', () => {
+    const { result } = renderHook(() => useAppData())
+    const wdgReiheId = result.current.data.schulen.find((s) => s.id === 'wdg')!.reihen[0].id
+    act(() => {
+      result.current.setReiheTitel(wdgReiheId, 'Neuer Titel')
+    })
+    const wdgReihe = result.current.data.schulen.find((s) => s.id === 'wdg')!.reihen[0]
+    expect(wdgReihe.titel).toBe('Neuer Titel')
+  })
+
   it('setEinheitFelder updates datum_oder_kw and kontaktzeit_h without touching other fields', () => {
     const { result } = renderHook(() => useAppData())
     const schule = result.current.data.schulen.find((s) => s.id === 'wdg')!

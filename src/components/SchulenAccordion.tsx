@@ -14,6 +14,9 @@ export function SchulenAccordion({
   onEinheitFelderChange,
   onTerminstatusChange,
   onEinheitenReplace,
+  onReiheAdd,
+  onReiheRemove,
+  onReiheTitelChange,
 }: {
   schulen: Schule[]
   settings: Settings
@@ -29,6 +32,9 @@ export function SchulenAccordion({
   ) => void
   onTerminstatusChange: (reiheId: string, terminstatus: Terminstatus) => void
   onEinheitenReplace: (reiheId: string, einheiten: Einheit[]) => void
+  onReiheAdd: (schuleId: string) => void
+  onReiheRemove: (schuleId: string, reiheId: string) => void
+  onReiheTitelChange: (reiheId: string, titel: string) => void
 }) {
   function onTermineGenerieren(reiheId: string, startdatum: string, unterrichtszeitH: number, koordinationszeitH: number, anzahlTermine: number) {
     const einheiten = generiereWochentlicheTermine(reiheId, startdatum, unterrichtszeitH, koordinationszeitH, anzahlTermine, ferien)
@@ -49,6 +55,9 @@ export function SchulenAccordion({
           onEinheitFelderChange={onEinheitFelderChange}
           onTerminstatusChange={onTerminstatusChange}
           onTermineGenerieren={onTermineGenerieren}
+          onReiheAdd={() => onReiheAdd(schule.id)}
+          onReiheRemove={(reiheId) => onReiheRemove(schule.id, reiheId)}
+          onReiheTitelChange={onReiheTitelChange}
         />
       ))}
     </div>
