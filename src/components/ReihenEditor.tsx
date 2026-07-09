@@ -8,6 +8,7 @@ const THEMEN: Thema[] = ['Ernährung', 'Stadtgrün', 'Mobilität', 'Energie', 'E
 export function ReihenEditor({
   reihe,
   personen,
+  themenwochen,
   onEinheitToggle,
   onEinheitAdd,
   onEinheitRemove,
@@ -18,12 +19,13 @@ export function ReihenEditor({
 }: {
   reihe: Reihe
   personen: Person[]
+  themenwochen: string[]
   onEinheitToggle: (einheitId: string, wert: boolean) => void
   onEinheitAdd: () => void
   onEinheitRemove: (einheitId: string) => void
   onEinheitFelderChange: (
     einheitId: string,
-    patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema; koordinationszeit_h?: number; begleitperson_id?: string | null }
+    patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema; koordinationszeit_h?: number; begleitperson_id?: string | null; themenwoche?: string }
   ) => void
   onTerminstatusChange: (wert: Terminstatus) => void
   onTermineGenerieren: (startdatum: string, unterrichtszeitH: number, koordinationszeitH: number, anzahlTermine: number) => void
@@ -124,6 +126,7 @@ export function ReihenEditor({
             <th>Unterrichtszeit (min)</th>
             <th>Koordination (min)</th>
             <th>Thema</th>
+            <th>Themenwoche</th>
             <th>Wir begleiten</th>
             <th>Begleitperson</th>
             <th></th>
@@ -181,6 +184,18 @@ export function ReihenEditor({
               </td>
               <td>
                 <input
+                  type="text"
+                  list="themenwochen-optionen"
+                  aria-label={`Themenwoche für Termin ${e.index} in ${reihe.titel}`}
+                  value={e.themenwoche ?? ''}
+                  onChange={(ev) =>
+                    onEinheitFelderChange(e.id, { themenwoche: ev.target.value === '' ? undefined : ev.target.value })
+                  }
+                  style={{ width: '8rem' }}
+                />
+              </td>
+              <td>
+                <input
                   type="checkbox"
                   checked={e.wir_begleiten}
                   onChange={(ev) => onEinheitToggle(e.id, ev.target.checked)}
@@ -212,6 +227,11 @@ export function ReihenEditor({
           ))}
         </tbody>
       </table>
+      <datalist id="themenwochen-optionen">
+        {themenwochen.map((tw) => (
+          <option key={tw} value={tw} />
+        ))}
+      </datalist>
       <button onClick={onEinheitAdd}>+ Termin hinzufügen</button>
     </div>
   )

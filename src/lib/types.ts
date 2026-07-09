@@ -58,6 +58,7 @@ export interface Einheit {
   thema?: Thema
   koordinationszeit_h?: number
   begleitperson_id?: string | null
+  themenwoche?: string
 }
 
 export interface Muster {

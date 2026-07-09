@@ -8,12 +8,18 @@ import {
 } from './kalenderwochen'
 import type { Einheit, Settings, Schule, Datenbestand, Person } from './types'
 
-export function berechneAufwandEinheit(einheit: Einheit, fahrzeit_h: number, settings: Settings): number {
+export function berechneAufwandEinheit(
+  einheit: Einheit,
+  fahrzeit_h: number,
+  settings: Settings,
+  vorbereitungBereitsGezaehlt = false
+): number {
   const vorbereitungsfaktor = einheit.erstdurchfuehrung
     ? settings.default_vorbereitungsfaktor_erstdurchfuehrung
     : settings.default_vorbereitungsfaktor_wiederholung
+  const vorbereitung = vorbereitungBereitsGezaehlt ? 0 : einheit.kontaktzeit_h * vorbereitungsfaktor
   const pauschale = einheit.typ === 'exkursion' ? einheit.organisationspauschale_h ?? 2 : 0
-  const basis = einheit.kontaktzeit_h + einheit.kontaktzeit_h * vorbereitungsfaktor + fahrzeit_h + pauschale
+  const basis = einheit.kontaktzeit_h + vorbereitung + fahrzeit_h + pauschale
   return basis * einheit.personen_parallel
 }
 
@@ -31,6 +37,7 @@ export function berechneBedarfProWoche(
 
   let einsatzBedarf = 0
   let koordinationBedarf = 0
+  const gezaehlteThemenwochen = new Set<string>()
   for (const schule of data.schulen) {
     const zaehlendeReihen = schule.reihen.filter((reihe) => reihe.terminstatus !== 'offen')
     for (const reihe of zaehlendeReihen) {
@@ -38,7 +45,9 @@ export function berechneBedarfProWoche(
         if (parseZuWochenKey(einheit.datum_oder_kw) !== wochenKey) continue
         koordinationBedarf += einheit.koordinationszeit_h ?? 0
         if (einheit.wir_begleiten) {
-          einsatzBedarf += berechneAufwandEinheit(einheit, reihe.fahrzeit_h, data.settings)
+          const vorbereitungBereitsGezaehlt = !!einheit.themenwoche && gezaehlteThemenwochen.has(einheit.themenwoche)
+          if (einheit.themenwoche) gezaehlteThemenwochen.add(einheit.themenwoche)
+          einsatzBedarf += berechneAufwandEinheit(einheit, reihe.fahrzeit_h, data.settings, vorbereitungBereitsGezaehlt)
         }
       }
     }

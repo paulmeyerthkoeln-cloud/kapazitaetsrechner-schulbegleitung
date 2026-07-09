@@ -27,6 +27,7 @@ function renderItem() {
     schule,
     settings,
     personen: [],
+    themenwochen: [],
     onEinheitToggle: vi.fn(),
     onEinheitAdd: vi.fn(),
     onEinheitRemove: vi.fn(),

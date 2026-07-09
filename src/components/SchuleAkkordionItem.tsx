@@ -4,6 +4,7 @@ import type { Person, Schule, Settings, Terminstatus, Thema } from '../lib/types
 export function SchuleAkkordionItem({
   schule,
   personen,
+  themenwochen,
   onEinheitToggle,
   onEinheitAdd,
   onEinheitRemove,
@@ -17,13 +18,14 @@ export function SchuleAkkordionItem({
   schule: Schule
   settings: Settings
   personen: Person[]
+  themenwochen: string[]
   onEinheitToggle: (reiheId: string, einheitId: string, wert: boolean) => void
   onEinheitAdd: (reiheId: string) => void
   onEinheitRemove: (reiheId: string, einheitId: string) => void
   onEinheitFelderChange: (
     reiheId: string,
     einheitId: string,
-    patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema; koordinationszeit_h?: number; begleitperson_id?: string | null }
+    patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema; koordinationszeit_h?: number; begleitperson_id?: string | null; themenwoche?: string }
   ) => void
   onTerminstatusChange: (reiheId: string, terminstatus: Terminstatus) => void
   onTermineGenerieren: (reiheId: string, startdatum: string, unterrichtszeitH: number, koordinationszeitH: number, anzahlTermine: number) => void
@@ -46,6 +48,7 @@ export function SchuleAkkordionItem({
             <ReihenEditor
               reihe={reihe}
               personen={personen}
+              themenwochen={themenwochen}
               onEinheitToggle={(einheitId, wert) => onEinheitToggle(reihe.id, einheitId, wert)}
               onTitelChange={(titel) => onReiheTitelChange(reihe.id, titel)}
               onEinheitAdd={() => onEinheitAdd(reihe.id)}

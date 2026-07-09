@@ -37,6 +37,12 @@ export default function App() {
     zuruecksetzen,
   } = useAppData()
 
+  const themenwochen = Array.from(
+    new Set(
+      data.schulen.flatMap((s) => s.reihen.flatMap((r) => r.einheiten.map((e) => e.themenwoche).filter((t): t is string => !!t)))
+    )
+  )
+
   return (
     <main style={{ maxWidth: '75rem', margin: '0 auto', padding: '1rem' }}>
       <h1>Kapazitätsrechner Schulbegleitung</h1>
@@ -72,6 +78,7 @@ export default function App() {
         schulen={data.schulen}
         settings={data.settings}
         personen={data.personen}
+        themenwochen={themenwochen}
         onEinheitToggle={setEinheitBegleitung}
         onEinheitAdd={addEinheit}
         onEinheitRemove={removeEinheit}

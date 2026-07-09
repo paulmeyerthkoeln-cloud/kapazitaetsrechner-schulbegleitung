@@ -44,6 +44,7 @@ function renderReihenEditor() {
   const props = {
     reihe,
     personen,
+    themenwochen: [],
     onEinheitToggle: vi.fn(),
     onEinheitAdd: vi.fn(),
     onEinheitRemove: vi.fn(),
@@ -163,6 +164,7 @@ describe('ReihenEditor', () => {
       <ReihenEditor
         reihe={reihe}
         personen={personen}
+        themenwochen={[]}
         onEinheitToggle={vi.fn()}
         onEinheitAdd={vi.fn()}
         onEinheitRemove={vi.fn()}
@@ -177,6 +179,7 @@ describe('ReihenEditor', () => {
       <ReihenEditor
         reihe={{ ...reihe, terminstatus: 'offen' }}
         personen={personen}
+        themenwochen={[]}
         onEinheitToggle={vi.fn()}
         onEinheitAdd={vi.fn()}
         onEinheitRemove={vi.fn()}
@@ -194,6 +197,7 @@ describe('ReihenEditor', () => {
     const props = {
       reihe: reiheOhneTermine,
       personen,
+      themenwochen: [],
       onEinheitToggle: vi.fn(),
       onEinheitAdd: vi.fn(),
       onEinheitRemove: vi.fn(),
@@ -215,6 +219,7 @@ describe('ReihenEditor', () => {
     const props = {
       reihe: reiheOhneTermine,
       personen,
+      themenwochen: [],
       onEinheitToggle: vi.fn(),
       onEinheitAdd: vi.fn(),
       onEinheitRemove: vi.fn(),
@@ -260,6 +265,7 @@ describe('ReihenEditor', () => {
       <ReihenEditor
         reihe={wdgAehnlicheReihe}
         personen={personen}
+        themenwochen={[]}
         onEinheitToggle={vi.fn()}
         onEinheitAdd={vi.fn()}
         onEinheitRemove={vi.fn()}
@@ -310,6 +316,7 @@ describe('ReihenEditor', () => {
       <ReihenEditor
         reihe={reiheOhneTermine}
         personen={personen}
+        themenwochen={[]}
         onEinheitToggle={vi.fn()}
         onEinheitAdd={vi.fn()}
         onEinheitRemove={vi.fn()}
@@ -321,5 +328,37 @@ describe('ReihenEditor', () => {
     )
     const unterrichtszeit = screen.getByLabelText('Schnelleinrichtung Unterrichtszeit') as HTMLInputElement
     expect(unterrichtszeit.value).toBe('90')
+  })
+
+  it('renders a Themenwoche input for each Termin, defaulting to empty', () => {
+    renderReihenEditor()
+    const themenwoche1 = screen.getByLabelText('Themenwoche für Termin 1 in Testreihe') as HTMLInputElement
+    expect(themenwoche1.value).toBe('')
+  })
+
+  it('calls onEinheitFelderChange with the entered Themenwoche', () => {
+    const props = renderReihenEditor()
+    const themenwoche1 = screen.getByLabelText('Themenwoche für Termin 1 in Testreihe')
+    fireEvent.change(themenwoche1, { target: { value: 'Herbst-Themenwoche' } })
+    expect(props.onEinheitFelderChange).toHaveBeenCalledWith('e1', { themenwoche: 'Herbst-Themenwoche' })
+  })
+
+  it('offers existing themenwochen values via a datalist for autocomplete', () => {
+    render(
+      <ReihenEditor
+        reihe={reihe}
+        personen={personen}
+        themenwochen={['Herbst-Themenwoche', 'Winter-Themenwoche']}
+        onEinheitToggle={vi.fn()}
+        onTitelChange={vi.fn()}
+        onEinheitAdd={vi.fn()}
+        onEinheitRemove={vi.fn()}
+        onEinheitFelderChange={vi.fn()}
+        onTerminstatusChange={vi.fn()}
+        onTermineGenerieren={vi.fn()}
+      />
+    )
+    const options = Array.from(document.querySelectorAll('datalist option')).map((o) => o.getAttribute('value'))
+    expect(options).toEqual(['Herbst-Themenwoche', 'Winter-Themenwoche'])
   })
 })

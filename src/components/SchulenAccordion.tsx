@@ -8,6 +8,7 @@ export function SchulenAccordion({
   settings,
   personen,
   ferien,
+  themenwochen,
   onEinheitToggle,
   onEinheitAdd,
   onEinheitRemove,
@@ -22,13 +23,14 @@ export function SchulenAccordion({
   settings: Settings
   personen: Person[]
   ferien: FerienZeitraum[]
+  themenwochen: string[]
   onEinheitToggle: (reiheId: string, einheitId: string, wert: boolean) => void
   onEinheitAdd: (reiheId: string) => void
   onEinheitRemove: (reiheId: string, einheitId: string) => void
   onEinheitFelderChange: (
     reiheId: string,
     einheitId: string,
-    patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema; koordinationszeit_h?: number; begleitperson_id?: string | null }
+    patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema; koordinationszeit_h?: number; begleitperson_id?: string | null; themenwoche?: string }
   ) => void
   onTerminstatusChange: (reiheId: string, terminstatus: Terminstatus) => void
   onEinheitenReplace: (reiheId: string, einheiten: Einheit[]) => void
@@ -49,6 +51,7 @@ export function SchulenAccordion({
           schule={schule}
           settings={settings}
           personen={personen}
+          themenwochen={themenwochen}
           onEinheitToggle={onEinheitToggle}
           onEinheitAdd={onEinheitAdd}
           onEinheitRemove={onEinheitRemove}

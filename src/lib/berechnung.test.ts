@@ -46,6 +46,13 @@ describe('berechneAufwandEinheit', () => {
     const e = einheit({ typ: 'exkursion', kontaktzeit_h: 4, erstdurchfuehrung: false, organisationspauschale_h: 2 })
     expect(berechneAufwandEinheit(e, 0, settings)).toBeCloseTo(4 + 4 * 0.25 + 2, 5)
   })
+
+  it('omits the Vorbereitungszeit when vorbereitungBereitsGezaehlt is true', () => {
+    const e = einheit({ kontaktzeit_h: 4, erstdurchfuehrung: true })
+    const mitVorbereitung = berechneAufwandEinheit(e, 1.0, settings)
+    const ohneVorbereitung = berechneAufwandEinheit(e, 1.0, settings, true)
+    expect(ohneVorbereitung).toBeCloseTo(mitVorbereitung - 4 * settings.default_vorbereitungsfaktor_erstdurchfuehrung, 5)
+  })
 })
 
 describe('berechneKoordinationWoche', () => {
@@ -289,6 +296,73 @@ describe('berechneBedarfProWoche', () => {
     }
 
     expect(berechneBedarfProWoche(data, '2026-KW46', true)).toEqual({ einsatzBedarf: 0, koordinationBedarf: 0 })
+  })
+})
+
+describe('Themenwoche shared Vorbereitungszeit', () => {
+  function schuleMitThemenwocheEinheit(schuleId: string, reiheId: string, einheitId: string, themenwoche: string | undefined, kontaktzeitH = 1.5): Schule {
+    return {
+      id: schuleId,
+      name: schuleId,
+      reihen: [
+        {
+          id: reiheId,
+          titel: 'x',
+          betreuungsmodell: 'A',
+          fahrzeit_h: 0,
+          status: 'zugesagt',
+          extern_betreut: false,
+          terminstatus: 'festgelegt',
+          einheiten: [einheit({ id: einheitId, datum_oder_kw: '2026-KW46', kontaktzeit_h: kontaktzeitH, erstdurchfuehrung: true, themenwoche })],
+        },
+      ],
+    }
+  }
+
+  it('counts Vorbereitungszeit once for two Einheiten in different Schulen sharing a themenwoche label in the same week', () => {
+    const data: Datenbestand = {
+      settings,
+      personen: [],
+      kalender: { ferien: [] },
+      schulen: [
+        schuleMitThemenwocheEinheit('s1', 'r1', 'e1', 'Herbst-Themenwoche'),
+        schuleMitThemenwocheEinheit('s2', 'r2', 'e2', 'Herbst-Themenwoche'),
+      ],
+    }
+    const { einsatzBedarf } = berechneBedarfProWoche(data, '2026-KW46', false)
+    const einzelMitVorbereitung = berechneAufwandEinheit(einheit({ kontaktzeit_h: 1.5, erstdurchfuehrung: true }), 0, settings)
+    const einzelOhneVorbereitung = berechneAufwandEinheit(einheit({ kontaktzeit_h: 1.5, erstdurchfuehrung: true }), 0, settings, true)
+    expect(einsatzBedarf).toBeCloseTo(einzelMitVorbereitung + einzelOhneVorbereitung, 5)
+  })
+
+  it('does not dedupe Vorbereitungszeit for an Einheit with a different themenwoche label', () => {
+    const data: Datenbestand = {
+      settings,
+      personen: [],
+      kalender: { ferien: [] },
+      schulen: [
+        schuleMitThemenwocheEinheit('s1', 'r1', 'e1', 'Herbst-Themenwoche'),
+        schuleMitThemenwocheEinheit('s2', 'r2', 'e2', 'Winter-Themenwoche'),
+      ],
+    }
+    const { einsatzBedarf } = berechneBedarfProWoche(data, '2026-KW46', false)
+    const einzelMitVorbereitung = berechneAufwandEinheit(einheit({ kontaktzeit_h: 1.5, erstdurchfuehrung: true }), 0, settings)
+    expect(einsatzBedarf).toBeCloseTo(einzelMitVorbereitung * 2, 5)
+  })
+
+  it('does not dedupe Vorbereitungszeit for Einheiten without any themenwoche label', () => {
+    const data: Datenbestand = {
+      settings,
+      personen: [],
+      kalender: { ferien: [] },
+      schulen: [
+        schuleMitThemenwocheEinheit('s1', 'r1', 'e1', undefined),
+        schuleMitThemenwocheEinheit('s2', 'r2', 'e2', undefined),
+      ],
+    }
+    const { einsatzBedarf } = berechneBedarfProWoche(data, '2026-KW46', false)
+    const einzelMitVorbereitung = berechneAufwandEinheit(einheit({ kontaktzeit_h: 1.5, erstdurchfuehrung: true }), 0, settings)
+    expect(einsatzBedarf).toBeCloseTo(einzelMitVorbereitung * 2, 5)
   })
 })
 

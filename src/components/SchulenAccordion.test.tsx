@@ -74,6 +74,7 @@ function renderAccordion() {
     settings,
     personen: [],
     ferien: [],
+    themenwochen: [],
     onEinheitToggle: vi.fn(),
     onEinheitAdd: vi.fn(),
     onEinheitRemove: vi.fn(),
