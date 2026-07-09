@@ -45,6 +45,8 @@ export function berechneBedarfProWoche(
         if (parseZuWochenKey(einheit.datum_oder_kw) !== wochenKey) continue
         koordinationBedarf += einheit.koordinationszeit_h ?? 0
         if (einheit.wir_begleiten) {
+          // For a shared Themenwoche, the first Einheit encountered (in Schule/Reihe/Einheit
+          // order) charges the group's Vorbereitungszeit; later members in the same week omit it.
           const vorbereitungBereitsGezaehlt = !!einheit.themenwoche && gezaehlteThemenwochen.has(einheit.themenwoche)
           if (einheit.themenwoche) gezaehlteThemenwochen.add(einheit.themenwoche)
           einsatzBedarf += berechneAufwandEinheit(einheit, reihe.fahrzeit_h, data.settings, vorbereitungBereitsGezaehlt)

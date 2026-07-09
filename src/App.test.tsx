@@ -14,9 +14,9 @@ describe('App', () => {
 
     // Scope all queries to the WDG Reihe's own subtree, since every Reihe on the
     // page renders an identical "+ Termin hinzufügen" button and its own set of
-    // "... löschen" delete buttons. ReihenEditor renders <h3>{reihe.titel}</h3> as
-    // the direct child of the Reihe's single wrapping <div>, so the heading's
-    // nearest ancestor <div> is exactly that Reihe's container.
+    // "... löschen" delete buttons. ReihenEditor renders the Titel as
+    // <input aria-label="Titel"> as the first child of the Reihe's single wrapping
+    // <div>, so the input's nearest ancestor <div> is exactly that Reihe's container.
     const wdgUeberschrift = screen.getByDisplayValue('Theorieblöcke Begabtenförderung')
     const wdgContainer = wdgUeberschrift.closest('div') as HTMLElement
     expect(wdgContainer).not.toBeNull()
