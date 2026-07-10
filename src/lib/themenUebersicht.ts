@@ -1,6 +1,6 @@
 import { parseZuWochenKey } from './kalenderwochen'
 import { addWeeks, isEqual, startOfISOWeek, setISOWeek, setISOWeekYear } from 'date-fns'
-import type { Datenbestand, Einheit, Thema } from './types'
+import type { Datenbestand, Thema } from './types'
 import type { WochenErgebnis } from './berechnung'
 
 export interface ThemenGanttZeile {
