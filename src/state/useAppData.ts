@@ -4,7 +4,18 @@ import { berechneMachbarkeit, berechneWochenuebersicht } from '../lib/berechnung
 import { berechneThemenGantt } from '../lib/themenUebersicht'
 import { berechnePersonenKapazitaet } from '../lib/personenKapazitaet'
 import { naechstesEinheitDatum } from '../lib/kalenderwochen'
-import type { Datenbestand, Einheit, FerienZeitraum, Person, Reihe, Terminstatus } from '../lib/types'
+import type {
+  Datenbestand,
+  Einheit,
+  FerienZeitraum,
+  Person,
+  Reihe,
+  SchulBesetzung,
+  Terminstatus,
+  Veranstaltung,
+  VeranstaltungArt,
+  VeranstaltungTermin,
+} from '../lib/types'
 
 const PFLICHTFELDER = ['settings', 'personen', 'kalender', 'schulen'] as const
 const STORAGE_KEY = 'kapazitaetsrechner:data'
@@ -14,7 +25,93 @@ function pruefePflichtfelder(geparst: unknown): geparst is Datenbestand {
   return istObjekt && !PFLICHTFELDER.some((feld) => !(feld in (geparst as object)))
 }
 
+interface LegacyEinheit {
+  id: string
+  index: number
+  datum_oder_kw: string
+  kontaktzeit_h: number
+  erstdurchfuehrung: boolean
+  wir_begleiten: boolean
+  thema?: Einheit['thema']
+  koordinationszeit_h?: number
+  begleitperson_id?: string | null
+  begleitperson_ids?: string[]
+  koordinator_ids?: string[]
+  typ?: 'regulaer' | 'exkursion'
+  organisationspauschale_h?: number
+}
+
+function migriereEinheit(roh: LegacyEinheit): Einheit {
+  return {
+    id: roh.id,
+    index: roh.index,
+    datum_oder_kw: roh.datum_oder_kw,
+    kontaktzeit_h: roh.kontaktzeit_h,
+    erstdurchfuehrung: roh.erstdurchfuehrung,
+    wir_begleiten: roh.wir_begleiten,
+    thema: roh.thema,
+    koordinationszeit_h: roh.koordinationszeit_h,
+    begleitperson_ids: roh.begleitperson_ids ?? (roh.begleitperson_id ? [roh.begleitperson_id] : []),
+    koordinator_ids: roh.koordinator_ids ?? [],
+  }
+}
+
 function migriereDatenbestand(d: Datenbestand): Datenbestand {
+  const rohSchulen = d.schulen as unknown as Array<{
+    id: string
+    name: string
+    reihen: Array<Reihe & { einheiten: LegacyEinheit[] }>
+  }>
+  const exkursionsVeranstaltungen: Veranstaltung[] = []
+
+  const schulen = rohSchulen.map((schule) => ({
+    id: schule.id,
+    name: schule.name,
+    reihen: schule.reihen.map((reihe) => {
+      const terminstatus = reihe.terminstatus ?? ('festgelegt' as Terminstatus)
+      const regulaereRoh: LegacyEinheit[] = []
+      for (const roh of reihe.einheiten) {
+        if (roh.typ !== 'exkursion') {
+          regulaereRoh.push(roh)
+          continue
+        }
+        exkursionsVeranstaltungen.push({
+          id: `veranstaltung_${roh.id}`,
+          art: 'exkursion',
+          titel: `${reihe.titel} – Exkursion`,
+          terminstatus,
+          schulIds: [schule.id],
+          termine: [
+            {
+              id: `${roh.id}_termin`,
+              index: 1,
+              datum_oder_kw: roh.datum_oder_kw,
+              kontaktzeit_h: roh.kontaktzeit_h,
+              erstdurchfuehrung: roh.erstdurchfuehrung,
+              thema: roh.thema,
+              organisationspauschale_h: roh.organisationspauschale_h ?? 2,
+              besetzungen: [
+                {
+                  schulId: schule.id,
+                  wir_begleiten: roh.wir_begleiten,
+                  begleitperson_ids: roh.begleitperson_ids ?? (roh.begleitperson_id ? [roh.begleitperson_id] : []),
+                  koordinator_ids: roh.koordinator_ids ?? [],
+                  koordinationszeit_h: roh.koordinationszeit_h ?? 0,
+                  fahrzeit_h: reihe.fahrzeit_h,
+                },
+              ],
+            },
+          ],
+        })
+      }
+      return {
+        ...reihe,
+        terminstatus,
+        einheiten: regulaereRoh.map(migriereEinheit).map((e, i) => ({ ...e, index: i + 1 })),
+      }
+    }),
+  }))
+
   return {
     ...d,
     personen: d.personen
@@ -23,13 +120,8 @@ function migriereDatenbestand(d: Datenbestand): Datenbestand {
         ...person,
         urlaub: person.urlaub ?? [],
       })),
-    schulen: d.schulen.map((schule) => ({
-      ...schule,
-      reihen: schule.reihen.map((reihe) => ({
-        ...reihe,
-        terminstatus: reihe.terminstatus ?? ('festgelegt' as Terminstatus),
-      })),
-    })),
+    schulen,
+    veranstaltungen: [...(d.veranstaltungen ?? []), ...exkursionsVeranstaltungen],
   }
 }
 
@@ -95,7 +187,22 @@ export function useAppData() {
         ...schule,
         reihen: schule.reihen.map((reihe) => ({
           ...reihe,
-          einheiten: reihe.einheiten.map((e) => (e.begleitperson_id === id ? { ...e, begleitperson_id: null } : e)),
+          einheiten: reihe.einheiten.map((e) => ({
+            ...e,
+            begleitperson_ids: e.begleitperson_ids.filter((pid) => pid !== id),
+            koordinator_ids: e.koordinator_ids.filter((pid) => pid !== id),
+          })),
+        })),
+      })),
+      veranstaltungen: prev.veranstaltungen.map((v) => ({
+        ...v,
+        termine: v.termine.map((t) => ({
+          ...t,
+          besetzungen: t.besetzungen.map((b) => ({
+            ...b,
+            begleitperson_ids: b.begleitperson_ids.filter((pid) => pid !== id),
+            koordinator_ids: b.koordinator_ids.filter((pid) => pid !== id),
+          })),
         })),
       })),
       personenUmverteilungen: (prev.personenUmverteilungen ?? []).filter((u) => u.personId !== id),
@@ -113,7 +220,7 @@ export function useAppData() {
             : {
                 ...reihe,
                 einheiten: reihe.einheiten.map((e) =>
-                  e.id === einheitId ? { ...e, wir_begleiten: wert, begleitperson_id: wert ? e.begleitperson_id : null } : e
+                  e.id === einheitId ? { ...e, wir_begleiten: wert, begleitperson_ids: wert ? e.begleitperson_ids : [] } : e
                 ),
               }
         ),
@@ -134,10 +241,10 @@ export function useAppData() {
             datum_oder_kw: naechstesEinheitDatum(reihe.einheiten),
             kontaktzeit_h: 1.5,
             koordinationszeit_h: 0,
-            personen_parallel: 1,
             erstdurchfuehrung: false,
             wir_begleiten: true,
-            typ: 'regulaer',
+            begleitperson_ids: [],
+            koordinator_ids: [],
           }
           return { ...reihe, einheiten: [...reihe.einheiten, neueEinheit] }
         }),
@@ -162,7 +269,7 @@ export function useAppData() {
   function setEinheitFelder(
     reiheId: string,
     einheitId: string,
-    patch: Partial<Pick<Einheit, 'datum_oder_kw' | 'kontaktzeit_h' | 'thema' | 'koordinationszeit_h' | 'begleitperson_id'>>
+    patch: Partial<Pick<Einheit, 'datum_oder_kw' | 'kontaktzeit_h' | 'thema' | 'koordinationszeit_h' | 'begleitperson_ids' | 'koordinator_ids'>>
   ) {
     setData((prev) => ({
       ...prev,
@@ -239,6 +346,127 @@ export function useAppData() {
     }))
   }
 
+  function leereBesetzung(schulId: string): SchulBesetzung {
+    return { schulId, wir_begleiten: true, begleitperson_ids: [], koordinator_ids: [], koordinationszeit_h: 0, fahrzeit_h: 0 }
+  }
+
+  function addVeranstaltung(art: VeranstaltungArt, schulIds: string[]) {
+    setData((prev) => {
+      const neueVeranstaltung: Veranstaltung = {
+        id: `veranstaltung_${Date.now()}`,
+        art,
+        titel: art === 'themenwoche' ? 'Neue Themenwoche' : 'Neue Exkursion',
+        terminstatus: 'offen',
+        schulIds,
+        termine: [],
+      }
+      return { ...prev, veranstaltungen: [...prev.veranstaltungen, neueVeranstaltung] }
+    })
+  }
+
+  function removeVeranstaltung(veranstaltungId: string) {
+    setData((prev) => ({
+      ...prev,
+      veranstaltungen: prev.veranstaltungen.filter((v) => v.id !== veranstaltungId),
+    }))
+  }
+
+  function setVeranstaltungTitel(veranstaltungId: string, titel: string) {
+    setData((prev) => ({
+      ...prev,
+      veranstaltungen: prev.veranstaltungen.map((v) => (v.id === veranstaltungId ? { ...v, titel } : v)),
+    }))
+  }
+
+  function setVeranstaltungTerminstatus(veranstaltungId: string, terminstatus: Terminstatus) {
+    setData((prev) => ({
+      ...prev,
+      veranstaltungen: prev.veranstaltungen.map((v) => (v.id === veranstaltungId ? { ...v, terminstatus } : v)),
+    }))
+  }
+
+  function setVeranstaltungSchulen(veranstaltungId: string, schulIds: string[]) {
+    setData((prev) => ({
+      ...prev,
+      veranstaltungen: prev.veranstaltungen.map((v) => {
+        if (v.id !== veranstaltungId) return v
+        return {
+          ...v,
+          schulIds,
+          termine: v.termine.map((termin) => ({
+            ...termin,
+            besetzungen: schulIds.map((schulId) => termin.besetzungen.find((b) => b.schulId === schulId) ?? leereBesetzung(schulId)),
+          })),
+        }
+      }),
+    }))
+  }
+
+  function addVeranstaltungTermin(veranstaltungId: string) {
+    setData((prev) => ({
+      ...prev,
+      veranstaltungen: prev.veranstaltungen.map((v) => {
+        if (v.id !== veranstaltungId) return v
+        const neuerTermin: VeranstaltungTermin = {
+          id: `${v.id}_termin_${Date.now()}`,
+          index: v.termine.length + 1,
+          datum_oder_kw: naechstesEinheitDatum(v.termine),
+          kontaktzeit_h: 1.5,
+          erstdurchfuehrung: v.termine.length === 0,
+          besetzungen: v.schulIds.map((schulId) => leereBesetzung(schulId)),
+        }
+        return { ...v, termine: [...v.termine, neuerTermin] }
+      }),
+    }))
+  }
+
+  function removeVeranstaltungTermin(veranstaltungId: string, terminId: string) {
+    setData((prev) => ({
+      ...prev,
+      veranstaltungen: prev.veranstaltungen.map((v) => {
+        if (v.id !== veranstaltungId) return v
+        const verbleibend = v.termine.filter((t) => t.id !== terminId)
+        return { ...v, termine: verbleibend.map((t, i) => ({ ...t, index: i + 1 })) }
+      }),
+    }))
+  }
+
+  function setVeranstaltungTerminFelder(
+    veranstaltungId: string,
+    terminId: string,
+    patch: Partial<Pick<VeranstaltungTermin, 'datum_oder_kw' | 'kontaktzeit_h' | 'thema' | 'organisationspauschale_h' | 'erstdurchfuehrung'>>
+  ) {
+    setData((prev) => ({
+      ...prev,
+      veranstaltungen: prev.veranstaltungen.map((v) =>
+        v.id !== veranstaltungId ? v : { ...v, termine: v.termine.map((t) => (t.id === terminId ? { ...t, ...patch } : t)) }
+      ),
+    }))
+  }
+
+  function setSchulBesetzungFelder(
+    veranstaltungId: string,
+    terminId: string,
+    schulId: string,
+    patch: Partial<Pick<SchulBesetzung, 'wir_begleiten' | 'begleitperson_ids' | 'koordinator_ids' | 'koordinationszeit_h' | 'fahrzeit_h'>>
+  ) {
+    setData((prev) => ({
+      ...prev,
+      veranstaltungen: prev.veranstaltungen.map((v) =>
+        v.id !== veranstaltungId
+          ? v
+          : {
+              ...v,
+              termine: v.termine.map((t) =>
+                t.id !== terminId
+                  ? t
+                  : { ...t, besetzungen: t.besetzungen.map((b) => (b.schulId === schulId ? { ...b, ...patch } : b)) }
+              ),
+            }
+      ),
+    }))
+  }
+
   function addPersonenUmverteilung(personId: string, quelleWochenKey: string, zielWochenKey: string, stunden: number) {
     setData((prev) => ({
       ...prev,
@@ -302,6 +530,15 @@ export function useAppData() {
     setReiheTitel,
     setReiheTerminstatus,
     setReiheEinheiten,
+    addVeranstaltung,
+    removeVeranstaltung,
+    setVeranstaltungTitel,
+    setVeranstaltungTerminstatus,
+    setVeranstaltungSchulen,
+    addVeranstaltungTermin,
+    removeVeranstaltungTermin,
+    setVeranstaltungTerminFelder,
+    setSchulBesetzungFelder,
     addPersonenUmverteilung,
     removePersonenUmverteilung,
     ergebnis,
