@@ -54,10 +54,10 @@ export function expandiereMuster(muster: Muster, reiheId: string, ferien: Ferien
         index,
         datum_oder_kw: format(cursor, 'yyyy-MM-dd'),
         kontaktzeit_h: muster.kontaktzeit_h,
-        personen_parallel: 1,
         erstdurchfuehrung: false,
         wir_begleiten: true,
-        typ: 'regulaer',
+        begleitperson_ids: [],
+        koordinator_ids: [],
       })
     }
     cursor = addWeeks(cursor, 1)
@@ -114,10 +114,10 @@ export function generiereWochentlicheTermine(
         datum_oder_kw: format(cursor, 'yyyy-MM-dd'),
         kontaktzeit_h: unterrichtszeitH,
         koordinationszeit_h: koordinationszeitH,
-        personen_parallel: 1,
         erstdurchfuehrung: index === 1,
         wir_begleiten: true,
-        typ: 'regulaer',
+        begleitperson_ids: [],
+        koordinator_ids: [],
       })
     }
     cursor = addWeeks(cursor, 1)
@@ -125,7 +125,7 @@ export function generiereWochentlicheTermine(
   return einheiten
 }
 
-export function naechstesEinheitDatum(einheiten: Einheit[]): string {
+export function naechstesEinheitDatum(einheiten: { datum_oder_kw: string }[]): string {
   if (einheiten.length === 0) return format(new Date(), 'yyyy-MM-dd')
   const wochenKeys = einheiten.map((e) => parseZuWochenKey(e.datum_oder_kw))
   const groesstesKey = wochenKeys.reduce((groesstes, key) => (key > groesstes ? key : groesstes))

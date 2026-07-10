@@ -89,10 +89,8 @@ describe('expandiereMuster', () => {
     expect(einheiten[0]).toMatchObject({
       index: 1,
       kontaktzeit_h: 1.5,
-      personen_parallel: 1,
       erstdurchfuehrung: false,
       wir_begleiten: true,
-      typ: 'regulaer',
     })
     // Compare against the correct local-date string (fixed: no longer using
     // buggy toISOString().slice() which caused UTC day-shift in positive-offset timezones)
@@ -119,9 +117,9 @@ describe('berechneReiheZeitraum', () => {
     const reihe: Reihe = {
       ...reiheBasis,
       einheiten: [
-        { id: 'e1', index: 1, datum_oder_kw: '2026-KW46', kontaktzeit_h: 1, personen_parallel: 1, erstdurchfuehrung: false, wir_begleiten: true, typ: 'regulaer' },
-        { id: 'e2', index: 2, datum_oder_kw: '2027-KW05', kontaktzeit_h: 1, personen_parallel: 1, erstdurchfuehrung: false, wir_begleiten: true, typ: 'regulaer' },
-        { id: 'e3', index: 3, datum_oder_kw: '2026-KW48', kontaktzeit_h: 1, personen_parallel: 1, erstdurchfuehrung: false, wir_begleiten: true, typ: 'regulaer' },
+        { id: 'e1', index: 1, datum_oder_kw: '2026-KW46', kontaktzeit_h: 1, erstdurchfuehrung: false, wir_begleiten: true, begleitperson_ids: [], koordinator_ids: [] },
+        { id: 'e2', index: 2, datum_oder_kw: '2027-KW05', kontaktzeit_h: 1, erstdurchfuehrung: false, wir_begleiten: true, begleitperson_ids: [], koordinator_ids: [] },
+        { id: 'e3', index: 3, datum_oder_kw: '2026-KW48', kontaktzeit_h: 1, erstdurchfuehrung: false, wir_begleiten: true, begleitperson_ids: [], koordinator_ids: [] },
       ],
     }
     expect(berechneReiheZeitraum(reihe)).toEqual({ von: '2026-KW46', bis: '2027-KW05' })
@@ -131,7 +129,7 @@ describe('berechneReiheZeitraum', () => {
     const reihe: Reihe = {
       ...reiheBasis,
       einheiten: [
-        { id: 'e1', index: 1, datum_oder_kw: '2026-09-07', kontaktzeit_h: 1, personen_parallel: 1, erstdurchfuehrung: false, wir_begleiten: true, typ: 'regulaer' },
+        { id: 'e1', index: 1, datum_oder_kw: '2026-09-07', kontaktzeit_h: 1, erstdurchfuehrung: false, wir_begleiten: true, begleitperson_ids: [], koordinator_ids: [] },
       ],
     }
     expect(berechneReiheZeitraum(reihe)).toEqual({ von: '2026-KW37', bis: '2026-KW37' })
@@ -204,10 +202,10 @@ describe('naechstesEinheitDatum', () => {
       index: 1,
       datum_oder_kw: datumOderKw,
       kontaktzeit_h: 1,
-      personen_parallel: 1,
       erstdurchfuehrung: false,
       wir_begleiten: true,
-      typ: 'regulaer',
+      begleitperson_ids: [],
+      koordinator_ids: [],
     }
   }
 
