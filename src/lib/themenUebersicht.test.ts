@@ -33,13 +33,14 @@ describe('berechneThemenGantt', () => {
               extern_betreut: false,
               terminstatus: 'teilweise_festgelegt',
               einheiten: [
-                { id: 'e1', index: 1, datum_oder_kw: '2026-09-08', kontaktzeit_h: 1.5, personen_parallel: 1, erstdurchfuehrung: true, wir_begleiten: true, typ: 'regulaer', thema: 'Mobilität' },
-                { id: 'e2', index: 2, datum_oder_kw: '2026-09-15', kontaktzeit_h: 1.5, personen_parallel: 1, erstdurchfuehrung: false, wir_begleiten: false, typ: 'regulaer', thema: 'Mobilität' },
+                { id: 'e1', index: 1, datum_oder_kw: '2026-09-08', kontaktzeit_h: 1.5, erstdurchfuehrung: true, wir_begleiten: true, begleitperson_ids: [], koordinator_ids: [], thema: 'Mobilität' },
+                { id: 'e2', index: 2, datum_oder_kw: '2026-09-15', kontaktzeit_h: 1.5, erstdurchfuehrung: false, wir_begleiten: false, begleitperson_ids: [], koordinator_ids: [], thema: 'Mobilität' },
               ],
             },
           ],
         },
       ],
+      veranstaltungen: [],
     }
     expect(berechneThemenGantt(data)).toEqual([
       { reiheId: 'r1', zeilenLabel: 'Else Lasker - Parisa', balkenLabel: 'Mobilität', thema: 'Mobilität', startWochenKey: '2026-KW37', endWochenKey: '2026-KW38', stunden: 3 },
@@ -65,12 +66,13 @@ describe('berechneThemenGantt', () => {
               extern_betreut: false,
               terminstatus: 'festgelegt',
               einheiten: [
-                { id: 'e1', index: 1, datum_oder_kw: '2026-11-09', kontaktzeit_h: 4, personen_parallel: 1, erstdurchfuehrung: true, wir_begleiten: true, typ: 'regulaer' },
+                { id: 'e1', index: 1, datum_oder_kw: '2026-11-09', kontaktzeit_h: 4, erstdurchfuehrung: true, wir_begleiten: true, begleitperson_ids: [], koordinator_ids: [] },
               ],
             },
           ],
         },
       ],
+      veranstaltungen: [],
     }
     expect(berechneThemenGantt(data)).toEqual([])
   })
@@ -94,13 +96,14 @@ describe('berechneThemenGantt', () => {
               extern_betreut: false,
               terminstatus: 'teilweise_festgelegt',
               einheiten: [
-                { id: 'e1', index: 1, datum_oder_kw: '2026-09-08', kontaktzeit_h: 1.5, personen_parallel: 1, erstdurchfuehrung: true, wir_begleiten: true, typ: 'regulaer', thema: 'Mobilität' },
-                { id: 'e2', index: 2, datum_oder_kw: '2026-09-29', kontaktzeit_h: 1.5, personen_parallel: 1, erstdurchfuehrung: false, wir_begleiten: true, typ: 'regulaer', thema: 'Mobilität' },
+                { id: 'e1', index: 1, datum_oder_kw: '2026-09-08', kontaktzeit_h: 1.5, erstdurchfuehrung: true, wir_begleiten: true, begleitperson_ids: [], koordinator_ids: [], thema: 'Mobilität' },
+                { id: 'e2', index: 2, datum_oder_kw: '2026-09-29', kontaktzeit_h: 1.5, erstdurchfuehrung: false, wir_begleiten: true, begleitperson_ids: [], koordinator_ids: [], thema: 'Mobilität' },
               ],
             },
           ],
         },
       ],
+      veranstaltungen: [],
     }
     const zeilen = berechneThemenGantt(data)
     expect(zeilen).toHaveLength(2)
@@ -126,12 +129,13 @@ describe('berechneThemenGantt', () => {
               extern_betreut: false,
               terminstatus: 'festgelegt',
               einheiten: [
-                { id: 'e1', index: 1, datum_oder_kw: '2026-09-21', kontaktzeit_h: 1, personen_parallel: 1, erstdurchfuehrung: true, wir_begleiten: true, typ: 'regulaer', thema: 'Energie' },
+                { id: 'e1', index: 1, datum_oder_kw: '2026-09-21', kontaktzeit_h: 1, erstdurchfuehrung: true, wir_begleiten: true, begleitperson_ids: [], koordinator_ids: [], thema: 'Energie' },
               ],
             },
           ],
         },
       ],
+      veranstaltungen: [],
     }
     expect(berechneThemenGantt(data)[0].zeilenLabel).toBe('Coppel - UNESCO')
   })
@@ -155,7 +159,7 @@ describe('berechneThemenGantt', () => {
               extern_betreut: false,
               terminstatus: 'festgelegt',
               einheiten: [
-                { id: 'e1', index: 1, datum_oder_kw: '2026-09-07', kontaktzeit_h: 1.5, personen_parallel: 1, erstdurchfuehrung: true, wir_begleiten: true, typ: 'regulaer', thema: 'Energie' },
+                { id: 'e1', index: 1, datum_oder_kw: '2026-09-07', kontaktzeit_h: 1.5, erstdurchfuehrung: true, wir_begleiten: true, begleitperson_ids: [], koordinator_ids: [], thema: 'Energie' },
               ],
             },
             {
@@ -167,12 +171,13 @@ describe('berechneThemenGantt', () => {
               extern_betreut: false,
               terminstatus: 'festgelegt',
               einheiten: [
-                { id: 'e2', index: 1, datum_oder_kw: '2026-09-07', kontaktzeit_h: 1.5, personen_parallel: 1, erstdurchfuehrung: true, wir_begleiten: true, typ: 'regulaer', thema: 'Energie' },
+                { id: 'e2', index: 1, datum_oder_kw: '2026-09-07', kontaktzeit_h: 1.5, erstdurchfuehrung: true, wir_begleiten: true, begleitperson_ids: [], koordinator_ids: [], thema: 'Energie' },
               ],
             },
           ],
         },
       ],
+      veranstaltungen: [],
     }
     const zeilen = berechneThemenGantt(data)
     expect(zeilen.map((z) => z.zeilenLabel)).toEqual([
@@ -200,12 +205,13 @@ describe('berechneThemenGantt', () => {
               extern_betreut: false,
               terminstatus: 'offen',
               einheiten: [
-                { id: 'e1', index: 1, datum_oder_kw: '2026-10-05', kontaktzeit_h: 1.5, personen_parallel: 1, erstdurchfuehrung: true, wir_begleiten: true, typ: 'regulaer' },
+                { id: 'e1', index: 1, datum_oder_kw: '2026-10-05', kontaktzeit_h: 1.5, erstdurchfuehrung: true, wir_begleiten: true, begleitperson_ids: [], koordinator_ids: [] },
               ],
             },
           ],
         },
       ],
+      veranstaltungen: [],
     }
     expect(berechneThemenGantt(data)).toEqual([])
   })
@@ -229,12 +235,13 @@ describe('berechneThemenGantt', () => {
               extern_betreut: true,
               terminstatus: 'festgelegt',
               einheiten: [
-                { id: 'e1', index: 1, datum_oder_kw: '2026-09-14', kontaktzeit_h: 0, personen_parallel: 1, erstdurchfuehrung: false, wir_begleiten: false, typ: 'regulaer' },
+                { id: 'e1', index: 1, datum_oder_kw: '2026-09-14', kontaktzeit_h: 0, erstdurchfuehrung: false, wir_begleiten: false, begleitperson_ids: [], koordinator_ids: [] },
               ],
             },
           ],
         },
       ],
+      veranstaltungen: [],
     }
     expect(berechneThemenGantt(data)).toEqual([])
   })
@@ -258,13 +265,14 @@ describe('berechneThemenGantt', () => {
               extern_betreut: false,
               terminstatus: 'festgelegt',
               einheiten: [
-                { id: 'e1', index: 1, datum_oder_kw: '2026-09-07', kontaktzeit_h: 1.5, personen_parallel: 1, erstdurchfuehrung: true, wir_begleiten: true, typ: 'regulaer', thema: 'Energie' },
-                { id: 'e2', index: 2, datum_oder_kw: '2026-09-14', kontaktzeit_h: 1.5, personen_parallel: 1, erstdurchfuehrung: false, wir_begleiten: true, typ: 'regulaer', thema: 'Stadtgrün' },
+                { id: 'e1', index: 1, datum_oder_kw: '2026-09-07', kontaktzeit_h: 1.5, erstdurchfuehrung: true, wir_begleiten: true, begleitperson_ids: [], koordinator_ids: [], thema: 'Energie' },
+                { id: 'e2', index: 2, datum_oder_kw: '2026-09-14', kontaktzeit_h: 1.5, erstdurchfuehrung: false, wir_begleiten: true, begleitperson_ids: [], koordinator_ids: [], thema: 'Stadtgrün' },
               ],
             },
           ],
         },
       ],
+      veranstaltungen: [],
     }
     const zeilen = berechneThemenGantt(data)
     expect(zeilen).toHaveLength(2)
@@ -282,7 +290,7 @@ describe('berechneThemenGantt', () => {
       extern_betreut: false,
       terminstatus: 'festgelegt' as const,
       einheiten: [
-        { id: `${id}_e`, index: 1, datum_oder_kw: datum, kontaktzeit_h: 1, personen_parallel: 1, erstdurchfuehrung: false, wir_begleiten: true, typ: 'regulaer' as const },
+        { id: `${id}_e`, index: 1, datum_oder_kw: datum, kontaktzeit_h: 1, erstdurchfuehrung: false, wir_begleiten: true, begleitperson_ids: [], koordinator_ids: [] },
       ],
     })
     const data: Datenbestand = {
@@ -294,9 +302,81 @@ describe('berechneThemenGantt', () => {
         { id: 's_a', name: 'A-Schule', reihen: [{ ...reiheFuer('r_a', '2026-11-09'), einheiten: reiheFuer('r_a', '2026-11-09').einheiten.map((e) => ({ ...e, thema: 'Energie' as const })) }] },
         { id: 's_c', name: 'C-Schule', reihen: [{ ...reiheFuer('r_c', '2026-09-07'), einheiten: reiheFuer('r_c', '2026-09-07').einheiten.map((e) => ({ ...e, thema: 'Energie' as const })) }] },
       ],
+      veranstaltungen: [],
     }
     const zeilen = berechneThemenGantt(data)
     expect(zeilen.map((z) => z.zeilenLabel)).toEqual(['C-Schule - x', 'A-Schule - x', 'B-Schule - x'])
+  })
+})
+
+describe('berechneThemenGantt with Veranstaltungen', () => {
+  it('creates a Gantt row for a Veranstaltungs-Termin with a Thema, labeled with Titel and Schulen', () => {
+    const data: Datenbestand = {
+      settings,
+      personen: [],
+      kalender: { ferien: [] },
+      schulen: [
+        { id: 's1', name: 'WDG', reihen: [] },
+        { id: 's2', name: 'Bayreuther Gymnasium', reihen: [] },
+      ],
+      veranstaltungen: [
+        {
+          id: 'v1',
+          art: 'themenwoche',
+          titel: 'Nachhaltigkeit',
+          terminstatus: 'festgelegt',
+          schulIds: ['s1', 's2'],
+          termine: [
+            { id: 't1', index: 1, datum_oder_kw: '2026-11-09', kontaktzeit_h: 2, erstdurchfuehrung: true, thema: 'Energie', besetzungen: [] },
+          ],
+        },
+      ],
+    }
+    expect(berechneThemenGantt(data)).toEqual([
+      { reiheId: 'v1', zeilenLabel: 'Nachhaltigkeit (WDG, Bayreuther)', balkenLabel: 'Energie', thema: 'Energie', startWochenKey: '2026-KW46', endWochenKey: '2026-KW46', stunden: 2 },
+    ])
+  })
+
+  it('excludes a Veranstaltungs-Termin without a Thema', () => {
+    const data: Datenbestand = {
+      settings,
+      personen: [],
+      kalender: { ferien: [] },
+      schulen: [{ id: 's1', name: 'WDG', reihen: [] }],
+      veranstaltungen: [
+        {
+          id: 'v1',
+          art: 'exkursion',
+          titel: 'Exkursion',
+          terminstatus: 'festgelegt',
+          schulIds: ['s1'],
+          termine: [{ id: 't1', index: 1, datum_oder_kw: '2026-11-09', kontaktzeit_h: 2, erstdurchfuehrung: true, besetzungen: [] }],
+        },
+      ],
+    }
+    expect(berechneThemenGantt(data)).toEqual([])
+  })
+
+  it('excludes a Veranstaltung with terminstatus offen', () => {
+    const data: Datenbestand = {
+      settings,
+      personen: [],
+      kalender: { ferien: [] },
+      schulen: [{ id: 's1', name: 'WDG', reihen: [] }],
+      veranstaltungen: [
+        {
+          id: 'v1',
+          art: 'themenwoche',
+          titel: 'Nachhaltigkeit',
+          terminstatus: 'offen',
+          schulIds: ['s1'],
+          termine: [
+            { id: 't1', index: 1, datum_oder_kw: '2026-11-09', kontaktzeit_h: 2, erstdurchfuehrung: true, thema: 'Energie', besetzungen: [] },
+          ],
+        },
+      ],
+    }
+    expect(berechneThemenGantt(data)).toEqual([])
   })
 })
 

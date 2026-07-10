@@ -52,7 +52,7 @@ function baueZeilenLabel(schulname: string, reihentitel: string): string {
   return `${kuerzeSchulname(schulname)} - ${kuerzeReihentitel(reihentitel)}`.slice(0, 34)
 }
 
-function sortiereEinheitenNachWoche(einheiten: Einheit[]): Einheit[] {
+function sortiereEinheitenNachWoche<T extends { datum_oder_kw: string }>(einheiten: T[]): T[] {
   return [...einheiten].sort((a, b) => parseZuWochenKey(a.datum_oder_kw).localeCompare(parseZuWochenKey(b.datum_oder_kw)))
 }
 
@@ -104,6 +104,53 @@ export function berechneThemenGantt(data: Datenbestand): ThemenGanttZeile[] {
       }
     }
   }
+
+  for (const veranstaltung of data.veranstaltungen) {
+    if (veranstaltung.terminstatus === 'offen') continue
+    const themenTermine = sortiereEinheitenNachWoche(veranstaltung.termine.filter((t) => !!t.thema))
+    if (themenTermine.length === 0) continue
+
+    const zeilenLabel = `${veranstaltung.titel} (${veranstaltung.schulIds.map((id) => kuerzeSchulname(data.schulen.find((s) => s.id === id)?.name ?? id)).join(', ')})`
+
+    let aktuelleGruppe: { thema: Thema; startWochenKey: string; endWochenKey: string; stunden: number } | null = null
+    for (const termin of themenTermine) {
+      const thema = termin.thema!
+      const wochenKey = parseZuWochenKey(termin.datum_oder_kw)
+      if (
+        aktuelleGruppe &&
+        aktuelleGruppe.thema === thema &&
+        (aktuelleGruppe.endWochenKey === wochenKey || sindDirektAufeinanderfolgendeWochen(aktuelleGruppe.endWochenKey, wochenKey))
+      ) {
+        aktuelleGruppe.endWochenKey = wochenKey
+        aktuelleGruppe.stunden += termin.kontaktzeit_h
+        continue
+      }
+      if (aktuelleGruppe) {
+        zeilen.push({
+          reiheId: veranstaltung.id,
+          zeilenLabel,
+          balkenLabel: aktuelleGruppe.thema,
+          thema: aktuelleGruppe.thema,
+          startWochenKey: aktuelleGruppe.startWochenKey,
+          endWochenKey: aktuelleGruppe.endWochenKey,
+          stunden: aktuelleGruppe.stunden,
+        })
+      }
+      aktuelleGruppe = { thema, startWochenKey: wochenKey, endWochenKey: wochenKey, stunden: termin.kontaktzeit_h }
+    }
+    if (aktuelleGruppe) {
+      zeilen.push({
+        reiheId: veranstaltung.id,
+        zeilenLabel,
+        balkenLabel: aktuelleGruppe.thema,
+        thema: aktuelleGruppe.thema,
+        startWochenKey: aktuelleGruppe.startWochenKey,
+        endWochenKey: aktuelleGruppe.endWochenKey,
+        stunden: aktuelleGruppe.stunden,
+      })
+    }
+  }
+
   return zeilen.sort((a, b) =>
     a.startWochenKey === b.startWochenKey ? a.zeilenLabel.localeCompare(b.zeilenLabel) : a.startWochenKey.localeCompare(b.startWochenKey)
   )
