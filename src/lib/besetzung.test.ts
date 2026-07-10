@@ -8,10 +8,10 @@ function einheit(index: number): Einheit {
     index,
     datum_oder_kw: '2026-KW40',
     kontaktzeit_h: 1.5,
-    personen_parallel: 1,
     erstdurchfuehrung: false,
     wir_begleiten: false,
-    typ: 'regulaer',
+    begleitperson_ids: [],
+    koordinator_ids: [],
   }
 }
 

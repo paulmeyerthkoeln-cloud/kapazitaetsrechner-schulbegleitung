@@ -6,26 +6,20 @@ import {
   getISOWochenKey,
   ermittleFerienName,
 } from './kalenderwochen'
-import type { Einheit, Settings, Schule, Datenbestand, Person } from './types'
+import type { Settings, Datenbestand, Person } from './types'
 
 export function berechneAufwandEinheit(
-  einheit: Einheit,
+  kontaktzeit_h: number,
   fahrzeit_h: number,
+  erstdurchfuehrung: boolean,
   settings: Settings,
-  vorbereitungBereitsGezaehlt = false
+  organisationspauschale_h = 0
 ): number {
-  const vorbereitungsfaktor = einheit.erstdurchfuehrung
+  const vorbereitungsfaktor = erstdurchfuehrung
     ? settings.default_vorbereitungsfaktor_erstdurchfuehrung
     : settings.default_vorbereitungsfaktor_wiederholung
-  const vorbereitung = vorbereitungBereitsGezaehlt ? 0 : einheit.kontaktzeit_h * vorbereitungsfaktor
-  const pauschale = einheit.typ === 'exkursion' ? einheit.organisationspauschale_h ?? 2 : 0
-  const basis = einheit.kontaktzeit_h + vorbereitung + fahrzeit_h + pauschale
-  return basis * einheit.personen_parallel
-}
-
-export function berechneKoordinationWoche(schule: Schule, settings: Settings): number {
-  const proMonat = schule.koordination_h_pro_monat ?? settings.koordination_h_pro_schule_pro_monat
-  return proMonat / 4.33
+  const vorbereitung = kontaktzeit_h * vorbereitungsfaktor
+  return kontaktzeit_h + vorbereitung + fahrzeit_h + organisationspauschale_h
 }
 
 export function berechneBedarfProWoche(
@@ -37,23 +31,46 @@ export function berechneBedarfProWoche(
 
   let einsatzBedarf = 0
   let koordinationBedarf = 0
-  const gezaehlteThemenwochen = new Set<string>()
+
   for (const schule of data.schulen) {
     const zaehlendeReihen = schule.reihen.filter((reihe) => reihe.terminstatus !== 'offen')
     for (const reihe of zaehlendeReihen) {
       for (const einheit of reihe.einheiten) {
         if (parseZuWochenKey(einheit.datum_oder_kw) !== wochenKey) continue
-        koordinationBedarf += einheit.koordinationszeit_h ?? 0
+        const koordAnzahl = Math.max(1, einheit.koordinator_ids.length)
+        koordinationBedarf += (einheit.koordinationszeit_h ?? 0) * koordAnzahl
         if (einheit.wir_begleiten) {
-          // For a shared Themenwoche, the first Einheit encountered (in Schule/Reihe/Einheit
-          // order) charges the group's Vorbereitungszeit; later members in the same week omit it.
-          const vorbereitungBereitsGezaehlt = !!einheit.themenwoche && gezaehlteThemenwochen.has(einheit.themenwoche)
-          if (einheit.themenwoche) gezaehlteThemenwochen.add(einheit.themenwoche)
-          einsatzBedarf += berechneAufwandEinheit(einheit, reihe.fahrzeit_h, data.settings, vorbereitungBereitsGezaehlt)
+          const begleitAnzahl = Math.max(1, einheit.begleitperson_ids.length)
+          const aufwand = berechneAufwandEinheit(einheit.kontaktzeit_h, reihe.fahrzeit_h, einheit.erstdurchfuehrung, data.settings)
+          einsatzBedarf += aufwand * begleitAnzahl
         }
       }
     }
   }
+
+  for (const veranstaltung of data.veranstaltungen) {
+    if (veranstaltung.terminstatus === 'offen') continue
+    for (const termin of veranstaltung.termine) {
+      if (parseZuWochenKey(termin.datum_oder_kw) !== wochenKey) continue
+      // Vorbereitung and (for Exkursionen) the Organisationspauschale are organizational
+      // overhead shared once across the whole Veranstaltung, regardless of how many
+      // schools/people attend — this is the entire point of a Themenwoche.
+      const vorbereitungsfaktor = termin.erstdurchfuehrung
+        ? data.settings.default_vorbereitungsfaktor_erstdurchfuehrung
+        : data.settings.default_vorbereitungsfaktor_wiederholung
+      const pauschale = veranstaltung.art === 'exkursion' ? termin.organisationspauschale_h ?? 2 : 0
+      einsatzBedarf += termin.kontaktzeit_h * vorbereitungsfaktor + pauschale
+      for (const besetzung of termin.besetzungen) {
+        const koordAnzahl = Math.max(1, besetzung.koordinator_ids.length)
+        koordinationBedarf += besetzung.koordinationszeit_h * koordAnzahl
+        if (besetzung.wir_begleiten) {
+          const begleitAnzahl = Math.max(1, besetzung.begleitperson_ids.length)
+          einsatzBedarf += (termin.kontaktzeit_h + besetzung.fahrzeit_h) * begleitAnzahl
+        }
+      }
+    }
+  }
+
   return { einsatzBedarf, koordinationBedarf }
 }
 
