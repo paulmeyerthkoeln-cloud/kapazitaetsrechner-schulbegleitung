@@ -1,4 +1,4 @@
-import { berechnePersonKapazitaetsbasis } from './berechnung'
+import { berechneAufwandEinheit, berechnePersonKapazitaetsbasis } from './berechnung'
 import { alleWochenImZeitraum, getISOWochenKey, parseZuWochenKey } from './kalenderwochen'
 import type { Datenbestand } from './types'
 
@@ -18,16 +18,41 @@ export interface PersonKapazitaetsErgebnis {
 
 function berechneZugewieseneStundenProWoche(data: Datenbestand, personId: string): Map<string, number> {
   const zugewiesen = new Map<string, number>()
+  const addiere = (wochenKey: string, stunden: number) => {
+    zugewiesen.set(wochenKey, (zugewiesen.get(wochenKey) ?? 0) + stunden)
+  }
+
   for (const schule of data.schulen) {
     const zaehlendeReihen = schule.reihen.filter((reihe) => reihe.terminstatus !== 'offen')
     for (const reihe of zaehlendeReihen) {
       for (const einheit of reihe.einheiten) {
-        if (!einheit.wir_begleiten || einheit.begleitperson_id !== personId) continue
         const wochenKey = parseZuWochenKey(einheit.datum_oder_kw)
-        zugewiesen.set(wochenKey, (zugewiesen.get(wochenKey) ?? 0) + einheit.kontaktzeit_h + (einheit.koordinationszeit_h ?? 0))
+        if (einheit.wir_begleiten && einheit.begleitperson_ids.includes(personId)) {
+          addiere(wochenKey, berechneAufwandEinheit(einheit.kontaktzeit_h, reihe.fahrzeit_h, einheit.erstdurchfuehrung, data.settings))
+        }
+        if (einheit.koordinator_ids.includes(personId)) {
+          addiere(wochenKey, einheit.koordinationszeit_h ?? 0)
+        }
       }
     }
   }
+
+  for (const veranstaltung of data.veranstaltungen) {
+    if (veranstaltung.terminstatus === 'offen') continue
+    for (const termin of veranstaltung.termine) {
+      const wochenKey = parseZuWochenKey(termin.datum_oder_kw)
+      const pauschale = veranstaltung.art === 'exkursion' ? termin.organisationspauschale_h ?? 2 : 0
+      for (const besetzung of termin.besetzungen) {
+        if (besetzung.wir_begleiten && besetzung.begleitperson_ids.includes(personId)) {
+          addiere(wochenKey, berechneAufwandEinheit(termin.kontaktzeit_h, besetzung.fahrzeit_h, termin.erstdurchfuehrung, data.settings, pauschale))
+        }
+        if (besetzung.koordinator_ids.includes(personId)) {
+          addiere(wochenKey, besetzung.koordinationszeit_h)
+        }
+      }
+    }
+  }
+
   return zugewiesen
 }
 
