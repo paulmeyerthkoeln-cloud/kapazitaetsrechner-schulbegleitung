@@ -5,7 +5,6 @@ export interface Settings {
   default_fahrzeit_h: number
   default_vorbereitungsfaktor_erstdurchfuehrung: number
   default_vorbereitungsfaktor_wiederholung: number
-  koordination_h_pro_schule_pro_monat: number
 }
 
 export interface Abwesenheit {
@@ -41,24 +40,19 @@ export interface Kalender {
   ferien: FerienZeitraum[]
 }
 
-export type EinheitTyp = 'regulaer' | 'exkursion'
-
-export type Thema = 'Ernährung' | 'Stadtgrün' | 'Mobilität' | 'Energie' | 'Exkursion'
+export type Thema = 'Ernährung' | 'Stadtgrün' | 'Mobilität' | 'Energie'
 
 export interface Einheit {
   id: string
   index: number
   datum_oder_kw: string
   kontaktzeit_h: number
-  personen_parallel: number
   erstdurchfuehrung: boolean
   wir_begleiten: boolean
-  typ: EinheitTyp
-  organisationspauschale_h?: number
   thema?: Thema
   koordinationszeit_h?: number
-  begleitperson_id?: string | null
-  themenwoche?: string
+  begleitperson_ids: string[]
+  koordinator_ids: string[]
 }
 
 export interface Muster {
@@ -89,8 +83,38 @@ export interface Reihe {
 export interface Schule {
   id: string
   name: string
-  koordination_h_pro_monat?: number
   reihen: Reihe[]
+}
+
+export type VeranstaltungArt = 'themenwoche' | 'exkursion'
+
+export interface SchulBesetzung {
+  schulId: string
+  wir_begleiten: boolean
+  begleitperson_ids: string[]
+  koordinator_ids: string[]
+  koordinationszeit_h: number
+  fahrzeit_h: number
+}
+
+export interface VeranstaltungTermin {
+  id: string
+  index: number
+  datum_oder_kw: string
+  kontaktzeit_h: number
+  erstdurchfuehrung: boolean
+  thema?: Thema
+  organisationspauschale_h?: number
+  besetzungen: SchulBesetzung[]
+}
+
+export interface Veranstaltung {
+  id: string
+  art: VeranstaltungArt
+  titel: string
+  terminstatus: Terminstatus
+  schulIds: string[]
+  termine: VeranstaltungTermin[]
 }
 
 export interface PersonenUmverteilung {
@@ -106,5 +130,6 @@ export interface Datenbestand {
   personen: Person[]
   kalender: Kalender
   schulen: Schule[]
+  veranstaltungen: Veranstaltung[]
   personenUmverteilungen?: PersonenUmverteilung[]
 }
