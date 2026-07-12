@@ -59,7 +59,12 @@ export function berechneBedarfProWoche(
         ? data.settings.default_vorbereitungsfaktor_erstdurchfuehrung
         : data.settings.default_vorbereitungsfaktor_wiederholung
       const pauschale = veranstaltung.art === 'exkursion' ? termin.organisationspauschale_h ?? 2 : 0
-      einsatzBedarf += termin.kontaktzeit_h * vorbereitungsfaktor + pauschale
+      // Only charge the shared organizational overhead if at least one participating
+      // Schule actually accompanies this Termin — matching the Reihen-Einheit rule
+      // just above (wir_begleiten gates the whole Aufwand, not only the per-Schule part).
+      if (termin.besetzungen.some((b) => b.wir_begleiten)) {
+        einsatzBedarf += termin.kontaktzeit_h * vorbereitungsfaktor + pauschale
+      }
       for (const besetzung of termin.besetzungen) {
         const koordAnzahl = Math.max(1, besetzung.koordinator_ids.length)
         koordinationBedarf += besetzung.koordinationszeit_h * koordAnzahl

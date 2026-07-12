@@ -407,6 +407,23 @@ describe('berechneBedarfProWoche with Veranstaltungen', () => {
     const data = leereDaten({ veranstaltungen: [veranstaltung()] })
     expect(berechneBedarfProWoche(data, '2026-KW47', false)).toEqual({ einsatzBedarf: 0, koordinationBedarf: 0 })
   })
+
+  it('charges no Vorbereitung or Organisationspauschale when no Schule-Besetzung accompanies the Termin', () => {
+    const v = veranstaltung({ art: 'exkursion' })
+    v.termine[0].besetzungen = v.termine[0].besetzungen.map((b) => ({ ...b, wir_begleiten: false }))
+    const data = leereDaten({ veranstaltungen: [v] })
+    expect(berechneBedarfProWoche(data, '2026-KW46', false)).toEqual({ einsatzBedarf: 0, koordinationBedarf: 0 })
+  })
+
+  it('still charges Vorbereitung/Pauschale once when only one of several Schulen accompanies', () => {
+    const v = veranstaltung({ art: 'exkursion' })
+    v.termine[0].besetzungen[1].wir_begleiten = false
+    const data = leereDaten({ veranstaltungen: [v] })
+    const { einsatzBedarf } = berechneBedarfProWoche(data, '2026-KW46', false)
+    const vorbereitung = 1.5 * settings.default_vorbereitungsfaktor_erstdurchfuehrung
+    const s1Anteil = 1.5 + 1
+    expect(einsatzBedarf).toBeCloseTo(vorbereitung + 2 + s1Anteil, 5)
+  })
 })
 
 describe('Reihe.terminstatus filtering', () => {
