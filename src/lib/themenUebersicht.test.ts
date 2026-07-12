@@ -10,7 +10,6 @@ const settings = {
   default_fahrzeit_h: 1.0,
   default_vorbereitungsfaktor_erstdurchfuehrung: 0.75,
   default_vorbereitungsfaktor_wiederholung: 0.25,
-  koordination_h_pro_schule_pro_monat: 1.5,
 }
 
 describe('berechneThemenGantt', () => {
