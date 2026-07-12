@@ -47,7 +47,7 @@ export function VeranstaltungenUebersicht({
       <h3>Themenwochen & Exkursionen</h3>
       {veranstaltungen.map((v) => (
         <div key={v.id} className="veranstaltung">
-          <input type="text" aria-label="Titel" value={v.titel} onChange={(ev) => onTitelChange(v.id, ev.target.value)} />
+          <input type="text" aria-label={`Titel der Veranstaltung ${v.titel}`} value={v.titel} onChange={(ev) => onTitelChange(v.id, ev.target.value)} />
           <button onClick={() => onRemove(v.id)} aria-label={`${v.titel} löschen`}>
             🗑
           </button>
