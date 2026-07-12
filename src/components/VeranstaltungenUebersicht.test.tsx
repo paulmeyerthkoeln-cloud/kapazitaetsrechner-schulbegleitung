@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent, within } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { VeranstaltungenUebersicht } from './VeranstaltungenUebersicht'
 import type { Person, Schule, Veranstaltung } from '../lib/types'
 

@@ -10,7 +10,6 @@ const THEMEN_FARBEN: Record<Thema | 'ohne', string> = {
   Stadtgrün: '#3d9970',
   Mobilität: '#4a7fbf',
   Energie: '#e6b800',
-  Exkursion: '#7b5ea7',
   ohne: '#8a8a8a',
 }
 
