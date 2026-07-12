@@ -16,21 +16,21 @@ const reihe: Reihe = {
       index: 1,
       datum_oder_kw: '2026-09-07',
       kontaktzeit_h: 1.5,
-      personen_parallel: 1,
       erstdurchfuehrung: true,
       wir_begleiten: true,
-      typ: 'regulaer',
       koordinationszeit_h: 0.5,
+      begleitperson_ids: [],
+      koordinator_ids: [],
     },
     {
       id: 'e2',
       index: 2,
       datum_oder_kw: '2026-09-14',
       kontaktzeit_h: 1.1,
-      personen_parallel: 1,
       erstdurchfuehrung: false,
       wir_begleiten: false,
-      typ: 'regulaer',
+      begleitperson_ids: [],
+      koordinator_ids: [],
     },
   ],
 }
@@ -44,7 +44,6 @@ function renderReihenEditor() {
   const props = {
     reihe,
     personen,
-    themenwochen: [],
     onEinheitToggle: vi.fn(),
     onEinheitAdd: vi.fn(),
     onEinheitRemove: vi.fn(),
@@ -52,6 +51,7 @@ function renderReihenEditor() {
     onTerminstatusChange: vi.fn(),
     onTermineGenerieren: vi.fn(),
     onTitelChange: vi.fn(),
+    onExkursionAdd: vi.fn(),
   }
   render(<ReihenEditor {...props} />)
   return props
@@ -121,11 +121,6 @@ describe('ReihenEditor', () => {
     expect(props.onEinheitFelderChange).toHaveBeenCalledWith('e1', { thema: 'Mobilität' })
   })
 
-  it('offers Exkursion as a Thema', () => {
-    renderReihenEditor()
-    expect(screen.getAllByRole('option', { name: 'Exkursion' })).toHaveLength(2)
-  })
-
   it('shows Koordination in minutes, converted from the stored hours', () => {
     renderReihenEditor()
     const koordinationE1 = screen.getByLabelText('Koordinationszeit für Termin 1 in Testreihe') as HTMLInputElement
@@ -164,7 +159,6 @@ describe('ReihenEditor', () => {
       <ReihenEditor
         reihe={reihe}
         personen={personen}
-        themenwochen={[]}
         onEinheitToggle={vi.fn()}
         onEinheitAdd={vi.fn()}
         onEinheitRemove={vi.fn()}
@@ -172,6 +166,7 @@ describe('ReihenEditor', () => {
         onTerminstatusChange={vi.fn()}
         onTermineGenerieren={vi.fn()}
         onTitelChange={vi.fn()}
+        onExkursionAdd={vi.fn()}
       />
     )
     expect(screen.queryByText(/zählt nicht in der Bedarfsrechnung/)).not.toBeInTheDocument()
@@ -179,7 +174,6 @@ describe('ReihenEditor', () => {
       <ReihenEditor
         reihe={{ ...reihe, terminstatus: 'offen' }}
         personen={personen}
-        themenwochen={[]}
         onEinheitToggle={vi.fn()}
         onEinheitAdd={vi.fn()}
         onEinheitRemove={vi.fn()}
@@ -187,6 +181,7 @@ describe('ReihenEditor', () => {
         onTerminstatusChange={vi.fn()}
         onTermineGenerieren={vi.fn()}
         onTitelChange={vi.fn()}
+        onExkursionAdd={vi.fn()}
       />
     )
     expect(screen.getByText(/zählt nicht in der Bedarfsrechnung/)).toBeInTheDocument()
@@ -197,7 +192,6 @@ describe('ReihenEditor', () => {
     const props = {
       reihe: reiheOhneTermine,
       personen,
-      themenwochen: [],
       onEinheitToggle: vi.fn(),
       onEinheitAdd: vi.fn(),
       onEinheitRemove: vi.fn(),
@@ -205,6 +199,7 @@ describe('ReihenEditor', () => {
       onTerminstatusChange: vi.fn(),
       onTermineGenerieren: vi.fn(),
       onTitelChange: vi.fn(),
+      onExkursionAdd: vi.fn(),
     }
     render(<ReihenEditor {...props} />)
     fireEvent.change(screen.getByLabelText('Schnelleinrichtung Startdatum'), { target: { value: '2026-09-07' } })
@@ -219,7 +214,6 @@ describe('ReihenEditor', () => {
     const props = {
       reihe: reiheOhneTermine,
       personen,
-      themenwochen: [],
       onEinheitToggle: vi.fn(),
       onEinheitAdd: vi.fn(),
       onEinheitRemove: vi.fn(),
@@ -227,6 +221,7 @@ describe('ReihenEditor', () => {
       onTerminstatusChange: vi.fn(),
       onTermineGenerieren: vi.fn(),
       onTitelChange: vi.fn(),
+      onExkursionAdd: vi.fn(),
     }
     render(<ReihenEditor {...props} />)
     fireEvent.change(screen.getByLabelText('Schnelleinrichtung Startdatum'), { target: { value: '2026-09-07' } })
@@ -265,7 +260,6 @@ describe('ReihenEditor', () => {
       <ReihenEditor
         reihe={wdgAehnlicheReihe}
         personen={personen}
-        themenwochen={[]}
         onEinheitToggle={vi.fn()}
         onEinheitAdd={vi.fn()}
         onEinheitRemove={vi.fn()}
@@ -273,41 +267,11 @@ describe('ReihenEditor', () => {
         onTerminstatusChange={vi.fn()}
         onTermineGenerieren={vi.fn()}
         onTitelChange={vi.fn()}
+        onExkursionAdd={vi.fn()}
       />
     )
     const unterrichtszeit = screen.getByLabelText('Schnelleinrichtung Unterrichtszeit') as HTMLInputElement
     expect(unterrichtszeit.value).toBe('240')
-  })
-
-  it('renders a Begleitperson option for each Person, plus a niemand option', () => {
-    renderReihenEditor()
-    const begleitpersonSelects = screen.getAllByRole('combobox', { name: /Begleitperson für Termin/ })
-    const optionLabels = Array.from(begleitpersonSelects[0].querySelectorAll('option')).map((o) => o.textContent)
-    expect(optionLabels).toEqual(['— niemand —', 'Anna', 'Ben'])
-  })
-
-  it('disables the Begleitperson dropdown when Wir begleiten is off', () => {
-    renderReihenEditor()
-    expect(screen.getByRole('combobox', { name: 'Begleitperson für Termin 2 in Testreihe' })).toBeDisabled()
-  })
-
-  it('enables the Begleitperson dropdown when Wir begleiten is on', () => {
-    renderReihenEditor()
-    expect(screen.getByRole('combobox', { name: 'Begleitperson für Termin 1 in Testreihe' })).not.toBeDisabled()
-  })
-
-  it('calls onEinheitFelderChange with the selected Begleitperson id', () => {
-    const props = renderReihenEditor()
-    const begleitperson = screen.getByRole('combobox', { name: 'Begleitperson für Termin 1 in Testreihe' })
-    fireEvent.change(begleitperson, { target: { value: 'p2' } })
-    expect(props.onEinheitFelderChange).toHaveBeenCalledWith('e1', { begleitperson_id: 'p2' })
-  })
-
-  it('calls onEinheitFelderChange with null when Begleitperson is reset to — niemand —', () => {
-    const props = renderReihenEditor()
-    const begleitperson = screen.getByRole('combobox', { name: 'Begleitperson für Termin 1 in Testreihe' })
-    fireEvent.change(begleitperson, { target: { value: '' } })
-    expect(props.onEinheitFelderChange).toHaveBeenCalledWith('e1', { begleitperson_id: null })
   })
 
   it('falls back to 90 minutes for the Schnelleinrichtung Unterrichtszeit when the Reihe has no Termine yet', () => {
@@ -316,7 +280,6 @@ describe('ReihenEditor', () => {
       <ReihenEditor
         reihe={reiheOhneTermine}
         personen={personen}
-        themenwochen={[]}
         onEinheitToggle={vi.fn()}
         onEinheitAdd={vi.fn()}
         onEinheitRemove={vi.fn()}
@@ -324,41 +287,49 @@ describe('ReihenEditor', () => {
         onTerminstatusChange={vi.fn()}
         onTermineGenerieren={vi.fn()}
         onTitelChange={vi.fn()}
+        onExkursionAdd={vi.fn()}
       />
     )
     const unterrichtszeit = screen.getByLabelText('Schnelleinrichtung Unterrichtszeit') as HTMLInputElement
     expect(unterrichtszeit.value).toBe('90')
   })
 
-  it('renders a Themenwoche input for each Termin, defaulting to empty', () => {
+  it('renders a Begleitpersonen checkbox for each Person', () => {
     renderReihenEditor()
-    const themenwoche1 = screen.getByLabelText('Themenwoche für Termin 1 in Testreihe') as HTMLInputElement
-    expect(themenwoche1.value).toBe('')
+    expect(screen.getByLabelText('Begleitpersonen für Termin 1 in Testreihe: Anna')).toBeInTheDocument()
+    expect(screen.getByLabelText('Begleitpersonen für Termin 1 in Testreihe: Ben')).toBeInTheDocument()
   })
 
-  it('calls onEinheitFelderChange with the entered Themenwoche', () => {
+  it('disables the Begleitpersonen checkboxes when Wir begleiten is off', () => {
+    renderReihenEditor()
+    expect(screen.getByLabelText('Begleitpersonen für Termin 2 in Testreihe: Anna')).toBeDisabled()
+  })
+
+  it('enables the Begleitpersonen checkboxes when Wir begleiten is on', () => {
+    renderReihenEditor()
+    expect(screen.getByLabelText('Begleitpersonen für Termin 1 in Testreihe: Anna')).not.toBeDisabled()
+  })
+
+  it('calls onEinheitFelderChange with the updated begleitperson_ids when a Begleitpersonen checkbox is toggled', () => {
     const props = renderReihenEditor()
-    const themenwoche1 = screen.getByLabelText('Themenwoche für Termin 1 in Testreihe')
-    fireEvent.change(themenwoche1, { target: { value: 'Herbst-Themenwoche' } })
-    expect(props.onEinheitFelderChange).toHaveBeenCalledWith('e1', { themenwoche: 'Herbst-Themenwoche' })
+    fireEvent.click(screen.getByLabelText('Begleitpersonen für Termin 1 in Testreihe: Ben'))
+    expect(props.onEinheitFelderChange).toHaveBeenCalledWith('e1', { begleitperson_ids: ['p2'] })
   })
 
-  it('offers existing themenwochen values via a datalist for autocomplete', () => {
-    render(
-      <ReihenEditor
-        reihe={reihe}
-        personen={personen}
-        themenwochen={['Herbst-Themenwoche', 'Winter-Themenwoche']}
-        onEinheitToggle={vi.fn()}
-        onTitelChange={vi.fn()}
-        onEinheitAdd={vi.fn()}
-        onEinheitRemove={vi.fn()}
-        onEinheitFelderChange={vi.fn()}
-        onTerminstatusChange={vi.fn()}
-        onTermineGenerieren={vi.fn()}
-      />
-    )
-    const options = Array.from(document.querySelectorAll('datalist option')).map((o) => o.getAttribute('value'))
-    expect(options).toEqual(['Herbst-Themenwoche', 'Winter-Themenwoche'])
+  it('renders a Koordinatoren checkbox for each Person, not disabled when Wir begleiten is off', () => {
+    renderReihenEditor()
+    expect(screen.getByLabelText('Koordinatoren für Termin 2 in Testreihe: Anna')).not.toBeDisabled()
+  })
+
+  it('calls onEinheitFelderChange with the updated koordinator_ids when a Koordinatoren checkbox is toggled', () => {
+    const props = renderReihenEditor()
+    fireEvent.click(screen.getByLabelText('Koordinatoren für Termin 1 in Testreihe: Anna'))
+    expect(props.onEinheitFelderChange).toHaveBeenCalledWith('e1', { koordinator_ids: ['p1'] })
+  })
+
+  it('calls onExkursionAdd when the Exkursion button is clicked', () => {
+    const props = renderReihenEditor()
+    fireEvent.click(screen.getByText('+ Exkursion hinzufügen'))
+    expect(props.onExkursionAdd).toHaveBeenCalled()
   })
 })

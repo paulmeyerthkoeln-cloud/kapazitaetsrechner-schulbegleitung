@@ -1,14 +1,14 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
 import { berechneUnserAnteil, ermittleHaeufigsteKontaktzeit } from '../lib/besetzung'
+import { PersonenMehrfachauswahl } from './PersonenMehrfachauswahl'
 import type { Person, Reihe, Terminstatus, Thema } from '../lib/types'
 
-const THEMEN: Thema[] = ['Ernährung', 'Stadtgrün', 'Mobilität', 'Energie', 'Exkursion']
+const THEMEN: Thema[] = ['Ernährung', 'Stadtgrün', 'Mobilität', 'Energie']
 
 export function ReihenEditor({
   reihe,
   personen,
-  themenwochen,
   onEinheitToggle,
   onEinheitAdd,
   onEinheitRemove,
@@ -16,20 +16,21 @@ export function ReihenEditor({
   onTerminstatusChange,
   onTermineGenerieren,
   onTitelChange,
+  onExkursionAdd,
 }: {
   reihe: Reihe
   personen: Person[]
-  themenwochen: string[]
   onEinheitToggle: (einheitId: string, wert: boolean) => void
   onEinheitAdd: () => void
   onEinheitRemove: (einheitId: string) => void
   onEinheitFelderChange: (
     einheitId: string,
-    patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema; koordinationszeit_h?: number; begleitperson_id?: string | null; themenwoche?: string }
+    patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema; koordinationszeit_h?: number; begleitperson_ids?: string[]; koordinator_ids?: string[] }
   ) => void
   onTerminstatusChange: (wert: Terminstatus) => void
   onTermineGenerieren: (startdatum: string, unterrichtszeitH: number, koordinationszeitH: number, anzahlTermine: number) => void
   onTitelChange: (titel: string) => void
+  onExkursionAdd: () => void
 }) {
   const anteil = berechneUnserAnteil(reihe.einheiten)
   const [schnellStartdatum, setSchnellStartdatum] = useState(format(new Date(), 'yyyy-MM-dd'))
@@ -126,9 +127,9 @@ export function ReihenEditor({
             <th>Unterrichtszeit (min)</th>
             <th>Koordination (min)</th>
             <th>Thema</th>
-            <th>Themenwoche</th>
             <th>Wir begleiten</th>
-            <th>Begleitperson</th>
+            <th>Begleitpersonen</th>
+            <th>Koordinatoren</th>
             <th></th>
           </tr>
         </thead>
@@ -184,39 +185,27 @@ export function ReihenEditor({
               </td>
               <td>
                 <input
-                  type="text"
-                  list={`themenwochen-optionen-${reihe.id}`}
-                  aria-label={`Themenwoche für Termin ${e.index} in ${reihe.titel}`}
-                  value={e.themenwoche ?? ''}
-                  onChange={(ev) =>
-                    onEinheitFelderChange(e.id, { themenwoche: ev.target.value === '' ? undefined : ev.target.value })
-                  }
-                  style={{ width: '8rem' }}
-                />
-              </td>
-              <td>
-                <input
                   type="checkbox"
                   checked={e.wir_begleiten}
                   onChange={(ev) => onEinheitToggle(e.id, ev.target.checked)}
                 />
               </td>
               <td>
-                <select
-                  aria-label={`Begleitperson für Termin ${e.index} in ${reihe.titel}`}
-                  value={e.begleitperson_id ?? ''}
+                <PersonenMehrfachauswahl
+                  personen={personen}
+                  ausgewaehlt={e.begleitperson_ids}
                   disabled={!e.wir_begleiten}
-                  onChange={(ev) =>
-                    onEinheitFelderChange(e.id, { begleitperson_id: ev.target.value === '' ? null : ev.target.value })
-                  }
-                >
-                  <option value="">— niemand —</option>
-                  {personen.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(ids) => onEinheitFelderChange(e.id, { begleitperson_ids: ids })}
+                  label={`Begleitpersonen für Termin ${e.index} in ${reihe.titel}`}
+                />
+              </td>
+              <td>
+                <PersonenMehrfachauswahl
+                  personen={personen}
+                  ausgewaehlt={e.koordinator_ids}
+                  onChange={(ids) => onEinheitFelderChange(e.id, { koordinator_ids: ids })}
+                  label={`Koordinatoren für Termin ${e.index} in ${reihe.titel}`}
+                />
               </td>
               <td>
                 <button onClick={() => onEinheitRemove(e.id)} aria-label={`Termin ${e.index} in ${reihe.titel} löschen`}>
@@ -227,12 +216,8 @@ export function ReihenEditor({
           ))}
         </tbody>
       </table>
-      <datalist id={`themenwochen-optionen-${reihe.id}`}>
-        {themenwochen.map((tw) => (
-          <option key={tw} value={tw} />
-        ))}
-      </datalist>
       <button onClick={onEinheitAdd}>+ Termin hinzufügen</button>
+      <button onClick={onExkursionAdd}>+ Exkursion hinzufügen</button>
     </div>
   )
 }
