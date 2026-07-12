@@ -9,7 +9,6 @@ const settings = {
   default_fahrzeit_h: 1.0,
   default_vorbereitungsfaktor_erstdurchfuehrung: 0.75,
   default_vorbereitungsfaktor_wiederholung: 0.25,
-  koordination_h_pro_schule_pro_monat: 1.5,
 }
 
 function person(id: string, szenario_optional = false): Person {
@@ -35,6 +34,7 @@ function baseData(): Datenbestand {
     personen: [person('p1'), person('p2'), person('p3'), person('p4'), person('p5', true)],
     kalender: { ferien: [] },
     schulen: [{ id: 's1', name: 'S1', reihen: [] }, schuleX()],
+    veranstaltungen: [],
   }
 }
 
