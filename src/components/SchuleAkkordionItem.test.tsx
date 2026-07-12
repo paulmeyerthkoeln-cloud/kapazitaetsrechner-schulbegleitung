@@ -27,7 +27,6 @@ function renderItem() {
     schule,
     settings,
     personen: [],
-    themenwochen: [],
     onEinheitToggle: vi.fn(),
     onEinheitAdd: vi.fn(),
     onEinheitRemove: vi.fn(),
@@ -37,6 +36,8 @@ function renderItem() {
     onReiheAdd: vi.fn(),
     onReiheRemove: vi.fn(),
     onReiheTitelChange: vi.fn(),
+    onExkursionAdd: vi.fn(),
+    onVeranstaltungAdd: vi.fn(),
   }
   render(<SchuleAkkordionItem {...props} />)
   return props
@@ -90,6 +91,20 @@ describe('SchuleAkkordionItem', () => {
     const props = renderItem()
     fireEvent.click(screen.getByText('+ Kurs hinzufügen'))
     expect(props.onReiheAdd).toHaveBeenCalled()
+  })
+
+  it('calls onVeranstaltungAdd when the "+ Themenwoche hinzufügen" button is clicked', () => {
+    const props = renderItem()
+    fireEvent.click(screen.getByText('+ Themenwoche hinzufügen'))
+    expect(props.onVeranstaltungAdd).toHaveBeenCalled()
+  })
+
+  it('calls onExkursionAdd when a Reihe´s "+ Exkursion hinzufügen" button is clicked', () => {
+    const props = renderItem()
+    const reiheEinsUeberschrift = screen.getByDisplayValue('Reihe Eins')
+    const reiheEinsContainer = reiheEinsUeberschrift.closest('div') as HTMLElement
+    fireEvent.click(within(reiheEinsContainer).getByText('+ Exkursion hinzufügen'))
+    expect(props.onExkursionAdd).toHaveBeenCalled()
   })
 
   it("calls onReiheRemove with the correct Reihe id when that Reihe's delete button is clicked", () => {
