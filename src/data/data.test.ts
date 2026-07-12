@@ -31,11 +31,21 @@ describe('seed data.json', () => {
     })
   })
 
-  it('gives Else Lasker / Parisa exactly Einheiten 1 and 3 as wir_begleiten', () => {
+  it('gives Else Lasker / Parisa Einheit 1 as wir_begleiten among its remaining (non-Exkursion) Reihen-Einheiten', () => {
     const d = data as Datenbestand
     const elseLasker = d.schulen.find((s) => s.id === 'else_lasker')!
     const parisa = elseLasker.reihen.find((r) => r.id === 'reihe_else_lasker_parisa')!
-    expect(parisa.einheiten.map((e) => e.wir_begleiten)).toEqual([true, false, true, false])
+    expect(parisa.einheiten.map((e) => e.wir_begleiten)).toEqual([true, false, false])
+  })
+
+  it('extracts the Parisa and Simone Exkursionen into their own Veranstaltungen', () => {
+    const d = data as Datenbestand
+    expect(d.veranstaltungen).toHaveLength(2)
+    expect(d.veranstaltungen.every((v) => v.art === 'exkursion')).toBe(true)
+    expect(d.veranstaltungen.every((v) => v.schulIds.length === 1 && v.schulIds[0] === 'else_lasker')).toBe(true)
+    // el_parisa_e3 had wir_begleiten: true, el_simone_e4 had wir_begleiten: false — both values must survive the move.
+    const wirBegleitenWerte = d.veranstaltungen.map((v) => v.termine[0].besetzungen[0].wir_begleiten).sort()
+    expect(wirBegleitenWerte).toEqual([false, true])
   })
 
   it('marks Sedanstraße and Kothen as terminstatus "offen" since no real dates were given', () => {
@@ -77,21 +87,21 @@ describe('seed data.json', () => {
     expect(coppel.reihen[0].einheiten.every((e) => Math.round(e.kontaktzeit_h * 60) === 65)).toBe(true)
   })
 
-  it('sets every Else-Lasker Termin (including the Exkursionen) to 90 minutes Unterrichtszeit', () => {
+  it('sets every Else-Lasker Termin, including the extracted Exkursions-Veranstaltungen, to 90 minutes Unterrichtszeit', () => {
     const d = data as Datenbestand
     const elseLasker = d.schulen.find((s) => s.id === 'else_lasker')!
     for (const reihe of elseLasker.reihen) {
       expect(reihe.einheiten.every((e) => e.kontaktzeit_h === 1.5)).toBe(true)
     }
+    for (const veranstaltung of d.veranstaltungen) {
+      expect(veranstaltung.termine.every((t) => t.kontaktzeit_h === 1.5)).toBe(true)
+    }
   })
 
-  it('leaves the Exkursions-Organisationspauschale at Else Lasker unchanged', () => {
+  it('leaves the Exkursions-Organisationspauschale for both extracted Veranstaltungen at 2h', () => {
     const d = data as Datenbestand
-    const elseLasker = d.schulen.find((s) => s.id === 'else_lasker')!
-    const parisa = elseLasker.reihen.find((r) => r.id === 'reihe_else_lasker_parisa')!
-    const simone = elseLasker.reihen.find((r) => r.id === 'reihe_else_lasker_simone')!
-    expect(parisa.einheiten.find((e) => e.id === 'el_parisa_e3')?.organisationspauschale_h).toBe(2)
-    expect(simone.einheiten.find((e) => e.id === 'el_simone_e4')?.organisationspauschale_h).toBe(2)
+    expect(d.veranstaltungen).toHaveLength(2)
+    expect(d.veranstaltungen.every((v) => v.termine[0].organisationspauschale_h === 2)).toBe(true)
   })
 
   it('leaves WDG Unterrichtszeit at 4 Stunden per Termin', () => {
