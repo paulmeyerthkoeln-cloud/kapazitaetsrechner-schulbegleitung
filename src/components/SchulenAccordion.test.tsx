@@ -31,10 +31,10 @@ const schulen: Schule[] = [
             index: 1,
             datum_oder_kw: '2026-09-07',
             kontaktzeit_h: 1,
-            personen_parallel: 1,
             erstdurchfuehrung: false,
             wir_begleiten: false,
-            typ: 'regulaer',
+            begleitperson_ids: [],
+            koordinator_ids: [],
           },
         ],
       },
@@ -57,10 +57,10 @@ const schulen: Schule[] = [
             index: 1,
             datum_oder_kw: '2026-09-07',
             kontaktzeit_h: 1,
-            personen_parallel: 1,
             erstdurchfuehrung: false,
             wir_begleiten: false,
-            typ: 'regulaer',
+            begleitperson_ids: [],
+            koordinator_ids: [],
           },
         ],
       },
@@ -74,7 +74,6 @@ function renderAccordion() {
     settings,
     personen: [],
     ferien: [],
-    themenwochen: [],
     onEinheitToggle: vi.fn(),
     onEinheitAdd: vi.fn(),
     onEinheitRemove: vi.fn(),
@@ -84,6 +83,7 @@ function renderAccordion() {
     onReiheAdd: vi.fn(),
     onReiheRemove: vi.fn(),
     onReiheTitelChange: vi.fn(),
+    onVeranstaltungAdd: vi.fn(),
   }
   render(<SchulenAccordion {...props} />)
   return props
@@ -92,7 +92,7 @@ function renderAccordion() {
 describe('SchulenAccordion', () => {
   it('renders one details element per Schule with the Schule name as summary', () => {
     renderAccordion()
-    const details = document.querySelectorAll('details')
+    const details = document.querySelectorAll('.schule-akkordion-item')
     expect(details).toHaveLength(2)
     expect(screen.getByText('Schule Eins').closest('summary')).not.toBeNull()
     expect(screen.getByText('Schule Zwei').closest('summary')).not.toBeNull()
@@ -108,7 +108,7 @@ describe('SchulenAccordion', () => {
 
   it('renders every Schule details element closed by default', () => {
     renderAccordion()
-    const details = document.querySelectorAll('details')
+    const details = document.querySelectorAll('.schule-akkordion-item')
     details.forEach((el) => {
       expect(el).not.toHaveAttribute('open')
     })
@@ -157,6 +157,22 @@ describe('SchulenAccordion', () => {
     const schuleZweiDetails = schuleZweiSummary.closest('details') as HTMLElement
     fireEvent.click(within(schuleZweiDetails).getByText('+ Kurs hinzufügen'))
     expect(props.onReiheAdd).toHaveBeenCalledWith('s2')
+  })
+
+  it('forwards onVeranstaltungAdd with art "themenwoche" and the correct Schule id when "+ Themenwoche hinzufügen" is clicked', () => {
+    const props = renderAccordion()
+    const schuleZweiSummary = screen.getByText('Schule Zwei').closest('summary') as HTMLElement
+    const schuleZweiDetails = schuleZweiSummary.closest('details') as HTMLElement
+    fireEvent.click(within(schuleZweiDetails).getByText('+ Themenwoche hinzufügen'))
+    expect(props.onVeranstaltungAdd).toHaveBeenCalledWith('themenwoche', ['s2'])
+  })
+
+  it('forwards onVeranstaltungAdd with art "exkursion" and the correct Schule id when a Reihe´s "+ Exkursion hinzufügen" is clicked', () => {
+    const props = renderAccordion()
+    const reiheEinsUeberschrift = screen.getByDisplayValue('Reihe Eins')
+    const reiheEinsContainer = reiheEinsUeberschrift.closest('div') as HTMLElement
+    fireEvent.click(within(reiheEinsContainer).getByText('+ Exkursion hinzufügen'))
+    expect(props.onVeranstaltungAdd).toHaveBeenCalledWith('exkursion', ['s1'])
   })
 
   it('forwards onReiheRemove with the correct Schule and Reihe id', () => {

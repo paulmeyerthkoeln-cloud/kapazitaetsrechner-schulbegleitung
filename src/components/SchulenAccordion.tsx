@@ -1,6 +1,6 @@
 import { SchuleAkkordionItem } from './SchuleAkkordionItem'
 import { generiereWochentlicheTermine } from '../lib/kalenderwochen'
-import type { Einheit, FerienZeitraum, Person, Schule, Settings, Terminstatus, Thema } from '../lib/types'
+import type { Einheit, FerienZeitraum, Person, Schule, Settings, Terminstatus, Thema, VeranstaltungArt } from '../lib/types'
 import './SchulenAccordion.css'
 
 export function SchulenAccordion({
@@ -8,7 +8,6 @@ export function SchulenAccordion({
   settings,
   personen,
   ferien,
-  themenwochen,
   onEinheitToggle,
   onEinheitAdd,
   onEinheitRemove,
@@ -18,25 +17,26 @@ export function SchulenAccordion({
   onReiheAdd,
   onReiheRemove,
   onReiheTitelChange,
+  onVeranstaltungAdd,
 }: {
   schulen: Schule[]
   settings: Settings
   personen: Person[]
   ferien: FerienZeitraum[]
-  themenwochen: string[]
   onEinheitToggle: (reiheId: string, einheitId: string, wert: boolean) => void
   onEinheitAdd: (reiheId: string) => void
   onEinheitRemove: (reiheId: string, einheitId: string) => void
   onEinheitFelderChange: (
     reiheId: string,
     einheitId: string,
-    patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema; koordinationszeit_h?: number; begleitperson_id?: string | null; themenwoche?: string }
+    patch: { datum_oder_kw?: string; kontaktzeit_h?: number; thema?: Thema; koordinationszeit_h?: number; begleitperson_ids?: string[]; koordinator_ids?: string[] }
   ) => void
   onTerminstatusChange: (reiheId: string, terminstatus: Terminstatus) => void
   onEinheitenReplace: (reiheId: string, einheiten: Einheit[]) => void
   onReiheAdd: (schuleId: string) => void
   onReiheRemove: (schuleId: string, reiheId: string) => void
   onReiheTitelChange: (reiheId: string, titel: string) => void
+  onVeranstaltungAdd: (art: VeranstaltungArt, schulIds: string[]) => void
 }) {
   function onTermineGenerieren(reiheId: string, startdatum: string, unterrichtszeitH: number, koordinationszeitH: number, anzahlTermine: number) {
     const einheiten = generiereWochentlicheTermine(reiheId, startdatum, unterrichtszeitH, koordinationszeitH, anzahlTermine, ferien)
@@ -51,7 +51,6 @@ export function SchulenAccordion({
           schule={schule}
           settings={settings}
           personen={personen}
-          themenwochen={themenwochen}
           onEinheitToggle={onEinheitToggle}
           onEinheitAdd={onEinheitAdd}
           onEinheitRemove={onEinheitRemove}
@@ -61,6 +60,8 @@ export function SchulenAccordion({
           onReiheAdd={() => onReiheAdd(schule.id)}
           onReiheRemove={(reiheId) => onReiheRemove(schule.id, reiheId)}
           onReiheTitelChange={onReiheTitelChange}
+          onExkursionAdd={() => onVeranstaltungAdd('exkursion', [schule.id])}
+          onVeranstaltungAdd={() => onVeranstaltungAdd('themenwoche', [schule.id])}
         />
       ))}
     </div>
