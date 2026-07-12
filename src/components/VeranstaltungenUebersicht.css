@@ -1,0 +1,12 @@
+.veranstaltung {
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.veranstaltung-termin {
+  border-top: 1px solid #eee;
+  padding-top: 0.5rem;
+  margin-top: 0.5rem;
+}
