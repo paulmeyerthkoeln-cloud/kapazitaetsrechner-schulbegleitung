@@ -7,6 +7,7 @@ import { PersonenTabelle } from './components/PersonenTabelle'
 import { PersonenKapazitaetsUebersicht } from './components/PersonenKapazitaetsUebersicht'
 import { EngpassBericht } from './components/EngpassBericht'
 import { ThemenUebersicht } from './components/ThemenUebersicht'
+import { VeranstaltungenUebersicht } from './components/VeranstaltungenUebersicht'
 import { PersonenUmverteilung } from './components/PersonenUmverteilung'
 import { ExportImport } from './components/ExportImport'
 
@@ -26,6 +27,15 @@ export default function App() {
     setReiheTitel,
     setReiheTerminstatus,
     setReiheEinheiten,
+    addVeranstaltung,
+    removeVeranstaltung,
+    setVeranstaltungTitel,
+    setVeranstaltungTerminstatus,
+    setVeranstaltungSchulen,
+    addVeranstaltungTermin,
+    removeVeranstaltungTermin,
+    setVeranstaltungTerminFelder,
+    setSchulBesetzungFelder,
     addPersonenUmverteilung,
     removePersonenUmverteilung,
     ergebnis,
@@ -36,12 +46,6 @@ export default function App() {
     importError,
     zuruecksetzen,
   } = useAppData()
-
-  const themenwochen = Array.from(
-    new Set(
-      data.schulen.flatMap((s) => s.reihen.flatMap((r) => r.einheiten.map((e) => e.themenwoche).filter((t): t is string => !!t)))
-    )
-  )
 
   return (
     <main style={{ maxWidth: '75rem', margin: '0 auto', padding: '1rem' }}>
@@ -78,7 +82,6 @@ export default function App() {
         schulen={data.schulen}
         settings={data.settings}
         personen={data.personen}
-        themenwochen={themenwochen}
         onEinheitToggle={setEinheitBegleitung}
         onEinheitAdd={addEinheit}
         onEinheitRemove={removeEinheit}
@@ -88,8 +91,25 @@ export default function App() {
         onReiheAdd={addReihe}
         onReiheRemove={removeReihe}
         onReiheTitelChange={setReiheTitel}
+        onVeranstaltungAdd={addVeranstaltung}
         ferien={data.kalender.ferien}
       />
+      <div className="card">
+        <VeranstaltungenUebersicht
+          veranstaltungen={data.veranstaltungen}
+          schulen={data.schulen}
+          personen={data.personen}
+          onAdd={addVeranstaltung}
+          onRemove={removeVeranstaltung}
+          onTitelChange={setVeranstaltungTitel}
+          onTerminstatusChange={setVeranstaltungTerminstatus}
+          onSchulenChange={setVeranstaltungSchulen}
+          onTerminAdd={addVeranstaltungTermin}
+          onTerminRemove={removeVeranstaltungTermin}
+          onTerminFelderChange={setVeranstaltungTerminFelder}
+          onBesetzungFelderChange={setSchulBesetzungFelder}
+        />
+      </div>
       <div className="card">
         <PersonenUmverteilung
           personen={data.personen}
