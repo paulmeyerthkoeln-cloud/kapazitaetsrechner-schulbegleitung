@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import seedData from '../data/data.json'
+import { supabase } from '../lib/supabaseClient'
 import { berechneMachbarkeit, berechneWochenuebersicht } from '../lib/berechnung'
 import { berechneThemenGantt } from '../lib/themenUebersicht'
 import { berechnePersonenKapazitaet } from '../lib/personenKapazitaet'
@@ -19,6 +20,22 @@ import type {
 
 const PFLICHTFELDER = ['settings', 'personen', 'kalender', 'schulen'] as const
 const STORAGE_KEY = 'kapazitaetsrechner:data'
+const DATENBESTAND_ROW_ID = 1
+
+const LEERER_DATENBESTAND: Datenbestand = {
+  settings: {
+    planungszeitraum: { start: '', ende: '' },
+    schwellwert_warnung: 0,
+    schwellwert_kritisch: 0,
+    default_fahrzeit_h: 0,
+    default_vorbereitungsfaktor_erstdurchfuehrung: 0,
+    default_vorbereitungsfaktor_wiederholung: 0,
+  },
+  personen: [],
+  kalender: { ferien: [] },
+  schulen: [],
+  veranstaltungen: [],
+}
 
 function pruefePflichtfelder(geparst: unknown): geparst is Datenbestand {
   const istObjekt = typeof geparst === 'object' && geparst !== null
@@ -125,29 +142,53 @@ function migriereDatenbestand(d: Datenbestand): Datenbestand {
   }
 }
 
-function ladeGespeicherteDaten(): Datenbestand | null {
-  try {
-    const roh = localStorage.getItem(STORAGE_KEY)
-    if (!roh) return null
-    const geparst = JSON.parse(roh)
-    if (!pruefePflichtfelder(geparst)) return null
-    return migriereDatenbestand(geparst as Datenbestand)
-  } catch {
-    return null
-  }
-}
+export type LadePhase = 'laedt' | 'fehler' | 'bereit'
 
 export function useAppData() {
-  const [data, setData] = useState<Datenbestand>(() => ladeGespeicherteDaten() ?? migriereDatenbestand(seedData as Datenbestand))
+  const [data, setData] = useState<Datenbestand>(LEERER_DATENBESTAND)
+  const [ladePhase, setLadePhase] = useState<LadePhase>('laedt')
+  const [ladeFehler, setLadeFehler] = useState<string | null>(null)
   const [importError, setImportError] = useState<string | null>(null)
 
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
-    } catch {
-      // localStorage may be unavailable (private browsing, quota exceeded, etc.) — degrade to non-persistent rather than crashing.
+    let abgebrochen = false
+    async function laden() {
+      const { data: zeile, error } = await supabase
+        .from('datenbestand')
+        .select('data')
+        .eq('id', DATENBESTAND_ROW_ID)
+        .single()
+      if (abgebrochen) return
+      if (error || !zeile || !pruefePflichtfelder(zeile.data)) {
+        setLadeFehler(error?.message ?? 'Datenbestand aus Supabase ist unvollständig oder beschädigt.')
+        setLadePhase('fehler')
+        return
+      }
+      setData(migriereDatenbestand(zeile.data))
+      setLadePhase('bereit')
     }
-  }, [data])
+    laden()
+    return () => {
+      abgebrochen = true
+    }
+  }, [])
+
+  useEffect(() => {
+    if (ladePhase !== 'bereit') return
+    async function speichern() {
+      const { error } = await supabase
+        .from('datenbestand')
+        .update({ data, updated_at: new Date().toISOString() })
+        .eq('id', DATENBESTAND_ROW_ID)
+      if (error) return
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+      } catch {
+        // localStorage may be unavailable (private browsing, quota exceeded, etc.) — degrade to non-persistent rather than crashing.
+      }
+    }
+    speichern()
+  }, [data, ladePhase])
 
   function setPerson(id: string, patch: Partial<Person>) {
     setData((prev) => ({
@@ -502,7 +543,6 @@ export function useAppData() {
   }
 
   function zuruecksetzen() {
-    localStorage.removeItem(STORAGE_KEY)
     setData(migriereDatenbestand(seedData as Datenbestand))
   }
 
@@ -515,6 +555,8 @@ export function useAppData() {
 
   return {
     data,
+    ladePhase,
+    ladeFehler,
     themenGanttZeilen,
     personenKapazitaet,
     setPerson,

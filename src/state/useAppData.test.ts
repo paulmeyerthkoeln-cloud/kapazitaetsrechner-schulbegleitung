@@ -1,25 +1,81 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { renderHook, act } from '@testing-library/react'
+import { renderHook, act, waitFor } from '@testing-library/react'
+import seedData from '../data/data.json'
+import type { Datenbestand } from '../lib/types'
+
+const { selectSingleMock, updateMock, setLadeErgebnis, setUpdateFehler } = vi.hoisted(() => {
+  let ladeErgebnis: { data: { data: unknown } | null; error: { message: string } | null } = {
+    data: null,
+    error: null,
+  }
+  let updateFehler: { message: string } | null = null
+  const selectSingleMock = vi.fn(() => Promise.resolve(ladeErgebnis))
+  const updateMock = vi.fn(() => ({ eq: () => Promise.resolve({ error: updateFehler }) }))
+  return {
+    selectSingleMock,
+    updateMock,
+    setLadeErgebnis: (naechstesErgebnis: typeof ladeErgebnis) => {
+      ladeErgebnis = naechstesErgebnis
+    },
+    setUpdateFehler: (naechsterFehler: typeof updateFehler) => {
+      updateFehler = naechsterFehler
+    },
+  }
+})
+
+vi.mock('../lib/supabaseClient', () => ({
+  supabase: {
+    from: () => ({
+      select: () => ({ eq: () => ({ single: selectSingleMock }) }),
+      update: updateMock,
+    }),
+  },
+}))
+
 import { useAppData } from './useAppData'
+
+async function renderBereitesAppData() {
+  const utils = renderHook(() => useAppData())
+  await waitFor(() => expect(utils.result.current.ladePhase).toBe('bereit'))
+  return utils
+}
 
 describe('useAppData', () => {
   beforeEach(() => {
     localStorage.clear()
+    setLadeErgebnis({ data: { data: seedData as unknown }, error: null })
+    setUpdateFehler(null)
+    selectSingleMock.mockClear()
+    updateMock.mockClear()
   })
 
   afterEach(() => {
     vi.restoreAllMocks()
   })
 
-  it('loads the seed data without legacy optional scenario people', () => {
-    const { result } = renderHook(() => useAppData())
+  it('loads the seed data without legacy optional scenario people', async () => {
+    const { result } = await renderBereitesAppData()
     expect(result.current.data.personen.length).toBeGreaterThan(0)
     expect(result.current.data.personen.some((p) => p.szenario_optional)).toBe(false)
     expect(result.current.ergebnis.wochen.length).toBeGreaterThan(0)
   })
 
-  it('setPerson updates a person’s weekly hours and recomputes the ergebnis', () => {
+  it('shows an error state when the Supabase load fails', async () => {
+    setLadeErgebnis({ data: null, error: { message: 'Netzwerkfehler' } })
     const { result } = renderHook(() => useAppData())
+    await waitFor(() => expect(result.current.ladePhase).toBe('fehler'))
+    expect(result.current.ladeFehler).toBe('Netzwerkfehler')
+  })
+
+  it('shows an error state when the Supabase row is missing required fields', async () => {
+    setLadeErgebnis({ data: { data: { settings: {} } }, error: null })
+    const { result } = renderHook(() => useAppData())
+    await waitFor(() => expect(result.current.ladePhase).toBe('fehler'))
+    expect(result.current.ladeFehler).not.toBeNull()
+  })
+
+  it('setPerson updates a person’s weekly hours and recomputes the ergebnis', async () => {
+    const { result } = await renderBereitesAppData()
     const personId = result.current.data.personen[0].id
     const vorher = result.current.ergebnis.wochen[0].angebot
     act(() => {
@@ -29,8 +85,8 @@ describe('useAppData', () => {
     expect(result.current.ergebnis.wochen[0].angebot).not.toBe(vorher)
   })
 
-  it('setEinheitBegleitung toggles a single Einheit and recomputes the ergebnis', () => {
-    const { result } = renderHook(() => useAppData())
+  it('setEinheitBegleitung toggles a single Einheit and recomputes the ergebnis', async () => {
+    const { result } = await renderBereitesAppData()
     const schule = result.current.data.schulen.find((s) => s.id === 'wdg')!
     const reihe = schule.reihen[0]
     const einheit = reihe.einheiten[0]
@@ -41,8 +97,8 @@ describe('useAppData', () => {
     expect(aktualisierteReihe.einheiten[0].wir_begleiten).toBe(false)
   })
 
-  it('addPerson appends a directly counted person with editable defaults', () => {
-    const { result } = renderHook(() => useAppData())
+  it('addPerson appends a directly counted person with editable defaults', async () => {
+    const { result } = await renderBereitesAppData()
     const vorherigeAnzahl = result.current.data.personen.length
     const vorherigesAngebot = result.current.ergebnis.wochen[0].angebot
     act(() => {
@@ -53,8 +109,8 @@ describe('useAppData', () => {
     expect(result.current.ergebnis.wochen[0].angebot).toBeGreaterThan(vorherigesAngebot)
   })
 
-  it('removePerson deletes the selected person and recomputes the ergebnis', () => {
-    const { result } = renderHook(() => useAppData())
+  it('removePerson deletes the selected person and recomputes the ergebnis', async () => {
+    const { result } = await renderBereitesAppData()
     const zuLoeschen = result.current.data.personen[0]
     act(() => {
       result.current.removePerson(zuLoeschen.id)
@@ -62,16 +118,16 @@ describe('useAppData', () => {
     expect(result.current.data.personen.find((p) => p.id === zuLoeschen.id)).toBeUndefined()
   })
 
-  it('addPerson seeds an empty urlaub list', () => {
-    const { result } = renderHook(() => useAppData())
+  it('addPerson seeds an empty urlaub list', async () => {
+    const { result } = await renderBereitesAppData()
     act(() => {
       result.current.addPerson()
     })
     expect(result.current.data.personen.at(-1)?.urlaub).toEqual([])
   })
 
-  it('setPersonUrlaub replaces the urlaub list of the matching Person only', () => {
-    const { result } = renderHook(() => useAppData())
+  it('setPersonUrlaub replaces the urlaub list of the matching Person only', async () => {
+    const { result } = await renderBereitesAppData()
     const [p1, p2] = result.current.data.personen
     const neuerUrlaub = [{ name: 'Sommerurlaub', von: '2026-11-09', bis: '2026-11-13' }]
     act(() => {
@@ -81,8 +137,8 @@ describe('useAppData', () => {
     expect(result.current.data.personen.find((p) => p.id === p2.id)?.urlaub).toEqual([])
   })
 
-  it('backfills an empty urlaub list for Personen persisted before the Urlaub field existed', () => {
-    const roh = JSON.stringify({
+  it('backfills an empty urlaub list for Personen persisted before the Urlaub field existed', async () => {
+    const roh = {
       settings: {
         planungszeitraum: { start: '2026-09-01', ende: '2027-07-16' },
         schwellwert_warnung: 0.7,
@@ -94,14 +150,14 @@ describe('useAppData', () => {
       personen: [{ id: 'p1', name: 'Anna', stunden_pro_woche_fuer_begleitung: 8, aktiv_ab: '2026-09-01', aktiv_bis: '2027-07-16', abwesenheiten: [] }],
       kalender: { ferien: [] },
       schulen: [],
-    })
-    localStorage.setItem('kapazitaetsrechner:data', roh)
-    const { result } = renderHook(() => useAppData())
+    }
+    setLadeErgebnis({ data: { data: roh }, error: null })
+    const { result } = await renderBereitesAppData()
     expect(result.current.data.personen[0].urlaub).toEqual([])
   })
 
-  it('addEinheit appends a new Einheit with default values and the correct index', () => {
-    const { result } = renderHook(() => useAppData())
+  it('addEinheit appends a new Einheit with default values and the correct index', async () => {
+    const { result } = await renderBereitesAppData()
     const schule = result.current.data.schulen.find((s) => s.id === 'wdg')!
     const reihe = schule.reihen[0]
     const vorherigeAnzahl = reihe.einheiten.length
@@ -121,8 +177,8 @@ describe('useAppData', () => {
     expect(andereSchule.reihen[0].einheiten).toHaveLength(12)
   })
 
-  it('addEinheit places the new Einheit one week after the Reihe\'s latest existing Einheit', () => {
-    const { result } = renderHook(() => useAppData())
+  it('addEinheit places the new Einheit one week after the Reihe\'s latest existing Einheit', async () => {
+    const { result } = await renderBereitesAppData()
     const schule = result.current.data.schulen.find((s) => s.id === 'wdg')!
     const reihe = schule.reihen[0]
     act(() => {
@@ -133,8 +189,8 @@ describe('useAppData', () => {
     expect(aktualisierteReihe.einheiten.at(-1)?.datum_oder_kw).toBe('2026-12-21')
   })
 
-  it('setEinheitBegleitung clears begleitperson_ids when toggled off', () => {
-    const { result } = renderHook(() => useAppData())
+  it('setEinheitBegleitung clears begleitperson_ids when toggled off', async () => {
+    const { result } = await renderBereitesAppData()
     const schule = result.current.data.schulen.find((s) => s.id === 'wdg')!
     const reihe = schule.reihen[0]
     const einheit = reihe.einheiten[0]
@@ -150,8 +206,8 @@ describe('useAppData', () => {
     expect(aktualisierteReihe.einheiten[0].begleitperson_ids).toEqual([])
   })
 
-  it('removePerson clears the deleted Person from any begleitperson_ids/koordinator_ids on a Reihen-Einheit', () => {
-    const { result } = renderHook(() => useAppData())
+  it('removePerson clears the deleted Person from any begleitperson_ids/koordinator_ids on a Reihen-Einheit', async () => {
+    const { result } = await renderBereitesAppData()
     const personId = result.current.data.personen[0].id
     const schule = result.current.data.schulen.find((s) => s.id === 'wdg')!
     const reihe = schule.reihen[0]
@@ -167,8 +223,8 @@ describe('useAppData', () => {
     expect(aktualisierteReihe.einheiten[0].koordinator_ids).toEqual([])
   })
 
-  it('removeEinheit deletes the matching Einheit and renumbers the rest', () => {
-    const { result } = renderHook(() => useAppData())
+  it('removeEinheit deletes the matching Einheit and renumbers the rest', async () => {
+    const { result } = await renderBereitesAppData()
     const schule = result.current.data.schulen.find((s) => s.id === 'wdg')!
     const reihe = schule.reihen[0]
     const zuLoeschen = reihe.einheiten[1]
@@ -181,8 +237,8 @@ describe('useAppData', () => {
     expect(aktualisierteReihe.einheiten.map((e) => e.index)).toEqual([1, 2, 3])
   })
 
-  it('addReihe appends a new Reihe with sensible defaults to the correct Schule only', () => {
-    const { result } = renderHook(() => useAppData())
+  it('addReihe appends a new Reihe with sensible defaults to the correct Schule only', async () => {
+    const { result } = await renderBereitesAppData()
     const schule = result.current.data.schulen.find((s) => s.id === 'wdg')!
     const vorherigeAnzahl = schule.reihen.length
     act(() => {
@@ -199,8 +255,8 @@ describe('useAppData', () => {
     expect(andereSchule.reihen).toHaveLength(1)
   })
 
-  it('removeReihe deletes the matching Reihe and leaves other Reihen/Schulen unchanged', () => {
-    const { result } = renderHook(() => useAppData())
+  it('removeReihe deletes the matching Reihe and leaves other Reihen/Schulen unchanged', async () => {
+    const { result } = await renderBereitesAppData()
     const schule = result.current.data.schulen.find((s) => s.id === 'wdg')!
     const reiheId = schule.reihen[0].id
     act(() => {
@@ -210,8 +266,8 @@ describe('useAppData', () => {
     expect(aktualisierteSchule.reihen.find((r) => r.id === reiheId)).toBeUndefined()
   })
 
-  it('setReiheTitel updates only the matching Reihe\'s titel', () => {
-    const { result } = renderHook(() => useAppData())
+  it('setReiheTitel updates only the matching Reihe\'s titel', async () => {
+    const { result } = await renderBereitesAppData()
     const wdgReiheId = result.current.data.schulen.find((s) => s.id === 'wdg')!.reihen[0].id
     act(() => {
       result.current.setReiheTitel(wdgReiheId, 'Neuer Titel')
@@ -220,8 +276,8 @@ describe('useAppData', () => {
     expect(wdgReihe.titel).toBe('Neuer Titel')
   })
 
-  it('setEinheitFelder updates datum_oder_kw and kontaktzeit_h without touching other fields', () => {
-    const { result } = renderHook(() => useAppData())
+  it('setEinheitFelder updates datum_oder_kw and kontaktzeit_h without touching other fields', async () => {
+    const { result } = await renderBereitesAppData()
     const schule = result.current.data.schulen.find((s) => s.id === 'wdg')!
     const reihe = schule.reihen[0]
     const einheit = reihe.einheiten[0]
@@ -235,8 +291,8 @@ describe('useAppData', () => {
     expect(aktualisierteEinheit.id).toBe(einheit.id)
   })
 
-  it('exportJson then importJson round-trips the data unchanged', () => {
-    const { result } = renderHook(() => useAppData())
+  it('exportJson then importJson round-trips the data unchanged', async () => {
+    const { result } = await renderBereitesAppData()
     const exported = result.current.exportJson()
     act(() => {
       result.current.setPerson(result.current.data.personen[0].id, { stunden_pro_woche_fuer_begleitung: 99 })
@@ -248,8 +304,8 @@ describe('useAppData', () => {
     expect(result.current.importError).toBeNull()
   })
 
-  it('importJson with malformed JSON sets importError and leaves data unchanged', () => {
-    const { result } = renderHook(() => useAppData())
+  it('importJson with malformed JSON sets importError and leaves data unchanged', async () => {
+    const { result } = await renderBereitesAppData()
     const vorherigeDaten = result.current.data
     act(() => {
       result.current.importJson('not json')
@@ -258,8 +314,8 @@ describe('useAppData', () => {
     expect(result.current.data).toBe(vorherigeDaten)
   })
 
-  it('importJson with valid JSON missing a required top-level key sets importError and leaves data unchanged', () => {
-    const { result } = renderHook(() => useAppData())
+  it('importJson with valid JSON missing a required top-level key sets importError and leaves data unchanged', async () => {
+    const { result } = await renderBereitesAppData()
     const vorherigeDaten = result.current.data
     act(() => {
       result.current.importJson(JSON.stringify({ settings: {}, personen: [], kalender: {} }))
@@ -268,8 +324,8 @@ describe('useAppData', () => {
     expect(result.current.data).toBe(vorherigeDaten)
   })
 
-  it('a failed import followed by a valid import succeeds and clears importError', () => {
-    const { result } = renderHook(() => useAppData())
+  it('a failed import followed by a valid import succeeds and clears importError', async () => {
+    const { result } = await renderBereitesAppData()
     const exported = result.current.exportJson()
     act(() => {
       result.current.importJson('not json')
@@ -282,8 +338,8 @@ describe('useAppData', () => {
     expect(result.current.data.personen.length).toBeGreaterThan(0)
   })
 
-  it('setReiheTerminstatus updates only the matching Reihe and leaves others unchanged', () => {
-    const { result } = renderHook(() => useAppData())
+  it('setReiheTerminstatus updates only the matching Reihe and leaves others unchanged', async () => {
+    const { result } = await renderBereitesAppData()
     const wdgReiheId = result.current.data.schulen.find((s) => s.id === 'wdg')!.reihen[0].id
     const vorherSedanstrasse = result.current.data.schulen.find((s) => s.id === 'sedanstrasse')!.reihen[0].terminstatus
     act(() => {
@@ -295,8 +351,8 @@ describe('useAppData', () => {
     expect(sedanstrasseReihe.terminstatus).toBe(vorherSedanstrasse)
   })
 
-  it('setReiheEinheiten replaces the einheiten of the matching Reihe only', () => {
-    const { result } = renderHook(() => useAppData())
+  it('setReiheEinheiten replaces the einheiten of the matching Reihe only', async () => {
+    const { result } = await renderBereitesAppData()
     const reiheId = result.current.data.schulen.find((s) => s.id === 'wdg')!.reihen[0].id
     const neueEinheiten = [
       {
@@ -319,20 +375,20 @@ describe('useAppData', () => {
     expect(andereSchule.reihen[0].einheiten.length).toBeGreaterThan(1)
   })
 
-  it('exposes themenGanttZeilen derived from the current data', () => {
-    const { result } = renderHook(() => useAppData())
+  it('exposes themenGanttZeilen derived from the current data', async () => {
+    const { result } = await renderBereitesAppData()
     expect(Array.isArray(result.current.themenGanttZeilen)).toBe(true)
     expect(result.current.themenGanttZeilen.length).toBeGreaterThan(0)
   })
 
-  it('exposes personenKapazitaet derived from the current data', () => {
-    const { result } = renderHook(() => useAppData())
+  it('exposes personenKapazitaet derived from the current data', async () => {
+    const { result } = await renderBereitesAppData()
     expect(Array.isArray(result.current.personenKapazitaet)).toBe(true)
     expect(result.current.personenKapazitaet).toHaveLength(result.current.data.personen.length)
   })
 
-  it('addPersonenUmverteilung appends a new entry', () => {
-    const { result } = renderHook(() => useAppData())
+  it('addPersonenUmverteilung appends a new entry', async () => {
+    const { result } = await renderBereitesAppData()
     const personId = result.current.data.personen[0].id
     act(() => {
       result.current.addPersonenUmverteilung(personId, '2026-KW46', '2026-KW47', 3)
@@ -346,8 +402,8 @@ describe('useAppData', () => {
     })
   })
 
-  it('removePersonenUmverteilung deletes the matching entry', () => {
-    const { result } = renderHook(() => useAppData())
+  it('removePersonenUmverteilung deletes the matching entry', async () => {
+    const { result } = await renderBereitesAppData()
     const personId = result.current.data.personen[0].id
     act(() => {
       result.current.addPersonenUmverteilung(personId, '2026-KW46', '2026-KW47', 3)
@@ -359,24 +415,43 @@ describe('useAppData', () => {
     expect(result.current.data.personenUmverteilungen).toHaveLength(0)
   })
 
-  it('persists data to localStorage after a change and reloads it on next mount', () => {
-    const { result, unmount } = renderHook(() => useAppData())
+  it('writes the updated data to Supabase after a change', async () => {
+    const { result } = await renderBereitesAppData()
+    updateMock.mockClear()
     act(() => {
       result.current.setPerson(result.current.data.personen[0].id, { stunden_pro_woche_fuer_begleitung: 42 })
     })
-    unmount()
-    const { result: result2 } = renderHook(() => useAppData())
-    expect(result2.current.data.personen[0].stunden_pro_woche_fuer_begleitung).toBe(42)
+    await waitFor(() => expect(updateMock).toHaveBeenCalled())
+    const [[gespeichertesArgument]] = updateMock.mock.calls as [[{ data: Datenbestand; updated_at: string }]]
+    expect(gespeichertesArgument.data.personen[0].stunden_pro_woche_fuer_begleitung).toBe(42)
+    expect(typeof gespeichertesArgument.updated_at).toBe('string')
   })
 
-  it('falls back to seed data when localStorage contains invalid JSON', () => {
-    localStorage.setItem('kapazitaetsrechner:data', 'not json')
-    const { result } = renderHook(() => useAppData())
-    expect(result.current.data.personen.length).toBeGreaterThan(0)
+  it('keeps a local snapshot in localStorage after a successful save (Notanker)', async () => {
+    const { result } = await renderBereitesAppData()
+    act(() => {
+      result.current.setPerson(result.current.data.personen[0].id, { stunden_pro_woche_fuer_begleitung: 42 })
+    })
+    await waitFor(() => {
+      const gespeichert = JSON.parse(localStorage.getItem('kapazitaetsrechner:data') ?? 'null')
+      expect(gespeichert?.personen[0].stunden_pro_woche_fuer_begleitung).toBe(42)
+    })
   })
 
-  it('defaults terminstatus to festgelegt when loading persisted data missing that field', () => {
-    const roh = JSON.stringify({
+  it('does not crash when localStorage.setItem throws (e.g. private browsing / quota exceeded)', async () => {
+    const { result } = await renderBereitesAppData()
+    const setItemSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementationOnce(() => {
+      throw new DOMException('QuotaExceededError')
+    })
+    act(() => {
+      result.current.setPerson(result.current.data.personen[0].id, { stunden_pro_woche_fuer_begleitung: 77 })
+    })
+    await waitFor(() => expect(result.current.data.personen[0].stunden_pro_woche_fuer_begleitung).toBe(77))
+    setItemSpy.mockRestore()
+  })
+
+  it('defaults terminstatus to festgelegt when loading persisted data missing that field', async () => {
+    const roh = {
       settings: {
         planungszeitraum: { start: '2026-09-01', ende: '2027-07-16' },
         schwellwert_warnung: 0.7,
@@ -394,43 +469,32 @@ describe('useAppData', () => {
           reihen: [{ id: 'r1', titel: 'x', betreuungsmodell: 'A', fahrzeit_h: 0, status: 'zugesagt', extern_betreut: false, einheiten: [] }],
         },
       ],
-    })
-    localStorage.setItem('kapazitaetsrechner:data', roh)
-    const { result } = renderHook(() => useAppData())
+    }
+    setLadeErgebnis({ data: { data: roh }, error: null })
+    const { result } = await renderBereitesAppData()
     expect(result.current.data.schulen[0].reihen[0].terminstatus).toBe('festgelegt')
   })
 
-  it('zuruecksetzen restores seed data and re-persists it', () => {
-    const { result } = renderHook(() => useAppData())
+  it('zuruecksetzen restores seed data and re-persists it', async () => {
+    const { result } = await renderBereitesAppData()
     const urspruenglicheStunden = result.current.data.personen[0].stunden_pro_woche_fuer_begleitung
     act(() => {
       result.current.setPerson(result.current.data.personen[0].id, { stunden_pro_woche_fuer_begleitung: 42 })
     })
+    await waitFor(() => expect(result.current.data.personen[0].stunden_pro_woche_fuer_begleitung).toBe(42))
     act(() => {
       result.current.zuruecksetzen()
     })
     expect(result.current.data.personen[0].stunden_pro_woche_fuer_begleitung).toBe(urspruenglicheStunden)
-    const gespeichert = JSON.parse(localStorage.getItem('kapazitaetsrechner:data')!)
-    expect(gespeichert.personen[0].stunden_pro_woche_fuer_begleitung).toBe(urspruenglicheStunden)
-  })
-
-  it('does not crash when localStorage.setItem throws (e.g. private browsing / quota exceeded)', () => {
-    const { result } = renderHook(() => useAppData())
-    const setItemSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementationOnce(() => {
-      throw new DOMException('QuotaExceededError')
+    await waitFor(() => {
+      const [letzterAufruf] = updateMock.mock.calls.at(-1) as [{ data: Datenbestand }]
+      expect(letzterAufruf.data.personen[0].stunden_pro_woche_fuer_begleitung).toBe(urspruenglicheStunden)
     })
-    expect(() => {
-      act(() => {
-        result.current.setPerson(result.current.data.personen[0].id, { stunden_pro_woche_fuer_begleitung: 77 })
-      })
-    }).not.toThrow()
-    expect(result.current.data.personen[0].stunden_pro_woche_fuer_begleitung).toBe(77)
-    setItemSpy.mockRestore()
   })
 
   describe('Veranstaltungen', () => {
-    it('addVeranstaltung appends a new Veranstaltung with the given art and schulIds', () => {
-      const { result } = renderHook(() => useAppData())
+    it('addVeranstaltung appends a new Veranstaltung with the given art and schulIds', async () => {
+      const { result } = await renderBereitesAppData()
       act(() => {
         result.current.addVeranstaltung('themenwoche', ['wdg', 'sedanstrasse'])
       })
@@ -442,8 +506,8 @@ describe('useAppData', () => {
       expect(neue.termine).toEqual([])
     })
 
-    it('removeVeranstaltung deletes the matching Veranstaltung only', () => {
-      const { result } = renderHook(() => useAppData())
+    it('removeVeranstaltung deletes the matching Veranstaltung only', async () => {
+      const { result } = await renderBereitesAppData()
       act(() => {
         result.current.addVeranstaltung('exkursion', ['wdg'])
       })
@@ -454,8 +518,8 @@ describe('useAppData', () => {
       expect(result.current.data.veranstaltungen.find((v) => v.id === id)).toBeUndefined()
     })
 
-    it('setVeranstaltungTitel updates only the matching Veranstaltung', () => {
-      const { result } = renderHook(() => useAppData())
+    it('setVeranstaltungTitel updates only the matching Veranstaltung', async () => {
+      const { result } = await renderBereitesAppData()
       act(() => {
         result.current.addVeranstaltung('themenwoche', ['wdg'])
       })
@@ -466,8 +530,8 @@ describe('useAppData', () => {
       expect(result.current.data.veranstaltungen.find((v) => v.id === id)!.titel).toBe('Klimawoche')
     })
 
-    it('setVeranstaltungSchulen adds a fresh Besetzung for a newly added Schule on every existing Termin', () => {
-      const { result } = renderHook(() => useAppData())
+    it('setVeranstaltungSchulen adds a fresh Besetzung for a newly added Schule on every existing Termin', async () => {
+      const { result } = await renderBereitesAppData()
       act(() => {
         result.current.addVeranstaltung('themenwoche', ['wdg'])
       })
@@ -483,8 +547,8 @@ describe('useAppData', () => {
       expect(veranstaltung.termine[0].besetzungen.map((b) => b.schulId)).toEqual(['wdg', 'sedanstrasse'])
     })
 
-    it('setVeranstaltungSchulen preserves an existing Besetzung for a Schule that remains selected', () => {
-      const { result } = renderHook(() => useAppData())
+    it('setVeranstaltungSchulen preserves an existing Besetzung for a Schule that remains selected', async () => {
+      const { result } = await renderBereitesAppData()
       act(() => {
         result.current.addVeranstaltung('themenwoche', ['wdg'])
       })
@@ -503,8 +567,8 @@ describe('useAppData', () => {
       expect(besetzung.fahrzeit_h).toBe(2)
     })
 
-    it('setVeranstaltungSchulen removes the Besetzung of a deselected Schule', () => {
-      const { result } = renderHook(() => useAppData())
+    it('setVeranstaltungSchulen removes the Besetzung of a deselected Schule', async () => {
+      const { result } = await renderBereitesAppData()
       act(() => {
         result.current.addVeranstaltung('themenwoche', ['wdg', 'sedanstrasse'])
       })
@@ -519,8 +583,8 @@ describe('useAppData', () => {
       expect(veranstaltung.termine[0].besetzungen.map((b) => b.schulId)).toEqual(['wdg'])
     })
 
-    it('addVeranstaltungTermin appends a Termin with one empty Besetzung per current schulId', () => {
-      const { result } = renderHook(() => useAppData())
+    it('addVeranstaltungTermin appends a Termin with one empty Besetzung per current schulId', async () => {
+      const { result } = await renderBereitesAppData()
       act(() => {
         result.current.addVeranstaltung('themenwoche', ['wdg', 'sedanstrasse'])
       })
@@ -536,8 +600,8 @@ describe('useAppData', () => {
       expect(termin.besetzungen.every((b) => b.wir_begleiten && b.begleitperson_ids.length === 0)).toBe(true)
     })
 
-    it('removeVeranstaltungTermin deletes the matching Termin and renumbers the rest', () => {
-      const { result } = renderHook(() => useAppData())
+    it('removeVeranstaltungTermin deletes the matching Termin and renumbers the rest', async () => {
+      const { result } = await renderBereitesAppData()
       act(() => {
         result.current.addVeranstaltung('themenwoche', ['wdg'])
       })
@@ -557,8 +621,8 @@ describe('useAppData', () => {
       expect(termine[0].index).toBe(1)
     })
 
-    it('setVeranstaltungTerminFelder patches only the matching Termin', () => {
-      const { result } = renderHook(() => useAppData())
+    it('setVeranstaltungTerminFelder patches only the matching Termin', async () => {
+      const { result } = await renderBereitesAppData()
       act(() => {
         result.current.addVeranstaltung('themenwoche', ['wdg'])
       })
@@ -573,8 +637,8 @@ describe('useAppData', () => {
       expect(result.current.data.veranstaltungen.find((v) => v.id === id)!.termine[0].kontaktzeit_h).toBe(3)
     })
 
-    it('setSchulBesetzungFelder patches only the matching Schule-Besetzung on the matching Termin', () => {
-      const { result } = renderHook(() => useAppData())
+    it('setSchulBesetzungFelder patches only the matching Schule-Besetzung on the matching Termin', async () => {
+      const { result } = await renderBereitesAppData()
       act(() => {
         result.current.addVeranstaltung('themenwoche', ['wdg', 'sedanstrasse'])
       })
@@ -591,8 +655,8 @@ describe('useAppData', () => {
       expect(termin.besetzungen.find((b) => b.schulId === 'wdg')!.begleitperson_ids).toEqual([])
     })
 
-    it('migrates a legacy typ: exkursion Einheit in imported JSON into its own Veranstaltung', () => {
-      const { result } = renderHook(() => useAppData())
+    it('migrates a legacy typ: exkursion Einheit in imported JSON into its own Veranstaltung', async () => {
+      const { result } = await renderBereitesAppData()
       const roh = {
         settings: {
           planungszeitraum: { start: '2026-09-01', ende: '2027-07-16' },
