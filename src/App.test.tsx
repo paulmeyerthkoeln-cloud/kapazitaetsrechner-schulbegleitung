@@ -5,9 +5,12 @@ import seedData from './data/data.json'
 const { selectSingleMock, updateMock } = vi.hoisted(() => {
   const selectSingleImpl = (): Promise<{ data: { data: unknown } | null; error: { message: string } | null }> =>
     Promise.resolve({ data: { data: seedData }, error: null })
+  const updateImpl = (): { eq: () => Promise<{ error: { message: string } | null }> } => ({
+    eq: () => Promise.resolve({ error: null }),
+  })
   return {
     selectSingleMock: vi.fn(selectSingleImpl),
-    updateMock: vi.fn(() => ({ eq: () => Promise.resolve({ error: null }) })),
+    updateMock: vi.fn(updateImpl),
   }
 })
 
@@ -42,6 +45,18 @@ describe('App', () => {
     selectSingleMock.mockResolvedValueOnce({ data: null, error: { message: 'Netzwerkfehler' } })
     render(<App />)
     expect(await screen.findByRole('alert')).toHaveTextContent('Netzwerkfehler')
+  })
+
+  it('shows a save-failure indicator when a Supabase save fails, without leaving the loading/error screens', async () => {
+    render(<App />)
+    const wdgUeberschrift = await screen.findByDisplayValue('Theorieblöcke Begabtenförderung')
+    // Registered only after the initial load-triggered save has already gone out (see
+    // useAppData's "writes the updated data to Supabase after a change" test, which needs
+    // an analogous updateMock.mockClear() for the same reason) — otherwise this
+    // mockReturnValueOnce would be consumed by that first save instead of the one below.
+    updateMock.mockReturnValueOnce({ eq: () => Promise.resolve({ error: { message: 'Netzwerkfehler beim Speichern' } }) })
+    fireEvent.change(wdgUeberschrift, { target: { value: 'Geänderter Titel' } })
+    expect(await screen.findByText(/Nicht gespeichert/i)).toBeInTheDocument()
   })
 
   it('adding and removing a Termin via the WDG ReihenEditor updates the rendered rows end-to-end', async () => {

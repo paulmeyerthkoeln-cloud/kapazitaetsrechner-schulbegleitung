@@ -16,6 +16,7 @@ export default function App() {
     data,
     ladePhase,
     ladeFehler,
+    speicherFehler,
     setPerson,
     addPerson,
     removePerson,
@@ -60,6 +61,11 @@ export default function App() {
       )}
       {ladePhase === 'bereit' && (
         <>
+          {speicherFehler && (
+            <p role="alert" style={{ color: 'crimson' }}>
+              Nicht gespeichert – bitte Internetverbindung prüfen ({speicherFehler})
+            </p>
+          )}
           <div className="card">
             <PersonenTabelle
               personen={data.personen}

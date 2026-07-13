@@ -148,6 +148,7 @@ export function useAppData() {
   const [data, setData] = useState<Datenbestand>(LEERER_DATENBESTAND)
   const [ladePhase, setLadePhase] = useState<LadePhase>('laedt')
   const [ladeFehler, setLadeFehler] = useState<string | null>(null)
+  const [speicherFehler, setSpeicherFehler] = useState<string | null>(null)
   const [importError, setImportError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -176,10 +177,11 @@ export function useAppData() {
   useEffect(() => {
     if (ladePhase !== 'bereit') return
     async function speichern() {
-      await supabase
+      const { error } = await supabase
         .from('datenbestand')
         .update({ data, updated_at: new Date().toISOString() })
         .eq('id', DATENBESTAND_ROW_ID)
+      setSpeicherFehler(error?.message ?? null)
       // Write the Notanker snapshot regardless of whether the Supabase save succeeded —
       // it exists specifically to protect the latest edit if the network drops mid-save.
       try {
@@ -558,6 +560,7 @@ export function useAppData() {
     data,
     ladePhase,
     ladeFehler,
+    speicherFehler,
     themenGanttZeilen,
     personenKapazitaet,
     setPerson,

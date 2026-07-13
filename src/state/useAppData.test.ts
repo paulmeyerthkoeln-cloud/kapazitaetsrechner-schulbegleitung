@@ -450,6 +450,30 @@ describe('useAppData', () => {
     })
   })
 
+  it('exposes speicherFehler after a failed save and clears it after a subsequent successful save', async () => {
+    const { result } = await renderBereitesAppData()
+    setUpdateFehler({ message: 'Netzwerkfehler beim Speichern' })
+    act(() => {
+      result.current.setPerson(result.current.data.personen[0].id, { stunden_pro_woche_fuer_begleitung: 55 })
+    })
+    await waitFor(() => expect(result.current.speicherFehler).toBe('Netzwerkfehler beim Speichern'))
+
+    setUpdateFehler(null)
+    act(() => {
+      result.current.setPerson(result.current.data.personen[0].id, { stunden_pro_woche_fuer_begleitung: 56 })
+    })
+    await waitFor(() => expect(result.current.speicherFehler).toBeNull())
+  })
+
+  it('speicherFehler is null after ordinary successful saves', async () => {
+    const { result } = await renderBereitesAppData()
+    act(() => {
+      result.current.setPerson(result.current.data.personen[0].id, { stunden_pro_woche_fuer_begleitung: 42 })
+    })
+    await waitFor(() => expect(result.current.data.personen[0].stunden_pro_woche_fuer_begleitung).toBe(42))
+    expect(result.current.speicherFehler).toBeNull()
+  })
+
   it('does not crash when localStorage.setItem throws (e.g. private browsing / quota exceeded)', async () => {
     const { result } = await renderBereitesAppData()
     const setItemSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementationOnce(() => {
