@@ -176,11 +176,12 @@ export function useAppData() {
   useEffect(() => {
     if (ladePhase !== 'bereit') return
     async function speichern() {
-      const { error } = await supabase
+      await supabase
         .from('datenbestand')
         .update({ data, updated_at: new Date().toISOString() })
         .eq('id', DATENBESTAND_ROW_ID)
-      if (error) return
+      // Write the Notanker snapshot regardless of whether the Supabase save succeeded —
+      // it exists specifically to protect the latest edit if the network drops mid-save.
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
       } catch {

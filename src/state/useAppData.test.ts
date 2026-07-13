@@ -438,6 +438,18 @@ describe('useAppData', () => {
     })
   })
 
+  it('keeps a local snapshot in localStorage even when the Supabase save fails', async () => {
+    const { result } = await renderBereitesAppData()
+    setUpdateFehler({ message: 'Netzwerkfehler' })
+    act(() => {
+      result.current.setPerson(result.current.data.personen[0].id, { stunden_pro_woche_fuer_begleitung: 55 })
+    })
+    await waitFor(() => {
+      const gespeichert = JSON.parse(localStorage.getItem('kapazitaetsrechner:data') ?? 'null')
+      expect(gespeichert?.personen[0].stunden_pro_woche_fuer_begleitung).toBe(55)
+    })
+  })
+
   it('does not crash when localStorage.setItem throws (e.g. private browsing / quota exceeded)', async () => {
     const { result } = await renderBereitesAppData()
     const setItemSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementationOnce(() => {
