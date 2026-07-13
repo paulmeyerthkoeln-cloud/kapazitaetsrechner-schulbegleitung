@@ -1530,3 +1530,216 @@ als manuelles Backup verfügbar.
 git add README.md
 git commit -m "docs(berechnungstool): document Supabase and Vercel setup"
 ```
+
+---
+
+### Task 8: Surface a save-failure indicator
+
+Added after the final whole-branch review found that a failed Supabase save is currently silent: the edit stays visible in the UI but isn't persisted anywhere, and the `localStorage` Notanker snapshot is write-only (never read back), so there was no way for a user to notice a save didn't go through. This task does not add retry logic or read the Notanker back on load — it only makes save failures visible, so nobody loses work without knowing it.
+
+**Files:**
+- Modify: `src/state/useAppData.ts` (save effect + return object)
+- Modify: `src/state/useAppData.test.ts` (new tests for the failure/recovery indicator)
+- Modify: `src/App.tsx` (render the indicator)
+- Modify: `src/App.test.tsx` (new test for the indicator)
+
+**Interfaces:**
+- Consumes: the existing save effect and `updateMock`/`setUpdateFehler` test mock plumbing already in `useAppData.test.ts` (Task 3).
+- Produces: `useAppData()` additionally returns `speicherFehler: string | null` — `null` when the most recent save succeeded (or none has happened yet), otherwise the Supabase error message from the most recent failed save. It flips back to `null` as soon as a subsequent save succeeds.
+
+- [ ] **Step 1: Add failing tests to `useAppData.test.ts`**
+
+Add these two tests to `src/state/useAppData.test.ts`, directly after the existing `'keeps a local snapshot in localStorage even when the Supabase save fails'` test:
+
+```ts
+  it('exposes speicherFehler after a failed save and clears it after a subsequent successful save', async () => {
+    const { result } = await renderBereitesAppData()
+    setUpdateFehler({ message: 'Netzwerkfehler beim Speichern' })
+    act(() => {
+      result.current.setPerson(result.current.data.personen[0].id, { stunden_pro_woche_fuer_begleitung: 55 })
+    })
+    await waitFor(() => expect(result.current.speicherFehler).toBe('Netzwerkfehler beim Speichern'))
+
+    setUpdateFehler(null)
+    act(() => {
+      result.current.setPerson(result.current.data.personen[0].id, { stunden_pro_woche_fuer_begleitung: 56 })
+    })
+    await waitFor(() => expect(result.current.speicherFehler).toBeNull())
+  })
+
+  it('speicherFehler is null after ordinary successful saves', async () => {
+    const { result } = await renderBereitesAppData()
+    act(() => {
+      result.current.setPerson(result.current.data.personen[0].id, { stunden_pro_woche_fuer_begleitung: 42 })
+    })
+    await waitFor(() => expect(result.current.data.personen[0].stunden_pro_woche_fuer_begleitung).toBe(42))
+    expect(result.current.speicherFehler).toBeNull()
+  })
+```
+
+- [ ] **Step 2: Run and confirm they fail**
+
+Run: `npm test -- useAppData`
+Expected: FAIL — `speicherFehler` is `undefined` on the current hook's return value.
+
+- [ ] **Step 3: Wire `speicherFehler` into `useAppData.ts`**
+
+Modify `src/state/useAppData.ts` — in the `useAppData` function, add a new state declaration right after the existing `ladeFehler` state:
+
+```ts
+  const [ladeFehler, setLadeFehler] = useState<string | null>(null)
+  const [speicherFehler, setSpeicherFehler] = useState<string | null>(null)
+```
+
+Modify the save effect — replace:
+
+```ts
+  useEffect(() => {
+    if (ladePhase !== 'bereit') return
+    async function speichern() {
+      await supabase
+        .from('datenbestand')
+        .update({ data, updated_at: new Date().toISOString() })
+        .eq('id', DATENBESTAND_ROW_ID)
+      // Write the Notanker snapshot regardless of whether the Supabase save succeeded —
+      // it exists specifically to protect the latest edit if the network drops mid-save.
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+      } catch {
+        // localStorage may be unavailable (private browsing, quota exceeded, etc.) — degrade to non-persistent rather than crashing.
+      }
+    }
+    speichern()
+  }, [data, ladePhase])
+```
+
+with:
+
+```ts
+  useEffect(() => {
+    if (ladePhase !== 'bereit') return
+    async function speichern() {
+      const { error } = await supabase
+        .from('datenbestand')
+        .update({ data, updated_at: new Date().toISOString() })
+        .eq('id', DATENBESTAND_ROW_ID)
+      setSpeicherFehler(error?.message ?? null)
+      // Write the Notanker snapshot regardless of whether the Supabase save succeeded —
+      // it exists specifically to protect the latest edit if the network drops mid-save.
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+      } catch {
+        // localStorage may be unavailable (private browsing, quota exceeded, etc.) — degrade to non-persistent rather than crashing.
+      }
+    }
+    speichern()
+  }, [data, ladePhase])
+```
+
+Modify the return object — add `speicherFehler,` right after `ladeFehler,`:
+
+```ts
+  return {
+    data,
+    ladePhase,
+    ladeFehler,
+    speicherFehler,
+    themenGanttZeilen,
+```
+
+- [ ] **Step 4: Run and confirm they pass**
+
+Run: `npm test -- useAppData`
+Expected: PASS
+
+- [ ] **Step 5: Render the indicator in `App.tsx`**
+
+Add a failing test first. Add this test to `src/App.test.tsx`, after the existing `'shows an error message when loading the Datenbestand fails'` test:
+
+```ts
+  it('shows a save-failure indicator when a Supabase save fails, without leaving the loading/error screens', async () => {
+    updateMock.mockReturnValueOnce({ eq: () => Promise.resolve({ error: { message: 'Netzwerkfehler beim Speichern' } }) })
+    render(<App />)
+    const wdgUeberschrift = await screen.findByDisplayValue('Theorieblöcke Begabtenförderung')
+    fireEvent.change(wdgUeberschrift, { target: { value: 'Geänderter Titel' } })
+    expect(await screen.findByText(/Nicht gespeichert/i)).toBeInTheDocument()
+  })
+```
+
+Run: `npm test -- App.test`
+Expected: FAIL — no such text is rendered yet.
+
+Note: `updateMock` in `src/App.test.tsx` is currently declared as
+`vi.fn(() => ({ eq: () => Promise.resolve({ error: null }) }))`, which TS
+narrows to the literal `error: null`. The new test's
+`mockReturnValueOnce({ eq: () => Promise.resolve({ error: { message: '...' } }) })`
+won't fit that narrowed type — you'll hit the same kind of `tsc -b` error
+that `selectSingleMock` had before commit `9450abe` fixed it. Widen
+`updateMock`'s type the same way that fix widened `selectSingleMock`'s (an
+explicit return-type annotation covering both `error: null` and
+`error: { message: string }`). Confirm with `npx tsc -b --force` before
+moving on — do not leave this to Step 7 to discover.
+
+Modify `src/App.tsx` — destructure the new field and render the indicator. Replace:
+
+```tsx
+  const {
+    data,
+    ladePhase,
+    ladeFehler,
+    setPerson,
+```
+
+with:
+
+```tsx
+  const {
+    data,
+    ladePhase,
+    ladeFehler,
+    speicherFehler,
+    setPerson,
+```
+
+Then replace the start of the `'bereit'` branch — this:
+
+```tsx
+      {ladePhase === 'bereit' && (
+        <>
+          <div className="card">
+            <PersonenTabelle
+```
+
+with:
+
+```tsx
+      {ladePhase === 'bereit' && (
+        <>
+          {speicherFehler && (
+            <p role="alert" style={{ color: 'crimson' }}>
+              Nicht gespeichert – bitte Internetverbindung prüfen ({speicherFehler})
+            </p>
+          )}
+          <div className="card">
+            <PersonenTabelle
+```
+
+- [ ] **Step 6: Run and confirm the App test passes**
+
+Run: `npm test -- App.test`
+Expected: PASS
+
+- [ ] **Step 7: Run the full suite and the build**
+
+Run: `npm test`
+Expected: PASS, all files green
+
+Run: `npx tsc -b --force && npm run build`
+Expected: zero type errors, build succeeds
+
+- [ ] **Step 8: Commit**
+
+```bash
+git add src/state/useAppData.ts src/state/useAppData.test.ts src/App.tsx src/App.test.tsx
+git commit -m "feat(berechnungstool): surface a save-failure indicator"
+```
