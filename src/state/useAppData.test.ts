@@ -422,7 +422,7 @@ describe('useAppData', () => {
       result.current.setPerson(result.current.data.personen[0].id, { stunden_pro_woche_fuer_begleitung: 42 })
     })
     await waitFor(() => expect(updateMock).toHaveBeenCalled())
-    const [[gespeichertesArgument]] = updateMock.mock.calls as [[{ data: Datenbestand; updated_at: string }]]
+    const [[gespeichertesArgument]] = updateMock.mock.calls as unknown as [[{ data: Datenbestand; updated_at: string }]]
     expect(gespeichertesArgument.data.personen[0].stunden_pro_woche_fuer_begleitung).toBe(42)
     expect(typeof gespeichertesArgument.updated_at).toBe('string')
   })
@@ -499,7 +499,7 @@ describe('useAppData', () => {
     })
     expect(result.current.data.personen[0].stunden_pro_woche_fuer_begleitung).toBe(urspruenglicheStunden)
     await waitFor(() => {
-      const [letzterAufruf] = updateMock.mock.calls.at(-1) as [{ data: Datenbestand }]
+      const [letzterAufruf] = updateMock.mock.calls.at(-1) as unknown as [{ data: Datenbestand }]
       expect(letzterAufruf.data.personen[0].stunden_pro_woche_fuer_begleitung).toBe(urspruenglicheStunden)
     })
   })

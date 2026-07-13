@@ -2,10 +2,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, within, fireEvent } from '@testing-library/react'
 import seedData from './data/data.json'
 
-const { selectSingleMock, updateMock } = vi.hoisted(() => ({
-  selectSingleMock: vi.fn(() => Promise.resolve({ data: { data: seedData }, error: null })),
-  updateMock: vi.fn(() => ({ eq: () => Promise.resolve({ error: null }) })),
-}))
+const { selectSingleMock, updateMock } = vi.hoisted(() => {
+  const selectSingleImpl = (): Promise<{ data: { data: unknown } | null; error: { message: string } | null }> =>
+    Promise.resolve({ data: { data: seedData }, error: null })
+  return {
+    selectSingleMock: vi.fn(selectSingleImpl),
+    updateMock: vi.fn(() => ({ eq: () => Promise.resolve({ error: null }) })),
+  }
+})
 
 vi.mock('./lib/supabaseClient', () => ({
   supabase: {
