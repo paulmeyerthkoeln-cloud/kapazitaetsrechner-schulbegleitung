@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "generate:seed-sql": "node scripts/generate-seed-sql.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.2",
