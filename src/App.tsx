@@ -14,6 +14,8 @@ import { ExportImport } from './components/ExportImport'
 export default function App() {
   const {
     data,
+    ladePhase,
+    ladeFehler,
     setPerson,
     addPerson,
     removePerson,
@@ -50,78 +52,88 @@ export default function App() {
   return (
     <main style={{ maxWidth: '75rem', margin: '0 auto', padding: '1rem' }}>
       <h1>Kapazitätsrechner Schulbegleitung</h1>
-      <div className="card">
-        <PersonenTabelle
-          personen={data.personen}
-          onChange={setPerson}
-          onAdd={addPerson}
-          onRemove={removePerson}
-          onUrlaubChange={setPersonUrlaub}
-        />
-      </div>
-      <div className="card">
-        <PersonenKapazitaetsUebersicht personenKapazitaet={personenKapazitaet} />
-      </div>
-      <div className="card">
-        <AmpelAntwort machbarkeit={ergebnis.machbarkeit} />
-      </div>
-      <div className="card">
-        <WochenHeatmap wochen={ergebnis.wochen} />
-      </div>
-      <div className="card">
-        <BedarfAngebotChart wochen={ergebnis.wochen} />
-      </div>
-      <div className="card">
-        <EngpassBericht topEngpaesse={ergebnis.machbarkeit.topEngpaesse} />
-      </div>
-      <div className="card">
-        <ThemenUebersicht zeilen={themenGanttZeilen} wochen={ergebnis.wochen} />
-      </div>
-      <h2>Schulen</h2>
-      <SchulenAccordion
-        schulen={data.schulen}
-        settings={data.settings}
-        personen={data.personen}
-        onEinheitToggle={setEinheitBegleitung}
-        onEinheitAdd={addEinheit}
-        onEinheitRemove={removeEinheit}
-        onEinheitFelderChange={setEinheitFelder}
-        onTerminstatusChange={setReiheTerminstatus}
-        onEinheitenReplace={setReiheEinheiten}
-        onReiheAdd={addReihe}
-        onReiheRemove={removeReihe}
-        onReiheTitelChange={setReiheTitel}
-        onVeranstaltungAdd={addVeranstaltung}
-        ferien={data.kalender.ferien}
-      />
-      <div className="card">
-        <VeranstaltungenUebersicht
-          veranstaltungen={data.veranstaltungen}
-          schulen={data.schulen}
-          personen={data.personen}
-          onAdd={addVeranstaltung}
-          onRemove={removeVeranstaltung}
-          onTitelChange={setVeranstaltungTitel}
-          onTerminstatusChange={setVeranstaltungTerminstatus}
-          onSchulenChange={setVeranstaltungSchulen}
-          onTerminAdd={addVeranstaltungTermin}
-          onTerminRemove={removeVeranstaltungTermin}
-          onTerminFelderChange={setVeranstaltungTerminFelder}
-          onBesetzungFelderChange={setSchulBesetzungFelder}
-        />
-      </div>
-      <div className="card">
-        <PersonenUmverteilung
-          personen={data.personen}
-          personenKapazitaet={personenKapazitaet}
-          personenUmverteilungen={data.personenUmverteilungen ?? []}
-          onAdd={addPersonenUmverteilung}
-          onRemove={removePersonenUmverteilung}
-        />
-      </div>
-      <div className="card">
-        <ExportImport exportJson={exportJson} importJson={importJson} importError={importError} zuruecksetzen={zuruecksetzen} />
-      </div>
+      {ladePhase === 'laedt' && <p>Lädt Datenbestand…</p>}
+      {ladePhase === 'fehler' && (
+        <p role="alert" style={{ color: 'crimson' }}>
+          Datenbestand konnte nicht geladen werden: {ladeFehler}
+        </p>
+      )}
+      {ladePhase === 'bereit' && (
+        <>
+          <div className="card">
+            <PersonenTabelle
+              personen={data.personen}
+              onChange={setPerson}
+              onAdd={addPerson}
+              onRemove={removePerson}
+              onUrlaubChange={setPersonUrlaub}
+            />
+          </div>
+          <div className="card">
+            <PersonenKapazitaetsUebersicht personenKapazitaet={personenKapazitaet} />
+          </div>
+          <div className="card">
+            <AmpelAntwort machbarkeit={ergebnis.machbarkeit} />
+          </div>
+          <div className="card">
+            <WochenHeatmap wochen={ergebnis.wochen} />
+          </div>
+          <div className="card">
+            <BedarfAngebotChart wochen={ergebnis.wochen} />
+          </div>
+          <div className="card">
+            <EngpassBericht topEngpaesse={ergebnis.machbarkeit.topEngpaesse} />
+          </div>
+          <div className="card">
+            <ThemenUebersicht zeilen={themenGanttZeilen} wochen={ergebnis.wochen} />
+          </div>
+          <h2>Schulen</h2>
+          <SchulenAccordion
+            schulen={data.schulen}
+            settings={data.settings}
+            personen={data.personen}
+            onEinheitToggle={setEinheitBegleitung}
+            onEinheitAdd={addEinheit}
+            onEinheitRemove={removeEinheit}
+            onEinheitFelderChange={setEinheitFelder}
+            onTerminstatusChange={setReiheTerminstatus}
+            onEinheitenReplace={setReiheEinheiten}
+            onReiheAdd={addReihe}
+            onReiheRemove={removeReihe}
+            onReiheTitelChange={setReiheTitel}
+            onVeranstaltungAdd={addVeranstaltung}
+            ferien={data.kalender.ferien}
+          />
+          <div className="card">
+            <VeranstaltungenUebersicht
+              veranstaltungen={data.veranstaltungen}
+              schulen={data.schulen}
+              personen={data.personen}
+              onAdd={addVeranstaltung}
+              onRemove={removeVeranstaltung}
+              onTitelChange={setVeranstaltungTitel}
+              onTerminstatusChange={setVeranstaltungTerminstatus}
+              onSchulenChange={setVeranstaltungSchulen}
+              onTerminAdd={addVeranstaltungTermin}
+              onTerminRemove={removeVeranstaltungTermin}
+              onTerminFelderChange={setVeranstaltungTerminFelder}
+              onBesetzungFelderChange={setSchulBesetzungFelder}
+            />
+          </div>
+          <div className="card">
+            <PersonenUmverteilung
+              personen={data.personen}
+              personenKapazitaet={personenKapazitaet}
+              personenUmverteilungen={data.personenUmverteilungen ?? []}
+              onAdd={addPersonenUmverteilung}
+              onRemove={removePersonenUmverteilung}
+            />
+          </div>
+          <div className="card">
+            <ExportImport exportJson={exportJson} importJson={importJson} importError={importError} zuruecksetzen={zuruecksetzen} />
+          </div>
+        </>
+      )}
     </main>
   )
 }
