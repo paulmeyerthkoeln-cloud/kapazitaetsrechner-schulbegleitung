@@ -27,11 +27,17 @@ export function ExportImport({
     reader.readAsText(datei)
   }
 
+  function aufZuruecksetzenKlicken() {
+    if (window.confirm('Datenbestand für alle im Team auf die Ausgangsdaten zurücksetzen? Nicht exportierte Änderungen gehen verloren.')) {
+      zuruecksetzen()
+    }
+  }
+
   return (
     <div>
       <button onClick={herunterladen}>Als JSON exportieren</button>
       <input type="file" accept="application/json" onChange={hochladen} />
-      <button onClick={zuruecksetzen}>Zurücksetzen auf Ausgangsdaten</button>
+      <button onClick={aufZuruecksetzenKlicken}>Zurücksetzen auf Ausgangsdaten</button>
       {importError && <p role="alert" style={{ color: 'crimson' }}>{importError}</p>}
     </div>
   )
