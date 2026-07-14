@@ -7,7 +7,6 @@ const reihe: Reihe = {
   id: 'r1',
   titel: 'Testreihe',
   betreuungsmodell: 'A',
-  fahrzeit_h: 1,
   status: 'zugesagt',
   extern_betreut: false, terminstatus: 'festgelegt',
   einheiten: [
@@ -16,7 +15,6 @@ const reihe: Reihe = {
       index: 1,
       datum_oder_kw: '2026-09-07',
       kontaktzeit_h: 1.5,
-      erstdurchfuehrung: true,
       wir_begleiten: true,
       koordinationszeit_h: 0.5,
       begleitperson_ids: [],
@@ -27,7 +25,6 @@ const reihe: Reihe = {
       index: 2,
       datum_oder_kw: '2026-09-14',
       kontaktzeit_h: 1.1,
-      erstdurchfuehrung: false,
       wir_begleiten: false,
       begleitperson_ids: [],
       koordinator_ids: [],

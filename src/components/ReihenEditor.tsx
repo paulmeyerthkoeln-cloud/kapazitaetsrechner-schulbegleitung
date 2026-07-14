@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { format } from 'date-fns'
 import { berechneUnserAnteil, ermittleHaeufigsteKontaktzeit } from '../lib/besetzung'
 import { PersonenMehrfachauswahl } from './PersonenMehrfachauswahl'
+import { DatumOderKwFeld } from './DatumOderKwFeld'
 import type { Person, Reihe, Terminstatus, Thema } from '../lib/types'
 
 const THEMEN: Thema[] = ['Ernährung', 'Stadtgrün', 'Mobilität', 'Energie']
@@ -138,12 +139,10 @@ export function ReihenEditor({
             <tr key={e.id}>
               <td>{e.index}</td>
               <td>
-                <input
-                  type="text"
+                <DatumOderKwFeld
                   value={e.datum_oder_kw}
-                  placeholder="YYYY-MM-DD oder YYYY-KWnn"
-                  onChange={(ev) => onEinheitFelderChange(e.id, { datum_oder_kw: ev.target.value })}
-                  style={{ width: '10rem' }}
+                  onChange={(datum_oder_kw) => onEinheitFelderChange(e.id, { datum_oder_kw })}
+                  label={`Datum/KW für Termin ${e.index} in ${reihe.titel}`}
                 />
               </td>
               <td>

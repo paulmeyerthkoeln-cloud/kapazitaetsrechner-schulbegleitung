@@ -143,9 +143,6 @@ describe('useAppData', () => {
         planungszeitraum: { start: '2026-09-01', ende: '2027-07-16' },
         schwellwert_warnung: 0.7,
         schwellwert_kritisch: 0.9,
-        default_fahrzeit_h: 1,
-        default_vorbereitungsfaktor_erstdurchfuehrung: 0.75,
-        default_vorbereitungsfaktor_wiederholung: 0.25,
       },
       personen: [{ id: 'p1', name: 'Anna', stunden_pro_woche_fuer_begleitung: 8, aktiv_ab: '2026-09-01', aktiv_bis: '2027-07-16', abwesenheiten: [] }],
       kalender: { ferien: [] },
@@ -170,7 +167,6 @@ describe('useAppData', () => {
     expect(neueEinheit.kontaktzeit_h).toBe(1.5)
     expect(neueEinheit.begleitperson_ids).toEqual([])
     expect(neueEinheit.koordinator_ids).toEqual([])
-    expect(neueEinheit.erstdurchfuehrung).toBe(false)
     expect(neueEinheit.wir_begleiten).toBe(true)
     expect(neueEinheit.index).toBe(vorherigeAnzahl + 1)
     const andereSchule = result.current.data.schulen.find((s) => s.id === 'sedanstrasse')!
@@ -360,7 +356,6 @@ describe('useAppData', () => {
         index: 1,
         datum_oder_kw: '2027-03-01',
         kontaktzeit_h: 1.5,
-        erstdurchfuehrung: true,
         wir_begleiten: true,
         begleitperson_ids: [],
         koordinator_ids: [],
@@ -492,9 +487,6 @@ describe('useAppData', () => {
         planungszeitraum: { start: '2026-09-01', ende: '2027-07-16' },
         schwellwert_warnung: 0.7,
         schwellwert_kritisch: 0.9,
-        default_fahrzeit_h: 1,
-        default_vorbereitungsfaktor_erstdurchfuehrung: 0.75,
-        default_vorbereitungsfaktor_wiederholung: 0.25,
       },
       personen: [],
       kalender: { ferien: [] },
@@ -502,7 +494,7 @@ describe('useAppData', () => {
         {
           id: 's1',
           name: 'Test',
-          reihen: [{ id: 'r1', titel: 'x', betreuungsmodell: 'A', fahrzeit_h: 0, status: 'zugesagt', extern_betreut: false, einheiten: [] }],
+          reihen: [{ id: 'r1', titel: 'x', betreuungsmodell: 'A', status: 'zugesagt', extern_betreut: false, einheiten: [] }],
         },
       ],
     }
@@ -594,13 +586,13 @@ describe('useAppData', () => {
       })
       const terminId = result.current.data.veranstaltungen.find((v) => v.id === id)!.termine[0].id
       act(() => {
-        result.current.setSchulBesetzungFelder(id, terminId, 'wdg', { fahrzeit_h: 2 })
+        result.current.setSchulBesetzungFelder(id, terminId, 'wdg', { koordinationszeit_h: 2 })
       })
       act(() => {
         result.current.setVeranstaltungSchulen(id, ['wdg', 'sedanstrasse'])
       })
       const besetzung = result.current.data.veranstaltungen.find((v) => v.id === id)!.termine[0].besetzungen.find((b) => b.schulId === 'wdg')!
-      expect(besetzung.fahrzeit_h).toBe(2)
+      expect(besetzung.koordinationszeit_h).toBe(2)
     })
 
     it('setVeranstaltungSchulen removes the Besetzung of a deselected Schule', async () => {
@@ -631,7 +623,6 @@ describe('useAppData', () => {
       const termin = result.current.data.veranstaltungen.find((v) => v.id === id)!.termine[0]
       expect(termin.index).toBe(1)
       expect(termin.kontaktzeit_h).toBe(1.5)
-      expect(termin.erstdurchfuehrung).toBe(true)
       expect(termin.besetzungen.map((b) => b.schulId)).toEqual(['wdg', 'sedanstrasse'])
       expect(termin.besetzungen.every((b) => b.wir_begleiten && b.begleitperson_ids.length === 0)).toBe(true)
     })
@@ -698,9 +689,6 @@ describe('useAppData', () => {
           planungszeitraum: { start: '2026-09-01', ende: '2027-07-16' },
           schwellwert_warnung: 0.7,
           schwellwert_kritisch: 0.9,
-          default_fahrzeit_h: 1,
-          default_vorbereitungsfaktor_erstdurchfuehrung: 0.75,
-          default_vorbereitungsfaktor_wiederholung: 0.25,
         },
         personen: [],
         kalender: { ferien: [] },
@@ -713,13 +701,12 @@ describe('useAppData', () => {
                 id: 'r1',
                 titel: 'Kurs mit Exkursion',
                 betreuungsmodell: 'A',
-                fahrzeit_h: 1,
                 status: 'zugesagt',
                 extern_betreut: false,
                 terminstatus: 'festgelegt',
                 einheiten: [
-                  { id: 'e1', index: 1, datum_oder_kw: '2026-10-05', kontaktzeit_h: 1.5, erstdurchfuehrung: true, wir_begleiten: true, typ: 'regulaer' },
-                  { id: 'e2', index: 2, datum_oder_kw: '2026-10-12', kontaktzeit_h: 1.5, erstdurchfuehrung: false, wir_begleiten: true, typ: 'exkursion', organisationspauschale_h: 2 },
+                  { id: 'e1', index: 1, datum_oder_kw: '2026-10-05', kontaktzeit_h: 1.5, wir_begleiten: true, typ: 'regulaer' },
+                  { id: 'e2', index: 2, datum_oder_kw: '2026-10-12', kontaktzeit_h: 1.5, wir_begleiten: true, typ: 'exkursion', organisationspauschale_h: 2 },
                 ],
               },
             ],
@@ -736,7 +723,7 @@ describe('useAppData', () => {
       expect(veranstaltung.art).toBe('exkursion')
       expect(veranstaltung.schulIds).toEqual(['s1'])
       expect(veranstaltung.termine[0].organisationspauschale_h).toBe(2)
-      expect(veranstaltung.termine[0].besetzungen[0]).toMatchObject({ schulId: 's1', wir_begleiten: true, fahrzeit_h: 1 })
+      expect(veranstaltung.termine[0].besetzungen[0]).toMatchObject({ schulId: 's1', wir_begleiten: true})
     })
   })
 })

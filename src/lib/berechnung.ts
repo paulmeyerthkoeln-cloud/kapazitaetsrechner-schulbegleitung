@@ -8,18 +8,8 @@ import {
 } from './kalenderwochen'
 import type { Settings, Datenbestand, Person } from './types'
 
-export function berechneAufwandEinheit(
-  kontaktzeit_h: number,
-  fahrzeit_h: number,
-  erstdurchfuehrung: boolean,
-  settings: Settings,
-  organisationspauschale_h = 0
-): number {
-  const vorbereitungsfaktor = erstdurchfuehrung
-    ? settings.default_vorbereitungsfaktor_erstdurchfuehrung
-    : settings.default_vorbereitungsfaktor_wiederholung
-  const vorbereitung = kontaktzeit_h * vorbereitungsfaktor
-  return kontaktzeit_h + vorbereitung + fahrzeit_h + organisationspauschale_h
+export function berechneAufwandEinheit(kontaktzeit_h: number, organisationspauschale_h = 0): number {
+  return kontaktzeit_h + organisationspauschale_h
 }
 
 export function berechneBedarfProWoche(
@@ -41,8 +31,7 @@ export function berechneBedarfProWoche(
         koordinationBedarf += (einheit.koordinationszeit_h ?? 0) * koordAnzahl
         if (einheit.wir_begleiten) {
           const begleitAnzahl = Math.max(1, einheit.begleitperson_ids.length)
-          const aufwand = berechneAufwandEinheit(einheit.kontaktzeit_h, reihe.fahrzeit_h, einheit.erstdurchfuehrung, data.settings)
-          einsatzBedarf += aufwand * begleitAnzahl
+          einsatzBedarf += berechneAufwandEinheit(einheit.kontaktzeit_h) * begleitAnzahl
         }
       }
     }
@@ -52,25 +41,21 @@ export function berechneBedarfProWoche(
     if (veranstaltung.terminstatus === 'offen') continue
     for (const termin of veranstaltung.termine) {
       if (parseZuWochenKey(termin.datum_oder_kw) !== wochenKey) continue
-      // Vorbereitung and (for Exkursionen) the Organisationspauschale are organizational
-      // overhead shared once across the whole Veranstaltung, regardless of how many
-      // schools/people attend — this is the entire point of a Themenwoche.
-      const vorbereitungsfaktor = termin.erstdurchfuehrung
-        ? data.settings.default_vorbereitungsfaktor_erstdurchfuehrung
-        : data.settings.default_vorbereitungsfaktor_wiederholung
+      // The Organisationspauschale (Exkursionen only) is organizational overhead shared
+      // once across the whole Veranstaltung, regardless of how many schools/people attend.
       const pauschale = veranstaltung.art === 'exkursion' ? termin.organisationspauschale_h ?? 2 : 0
-      // Only charge the shared organizational overhead if at least one participating
-      // Schule actually accompanies this Termin — matching the Reihen-Einheit rule
-      // just above (wir_begleiten gates the whole Aufwand, not only the per-Schule part).
+      // Only charge the shared overhead if at least one participating Schule actually
+      // accompanies this Termin — matching the Reihen-Einheit rule just above
+      // (wir_begleiten gates the whole Aufwand, not only the per-Schule part).
       if (termin.besetzungen.some((b) => b.wir_begleiten)) {
-        einsatzBedarf += termin.kontaktzeit_h * vorbereitungsfaktor + pauschale
+        einsatzBedarf += pauschale
       }
       for (const besetzung of termin.besetzungen) {
         const koordAnzahl = Math.max(1, besetzung.koordinator_ids.length)
         koordinationBedarf += besetzung.koordinationszeit_h * koordAnzahl
         if (besetzung.wir_begleiten) {
           const begleitAnzahl = Math.max(1, besetzung.begleitperson_ids.length)
-          einsatzBedarf += (termin.kontaktzeit_h + besetzung.fahrzeit_h) * begleitAnzahl
+          einsatzBedarf += termin.kontaktzeit_h * begleitAnzahl
         }
       }
     }

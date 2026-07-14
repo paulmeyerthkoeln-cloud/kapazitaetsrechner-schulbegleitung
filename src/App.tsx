@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useAppData } from './state/useAppData'
 import { AmpelAntwort } from './components/AmpelAntwort'
 import { WochenHeatmap } from './components/WochenHeatmap'
@@ -10,8 +11,11 @@ import { ThemenUebersicht } from './components/ThemenUebersicht'
 import { VeranstaltungenUebersicht } from './components/VeranstaltungenUebersicht'
 import { PersonenUmverteilung } from './components/PersonenUmverteilung'
 import { ExportImport } from './components/ExportImport'
+import { WochenDetailOverlay } from './components/WochenDetailOverlay'
+import { berechneWochenDetailsProSchule } from './lib/wochenDetails'
 
 export default function App() {
+  const [ausgewaehlteWoche, setAusgewaehlteWoche] = useState<string | null>(null)
   const {
     data,
     ladePhase,
@@ -82,8 +86,15 @@ export default function App() {
             <AmpelAntwort machbarkeit={ergebnis.machbarkeit} />
           </div>
           <div className="card">
-            <WochenHeatmap wochen={ergebnis.wochen} />
+            <WochenHeatmap wochen={ergebnis.wochen} onWocheClick={setAusgewaehlteWoche} />
           </div>
+          {ausgewaehlteWoche && (
+            <WochenDetailOverlay
+              wochenKey={ausgewaehlteWoche}
+              details={berechneWochenDetailsProSchule(data, ausgewaehlteWoche)}
+              onClose={() => setAusgewaehlteWoche(null)}
+            />
+          )}
           <div className="card">
             <BedarfAngebotChart wochen={ergebnis.wochen} />
           </div>

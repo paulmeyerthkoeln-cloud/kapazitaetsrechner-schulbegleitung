@@ -6,9 +6,6 @@ const settings: Datenbestand['settings'] = {
   planungszeitraum: { start: '2026-11-02', ende: '2026-11-16' },
   schwellwert_warnung: 0.7,
   schwellwert_kritisch: 0.9,
-  default_fahrzeit_h: 1.0,
-  default_vorbereitungsfaktor_erstdurchfuehrung: 0.75,
-  default_vorbereitungsfaktor_wiederholung: 0.25,
 }
 
 function person(overrides: Partial<Person> = {}): Person {
@@ -30,7 +27,6 @@ function einheit(overrides: Partial<Einheit> = {}): Einheit {
     index: 1,
     datum_oder_kw: '2026-KW46',
     kontaktzeit_h: 3,
-    erstdurchfuehrung: false,
     wir_begleiten: true,
     begleitperson_ids: [],
     koordinator_ids: [],
@@ -58,7 +54,6 @@ function schuleMitEinheit(einheitPatch: Partial<Einheit> = {}, terminstatus: Ter
         id: 'r1',
         titel: 'Reihe Eins',
         betreuungsmodell: 'A',
-        fahrzeit_h: 1,
         status: 'zugesagt',
         extern_betreut: false,
         terminstatus,
@@ -78,27 +73,26 @@ describe('berechnePersonenKapazitaet', () => {
     expect(ergebnis[0].wochen.every((w) => w.basis === 8 && w.umverteilt === 0 && w.zugewiesen === 0 && w.verbleibend === 8)).toBe(true)
   })
 
-  it('charges the full Vorbereitung+Fahrzeit+Kontaktzeit for an assigned Begleitperson, not just Kontaktzeit', () => {
+  it('charges only the plain Kontaktzeit for an assigned Begleitperson', () => {
     const data = datenbestand({ schulen: [schuleMitEinheit({ begleitperson_ids: ['p1'], kontaktzeit_h: 3, datum_oder_kw: '2026-KW46' })] })
     const ergebnis = berechnePersonenKapazitaet(data)
     const kw46 = ergebnis[0].wochen.find((w) => w.wochenKey === '2026-KW46')!
-    // kontaktzeit_h 3 + Vorbereitung (3 * 0.25 Wiederholungsfaktor) + Fahrzeit 1 (Reihe.fahrzeit_h) = 4.75
-    expect(kw46.zugewiesen).toBeCloseTo(4.75, 5)
-    expect(kw46.verbleibend).toBeCloseTo(3.25, 5)
+    expect(kw46.zugewiesen).toBeCloseTo(3, 5)
+    expect(kw46.verbleibend).toBeCloseTo(5, 5)
     const kw45 = ergebnis[0].wochen.find((w) => w.wochenKey === '2026-KW45')!
     expect(kw45.zugewiesen).toBe(0)
     expect(kw45.verbleibend).toBe(8)
   })
 
-  it("adds an assigned Koordinator's koordinationszeit_h on top of a Begleitperson's own Kontaktzeit+Vorbereitung+Fahrzeit", () => {
+  it("adds an assigned Koordinator's koordinationszeit_h on top of a Begleitperson's own Kontaktzeit", () => {
     const data = datenbestand({
       schulen: [schuleMitEinheit({ begleitperson_ids: ['p1'], koordinator_ids: ['p1'], kontaktzeit_h: 3, koordinationszeit_h: 1, datum_oder_kw: '2026-KW46' })],
     })
     const ergebnis = berechnePersonenKapazitaet(data)
     const kw46 = ergebnis[0].wochen.find((w) => w.wochenKey === '2026-KW46')!
-    // 4.75 (Begleitperson-Anteil, see previous test) + 1 (Koordination) = 5.75
-    expect(kw46.zugewiesen).toBeCloseTo(5.75, 5)
-    expect(kw46.verbleibend).toBeCloseTo(2.25, 5)
+    // 3 (Begleitperson-Anteil) + 1 (Koordination) = 4
+    expect(kw46.zugewiesen).toBeCloseTo(4, 5)
+    expect(kw46.verbleibend).toBeCloseTo(4, 5)
   })
 
   it("charges only the Koordinationszeit, not Kontaktzeit, for a Person who is a Koordinator but not a Begleitperson", () => {
@@ -175,7 +169,7 @@ describe('berechneVerbleibendePersonenstunden', () => {
   it('returns the current verbleibend for that Person and week', () => {
     const data = datenbestand({ schulen: [schuleMitEinheit({ begleitperson_ids: ['p1'], kontaktzeit_h: 3, datum_oder_kw: '2026-KW46' })] })
     const ergebnis = berechnePersonenKapazitaet(data)
-    expect(berechneVerbleibendePersonenstunden(ergebnis, 'p1', '2026-KW46')).toBeCloseTo(3.25, 5)
+    expect(berechneVerbleibendePersonenstunden(ergebnis, 'p1', '2026-KW46')).toBeCloseTo(5, 5)
   })
 
   it('floors at 0 when verbleibend is negative', () => {
@@ -203,24 +197,23 @@ describe('berechnePersonenKapazitaet with Veranstaltungen', () => {
           terminstatus: 'festgelegt',
           schulIds: besetzungen.map((b) => b.schulId),
           termine: [
-            { id: 't1', index: 1, datum_oder_kw: '2026-KW46', kontaktzeit_h: 1.5, erstdurchfuehrung: true, besetzungen },
+            { id: 't1', index: 1, datum_oder_kw: '2026-KW46', kontaktzeit_h: 1.5, besetzungen },
           ],
         },
       ],
     })
   }
 
-  it('charges each Begleitperson at each participating Schule the full individual Vorbereitung — no dedup between people', () => {
+  it('charges each Begleitperson at each participating Schule the plain Kontaktzeit — no dedup between people', () => {
     const data = datenMitVeranstaltung([
-      { schulId: 's1', wir_begleiten: true, begleitperson_ids: ['p1'], koordinator_ids: [], koordinationszeit_h: 0, fahrzeit_h: 1 },
-      { schulId: 's2', wir_begleiten: true, begleitperson_ids: ['p2'], koordinator_ids: [], koordinationszeit_h: 0, fahrzeit_h: 0.5 },
+      { schulId: 's1', wir_begleiten: true, begleitperson_ids: ['p1'], koordinator_ids: [], koordinationszeit_h: 0},
+      { schulId: 's2', wir_begleiten: true, begleitperson_ids: ['p2'], koordinator_ids: [], koordinationszeit_h: 0},
     ])
     const ergebnis = berechnePersonenKapazitaet(data)
     const anna = ergebnis.find((p) => p.personId === 'p1')!.wochen.find((w) => w.wochenKey === '2026-KW46')!
     const ben = ergebnis.find((p) => p.personId === 'p2')!.wochen.find((w) => w.wochenKey === '2026-KW46')!
-    const vorbereitung = 1.5 * settings.default_vorbereitungsfaktor_erstdurchfuehrung
-    expect(anna.zugewiesen).toBeCloseTo(1.5 + vorbereitung + 1, 5)
-    expect(ben.zugewiesen).toBeCloseTo(1.5 + vorbereitung + 0.5, 5)
+    expect(anna.zugewiesen).toBeCloseTo(1.5, 5)
+    expect(ben.zugewiesen).toBeCloseTo(1.5, 5)
   })
 
   it('adds the Organisationspauschale to an assigned Begleitperson´s charge for an Exkursion', () => {
@@ -239,9 +232,8 @@ describe('berechnePersonenKapazitaet with Veranstaltungen', () => {
               index: 1,
               datum_oder_kw: '2026-KW46',
               kontaktzeit_h: 1.5,
-              erstdurchfuehrung: true,
               organisationspauschale_h: 2,
-              besetzungen: [{ schulId: 's1', wir_begleiten: true, begleitperson_ids: ['p1'], koordinator_ids: [], koordinationszeit_h: 0, fahrzeit_h: 1 }],
+              besetzungen: [{ schulId: 's1', wir_begleiten: true, begleitperson_ids: ['p1'], koordinator_ids: [], koordinationszeit_h: 0}],
             },
           ],
         },
@@ -249,13 +241,12 @@ describe('berechnePersonenKapazitaet with Veranstaltungen', () => {
     })
     const ergebnis = berechnePersonenKapazitaet(data)
     const kw46 = ergebnis[0].wochen.find((w) => w.wochenKey === '2026-KW46')!
-    const vorbereitung = 1.5 * settings.default_vorbereitungsfaktor_erstdurchfuehrung
-    expect(kw46.zugewiesen).toBeCloseTo(1.5 + vorbereitung + 1 + 2, 5)
+    expect(kw46.zugewiesen).toBeCloseTo(1.5 + 2, 5)
   })
 
   it('ignores a Veranstaltung with terminstatus offen', () => {
     const data = datenMitVeranstaltung([
-      { schulId: 's1', wir_begleiten: true, begleitperson_ids: ['p1'], koordinator_ids: [], koordinationszeit_h: 0, fahrzeit_h: 1 },
+      { schulId: 's1', wir_begleiten: true, begleitperson_ids: ['p1'], koordinator_ids: [], koordinationszeit_h: 0},
     ])
     data.veranstaltungen[0].terminstatus = 'offen'
     const ergebnis = berechnePersonenKapazitaet(data)

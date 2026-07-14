@@ -1,0 +1,30 @@
+.datum-oder-kw-feld {
+  position: relative;
+  display: inline-block;
+}
+
+.datum-oder-kw-feld > summary {
+  cursor: pointer;
+  white-space: nowrap;
+  list-style: none;
+}
+
+.datum-oder-kw-feld > summary::-webkit-details-marker {
+  display: none;
+}
+
+.datum-oder-kw-feld-overlay {
+  position: absolute;
+  z-index: 10;
+  top: 100%;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.6rem;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  white-space: nowrap;
+}

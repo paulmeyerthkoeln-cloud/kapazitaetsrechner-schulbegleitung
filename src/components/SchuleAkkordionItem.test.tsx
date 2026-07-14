@@ -7,17 +7,14 @@ const settings: Settings = {
   planungszeitraum: { start: '2026-09-01', ende: '2027-07-16' },
   schwellwert_warnung: 0.7,
   schwellwert_kritisch: 0.9,
-  default_fahrzeit_h: 1.0,
-  default_vorbereitungsfaktor_erstdurchfuehrung: 0.75,
-  default_vorbereitungsfaktor_wiederholung: 0.25,
 }
 
 const schule: Schule = {
   id: 's1',
   name: 'Else Lasker',
   reihen: [
-    { id: 'r1', titel: 'Reihe Eins', betreuungsmodell: 'A', fahrzeit_h: 1, status: 'zugesagt', extern_betreut: false, terminstatus: 'festgelegt', einheiten: [] },
-    { id: 'r2', titel: 'Reihe Zwei', betreuungsmodell: 'C', fahrzeit_h: 0, status: 'in_klaerung', extern_betreut: false, terminstatus: 'festgelegt', einheiten: [] },
+    { id: 'r1', titel: 'Reihe Eins', betreuungsmodell: 'A', status: 'zugesagt', extern_betreut: false, terminstatus: 'festgelegt', einheiten: [] },
+    { id: 'r2', titel: 'Reihe Zwei', betreuungsmodell: 'C', status: 'in_klaerung', extern_betreut: false, terminstatus: 'festgelegt', einheiten: [] },
   ],
 }
 

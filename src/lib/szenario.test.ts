@@ -6,9 +6,6 @@ const settings = {
   planungszeitraum: { start: '2026-11-09', ende: '2026-11-09' },
   schwellwert_warnung: 0.7,
   schwellwert_kritisch: 0.9,
-  default_fahrzeit_h: 1.0,
-  default_vorbereitungsfaktor_erstdurchfuehrung: 0.75,
-  default_vorbereitungsfaktor_wiederholung: 0.25,
 }
 
 function person(id: string, szenario_optional = false): Person {

@@ -48,7 +48,7 @@ export function ThemenUebersicht({
           className="themen-gantt-grid"
           style={{
             gridTemplateColumns: `11rem repeat(${wochenKeys.length}, 2.5rem)`,
-            gridTemplateRows: `1.5rem repeat(${reihenIds.length}, 2.25rem)`,
+            gridTemplateRows: `1.5rem repeat(${reihenIds.length}, minmax(2.25rem, auto))`,
           }}
         >
           <div className="themen-gantt-ecke" style={{ gridColumn: 1, gridRow: 1 }} />

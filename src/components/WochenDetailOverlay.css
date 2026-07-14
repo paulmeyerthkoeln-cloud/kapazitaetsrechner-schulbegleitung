@@ -1,0 +1,24 @@
+.wochen-detail-overlay {
+  border: none;
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  max-width: 32rem;
+  width: 90vw;
+}
+
+.wochen-detail-overlay::backdrop {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.wochen-detail-overlay table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.wochen-detail-overlay th,
+.wochen-detail-overlay td {
+  text-align: left;
+  padding: 0.3rem 0.5rem;
+  border-bottom: 1px solid #e0e0e0;
+}

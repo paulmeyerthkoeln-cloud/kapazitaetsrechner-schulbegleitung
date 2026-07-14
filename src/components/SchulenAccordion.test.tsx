@@ -7,9 +7,6 @@ const settings: Settings = {
   planungszeitraum: { start: '2026-09-01', ende: '2027-07-16' },
   schwellwert_warnung: 0.7,
   schwellwert_kritisch: 0.9,
-  default_fahrzeit_h: 1.0,
-  default_vorbereitungsfaktor_erstdurchfuehrung: 0.75,
-  default_vorbereitungsfaktor_wiederholung: 0.25,
 }
 
 const schulen: Schule[] = [
@@ -21,7 +18,6 @@ const schulen: Schule[] = [
         id: 'r1',
         titel: 'Reihe Eins',
         betreuungsmodell: 'A',
-        fahrzeit_h: 1,
         status: 'zugesagt',
         extern_betreut: false, terminstatus: 'festgelegt',
         einheiten: [
@@ -30,7 +26,6 @@ const schulen: Schule[] = [
             index: 1,
             datum_oder_kw: '2026-09-07',
             kontaktzeit_h: 1,
-            erstdurchfuehrung: false,
             wir_begleiten: false,
             begleitperson_ids: [],
             koordinator_ids: [],
@@ -47,7 +42,6 @@ const schulen: Schule[] = [
         id: 'r2',
         titel: 'Reihe Zwei',
         betreuungsmodell: 'C',
-        fahrzeit_h: 0,
         status: 'zugesagt',
         extern_betreut: false, terminstatus: 'festgelegt',
         einheiten: [
@@ -56,7 +50,6 @@ const schulen: Schule[] = [
             index: 1,
             datum_oder_kw: '2026-09-07',
             kontaktzeit_h: 1,
-            erstdurchfuehrung: false,
             wir_begleiten: false,
             begleitperson_ids: [],
             koordinator_ids: [],

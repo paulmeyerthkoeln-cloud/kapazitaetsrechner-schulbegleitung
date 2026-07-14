@@ -54,7 +54,6 @@ export function expandiereMuster(muster: Muster, reiheId: string, ferien: Ferien
         index,
         datum_oder_kw: format(cursor, 'yyyy-MM-dd'),
         kontaktzeit_h: muster.kontaktzeit_h,
-        erstdurchfuehrung: false,
         wir_begleiten: true,
         begleitperson_ids: [],
         koordinator_ids: [],
@@ -114,7 +113,6 @@ export function generiereWochentlicheTermine(
         datum_oder_kw: format(cursor, 'yyyy-MM-dd'),
         kontaktzeit_h: unterrichtszeitH,
         koordinationszeit_h: koordinationszeitH,
-        erstdurchfuehrung: index === 1,
         wir_begleiten: true,
         begleitperson_ids: [],
         koordinator_ids: [],
@@ -123,6 +121,35 @@ export function generiereWochentlicheTermine(
     cursor = addWeeks(cursor, 1)
   }
   return einheiten
+}
+
+function montagDerWoche(jahrStr: string, wocheStr: string): Date {
+  const referenz = setISOWeek(setISOWeekYear(new Date(), Number(jahrStr)), Number(wocheStr))
+  return startOfISOWeek(referenz)
+}
+
+export function zuIsoDatum(datumOderKw: string): string {
+  const treffer = KW_REGEX.exec(datumOderKw)
+  if (treffer) {
+    const [, jahrStr, wocheStr] = treffer
+    return format(montagDerWoche(jahrStr, wocheStr), 'yyyy-MM-dd')
+  }
+  const datum = parseISO(datumOderKw)
+  if (Number.isNaN(datum.getTime())) return format(new Date(), 'yyyy-MM-dd')
+  return format(datum, 'yyyy-MM-dd')
+}
+
+// A reine KW-Angabe hat keinen konkreten Wochentag — als Stellvertreter wird der Montag
+// der Woche angezeigt, ergänzt um die KW-Nummer in Klammern zur Einordnung.
+export function formatDatumOderKw(datumOderKw: string): string {
+  const treffer = KW_REGEX.exec(datumOderKw)
+  if (treffer) {
+    const [, jahrStr, wocheStr] = treffer
+    return `${format(montagDerWoche(jahrStr, wocheStr), 'dd.MM.yyyy')} (KW${wocheStr})`
+  }
+  const datum = parseISO(datumOderKw)
+  if (Number.isNaN(datum.getTime())) return datumOderKw
+  return `${format(datum, 'dd.MM.yyyy')} (KW${kwNummer(getISOWochenKey(datum))})`
 }
 
 export function naechstesEinheitDatum(einheiten: { datum_oder_kw: string }[]): string {

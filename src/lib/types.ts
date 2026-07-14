@@ -2,9 +2,6 @@ export interface Settings {
   planungszeitraum: { start: string; ende: string }
   schwellwert_warnung: number
   schwellwert_kritisch: number
-  default_fahrzeit_h: number
-  default_vorbereitungsfaktor_erstdurchfuehrung: number
-  default_vorbereitungsfaktor_wiederholung: number
 }
 
 export interface Abwesenheit {
@@ -47,7 +44,6 @@ export interface Einheit {
   index: number
   datum_oder_kw: string
   kontaktzeit_h: number
-  erstdurchfuehrung: boolean
   wir_begleiten: boolean
   thema?: Thema
   koordinationszeit_h?: number
@@ -71,7 +67,6 @@ export interface Reihe {
   id: string
   titel: string
   betreuungsmodell: Betreuungsmodell
-  fahrzeit_h: number
   status: string
   extern_betreut: boolean
   terminstatus: Terminstatus
@@ -94,7 +89,6 @@ export interface SchulBesetzung {
   begleitperson_ids: string[]
   koordinator_ids: string[]
   koordinationszeit_h: number
-  fahrzeit_h: number
 }
 
 export interface VeranstaltungTermin {
@@ -102,7 +96,6 @@ export interface VeranstaltungTermin {
   index: number
   datum_oder_kw: string
   kontaktzeit_h: number
-  erstdurchfuehrung: boolean
   thema?: Thema
   organisationspauschale_h?: number
   besetzungen: SchulBesetzung[]

@@ -6,8 +6,6 @@ export type SzenarioTyp = 'basis' | 'ziel' | 'verstaerkt' | 'sensitivitaet'
 
 export interface SensitivitaetsParameter {
   stundenProPersonUeberschreiben?: number
-  vorbereitungsfaktorErstdurchfuehrungUeberschreiben?: number
-  vorbereitungsfaktorWiederholungUeberschreiben?: number
 }
 
 export function berechneSzenario(
@@ -26,17 +24,7 @@ export function berechneSzenario(
 
   const schulen = typ === 'basis' ? data.schulen.filter((s) => s.id !== 'schule_x') : data.schulen
 
-  const settings = {
-    ...data.settings,
-    default_vorbereitungsfaktor_erstdurchfuehrung:
-      sensitivitaet?.vorbereitungsfaktorErstdurchfuehrungUeberschreiben ??
-      data.settings.default_vorbereitungsfaktor_erstdurchfuehrung,
-    default_vorbereitungsfaktor_wiederholung:
-      sensitivitaet?.vorbereitungsfaktorWiederholungUeberschreiben ??
-      data.settings.default_vorbereitungsfaktor_wiederholung,
-  }
-
-  const szenarioData: Datenbestand = { ...data, personen, schulen, settings }
+  const szenarioData: Datenbestand = { ...data, personen, schulen }
   const wochen = berechneWochenuebersicht(szenarioData)
   return { wochen, machbarkeit: berechneMachbarkeit(wochen) }
 }

@@ -7,9 +7,6 @@ const settings: Settings = {
   planungszeitraum: { start: '2026-09-01', ende: '2027-07-16' },
   schwellwert_warnung: 0.7,
   schwellwert_kritisch: 0.9,
-  default_fahrzeit_h: 1.0,
-  default_vorbereitungsfaktor_erstdurchfuehrung: 0.75,
-  default_vorbereitungsfaktor_wiederholung: 0.25,
 }
 
 function einheit(overrides: Partial<Einheit> = {}): Einheit {
@@ -18,7 +15,6 @@ function einheit(overrides: Partial<Einheit> = {}): Einheit {
     index: 1,
     datum_oder_kw: '2026-KW46',
     kontaktzeit_h: 4,
-    erstdurchfuehrung: true,
     wir_begleiten: true,
     begleitperson_ids: [],
     koordinator_ids: [],
@@ -27,16 +23,12 @@ function einheit(overrides: Partial<Einheit> = {}): Einheit {
 }
 
 describe('berechneAufwandEinheit', () => {
-  it('matches the WDG hand-calculation from spec section 9 (8.0h)', () => {
-    expect(berechneAufwandEinheit(4, 1.0, true, settings)).toBeCloseTo(8.0, 5)
-  })
-
-  it('matches the Sedanstraße hand-calculation from spec section 9 (2.375h)', () => {
-    expect(berechneAufwandEinheit(1.5, 0.5, false, settings)).toBeCloseTo(2.375, 5)
+  it('is just the Kontaktzeit when no Organisationspauschale is given', () => {
+    expect(berechneAufwandEinheit(4)).toBeCloseTo(4, 5)
   })
 
   it('adds the Organisationspauschale when given', () => {
-    expect(berechneAufwandEinheit(4, 0, false, settings, 2)).toBeCloseTo(4 + 4 * 0.25 + 2, 5)
+    expect(berechneAufwandEinheit(4, 2)).toBeCloseTo(6, 5)
   })
 })
 
@@ -56,7 +48,6 @@ describe('berechneBedarfProWoche', () => {
               id: 'r1',
               titel: 'x',
               betreuungsmodell: 'C',
-              fahrzeit_h: 0,
               status: 'zugesagt',
               extern_betreut: false,
               terminstatus: 'festgelegt',
@@ -74,7 +65,7 @@ describe('berechneBedarfProWoche', () => {
     expect(berechneBedarfProWoche(data, '2026-KW47', false).koordinationBedarf).toBe(4)
   })
 
-  it('reproduces the full KW46/2026 hand-calculation from spec section 9 (~13.26h)', () => {
+  it('sums plain Kontaktzeit across Reihen for KW46/2026 (WDG 4h + Sedanstraße 1.5h)', () => {
     const data: Datenbestand = {
       settings,
       personen: [],
@@ -89,10 +80,9 @@ describe('berechneBedarfProWoche', () => {
               id: 'r_wdg',
               titel: 'Theorieblöcke',
               betreuungsmodell: 'A',
-              fahrzeit_h: 1.0,
               status: 'zugesagt',
               extern_betreut: false, terminstatus: 'festgelegt',
-              einheiten: [einheit({ datum_oder_kw: '2026-KW46', kontaktzeit_h: 4, erstdurchfuehrung: true })],
+              einheiten: [einheit({ datum_oder_kw: '2026-KW46', kontaktzeit_h: 4})],
             },
           ],
         },
@@ -104,11 +94,10 @@ describe('berechneBedarfProWoche', () => {
               id: 'r_sedan',
               titel: 'GNU-Kurs',
               betreuungsmodell: 'A',
-              fahrzeit_h: 0.5,
               status: 'zugesagt',
               extern_betreut: false, terminstatus: 'festgelegt',
               einheiten: [
-                einheit({ id: 'e_sedan', datum_oder_kw: '2026-KW46', kontaktzeit_h: 1.5, erstdurchfuehrung: false }),
+                einheit({ id: 'e_sedan', datum_oder_kw: '2026-KW46', kontaktzeit_h: 1.5}),
               ],
             },
           ],
@@ -121,7 +110,6 @@ describe('berechneBedarfProWoche', () => {
               id: `r_${i}`,
               titel: 'laufende Reihe',
               betreuungsmodell: 'C' as const,
-              fahrzeit_h: 0,
               status: 'zugesagt',
               extern_betreut: false, terminstatus: 'festgelegt' as const,
               einheiten: [einheit({ id: `e_${i}`, datum_oder_kw: '2026-KW46', wir_begleiten: false })],
@@ -136,7 +124,6 @@ describe('berechneBedarfProWoche', () => {
               id: 'r_huegel',
               titel: 'laufend',
               betreuungsmodell: 'X',
-              fahrzeit_h: 0,
               status: 'zugesagt',
               extern_betreut: true, terminstatus: 'festgelegt',
               einheiten: [einheit({ id: 'e_huegel', datum_oder_kw: '2026-KW46', wir_begleiten: false })],
@@ -149,7 +136,7 @@ describe('berechneBedarfProWoche', () => {
     // Per-unit coordination is now entered directly on each Einheit. The legacy monthly
     // defaults are no longer added automatically.
     const { einsatzBedarf, koordinationBedarf } = berechneBedarfProWoche(data, '2026-KW46', false)
-    expect(einsatzBedarf + koordinationBedarf).toBeCloseTo(10.375, 5)
+    expect(einsatzBedarf + koordinationBedarf).toBeCloseTo(5.5, 5)
     expect(koordinationBedarf).toBe(0)
   })
 
@@ -168,7 +155,6 @@ describe('berechneBedarfProWoche', () => {
               id: 'r1',
               titel: 'x',
               betreuungsmodell: 'C',
-              fahrzeit_h: 0,
               status: 'zugesagt',
               extern_betreut: false, terminstatus: 'festgelegt',
               einheiten: [einheit({ id: 'e1', datum_oder_kw: '2027-KW10', wir_begleiten: false })],
@@ -196,7 +182,6 @@ describe('berechneBedarfProWoche', () => {
               id: 'r_huegel',
               titel: 'x',
               betreuungsmodell: 'X',
-              fahrzeit_h: 0,
               status: 'zugesagt',
               extern_betreut: true, terminstatus: 'festgelegt',
               einheiten: [einheit({ id: 'e1', datum_oder_kw: '2026-KW46', wir_begleiten: false })],
@@ -225,7 +210,6 @@ describe('berechneBedarfProWoche', () => {
               id: 'r1',
               titel: 'a',
               betreuungsmodell: 'C',
-              fahrzeit_h: 0,
               status: 'zugesagt',
               extern_betreut: false, terminstatus: 'festgelegt',
               einheiten: [einheit({ id: 'e1', datum_oder_kw: '2026-KW46', wir_begleiten: false })],
@@ -234,7 +218,6 @@ describe('berechneBedarfProWoche', () => {
               id: 'r2',
               titel: 'b',
               betreuungsmodell: 'C',
-              fahrzeit_h: 0,
               status: 'zugesagt',
               extern_betreut: false, terminstatus: 'festgelegt',
               einheiten: [einheit({ id: 'e2', datum_oder_kw: '2026-KW46', wir_begleiten: false })],
@@ -261,7 +244,6 @@ describe('berechneBedarfProWoche', () => {
               id: 'r_wdg',
               titel: 'x',
               betreuungsmodell: 'A',
-              fahrzeit_h: 1.0,
               status: 'zugesagt',
               extern_betreut: false, terminstatus: 'festgelegt',
               einheiten: [einheit({ datum_oder_kw: '2026-KW46' })],
@@ -289,7 +271,6 @@ describe('berechneBedarfProWoche', () => {
               id: 'r1',
               titel: 'x',
               betreuungsmodell: 'A',
-              fahrzeit_h: 1,
               status: 'zugesagt',
               extern_betreut: false,
               terminstatus: 'festgelegt',
@@ -299,7 +280,7 @@ describe('berechneBedarfProWoche', () => {
         },
       ],
     }
-    const einzeln = berechneAufwandEinheit(4, 1, true, settings)
+    const einzeln = berechneAufwandEinheit(4)
     expect(berechneBedarfProWoche(data, '2026-KW46', false).einsatzBedarf).toBeCloseTo(einzeln * 2, 5)
   })
 
@@ -318,7 +299,6 @@ describe('berechneBedarfProWoche', () => {
               id: 'r1',
               titel: 'x',
               betreuungsmodell: 'A',
-              fahrzeit_h: 1,
               status: 'zugesagt',
               extern_betreut: false,
               terminstatus: 'festgelegt',
@@ -346,10 +326,9 @@ describe('berechneBedarfProWoche with Veranstaltungen', () => {
           index: 1,
           datum_oder_kw: '2026-KW46',
           kontaktzeit_h: 1.5,
-          erstdurchfuehrung: true,
           besetzungen: [
-            { schulId: 's1', wir_begleiten: true, begleitperson_ids: ['p1'], koordinator_ids: [], koordinationszeit_h: 0, fahrzeit_h: 1 },
-            { schulId: 's2', wir_begleiten: true, begleitperson_ids: ['p2'], koordinator_ids: [], koordinationszeit_h: 0, fahrzeit_h: 0.5 },
+            { schulId: 's1', wir_begleiten: true, begleitperson_ids: ['p1'], koordinator_ids: [], koordinationszeit_h: 0},
+            { schulId: 's2', wir_begleiten: true, begleitperson_ids: ['p2'], koordinator_ids: [], koordinationszeit_h: 0},
           ],
         },
       ],
@@ -361,20 +340,16 @@ describe('berechneBedarfProWoche with Veranstaltungen', () => {
     return { settings, personen: [], kalender: { ferien: [] }, schulen: [], veranstaltungen: [], ...overrides }
   }
 
-  it('charges Vorbereitung exactly once for a Themenwoche, regardless of how many schools participate', () => {
+  it('sums plain Kontaktzeit per Schule-Besetzung for a Themenwoche', () => {
     const data = leereDaten({ veranstaltungen: [veranstaltung()] })
     const { einsatzBedarf } = berechneBedarfProWoche(data, '2026-KW46', false)
-    const vorbereitung = 1.5 * settings.default_vorbereitungsfaktor_erstdurchfuehrung
-    const s1Anteil = 1.5 + 1 // kontaktzeit_h + s1 fahrzeit_h
-    const s2Anteil = 1.5 + 0.5 // kontaktzeit_h + s2 fahrzeit_h
-    expect(einsatzBedarf).toBeCloseTo(vorbereitung + s1Anteil + s2Anteil, 5)
+    expect(einsatzBedarf).toBeCloseTo(1.5 + 1.5, 5)
   })
 
   it('adds the Organisationspauschale once for an Exkursion, defaulting to 2h', () => {
     const data = leereDaten({ veranstaltungen: [veranstaltung({ art: 'exkursion' })] })
     const { einsatzBedarf } = berechneBedarfProWoche(data, '2026-KW46', false)
-    const vorbereitung = 1.5 * settings.default_vorbereitungsfaktor_erstdurchfuehrung
-    expect(einsatzBedarf).toBeCloseTo(vorbereitung + 2 + (1.5 + 1) + (1.5 + 0.5), 5)
+    expect(einsatzBedarf).toBeCloseTo(2 + 1.5 + 1.5, 5)
   })
 
   it('multiplies a Schule-Besetzung´s contribution by its number of Begleitpersonen', () => {
@@ -382,10 +357,9 @@ describe('berechneBedarfProWoche with Veranstaltungen', () => {
     v.termine[0].besetzungen[0].begleitperson_ids = ['p1', 'p3']
     const data = leereDaten({ veranstaltungen: [v] })
     const { einsatzBedarf } = berechneBedarfProWoche(data, '2026-KW46', false)
-    const vorbereitung = 1.5 * settings.default_vorbereitungsfaktor_erstdurchfuehrung
-    const s1Anteil = (1.5 + 1) * 2
-    const s2Anteil = 1.5 + 0.5
-    expect(einsatzBedarf).toBeCloseTo(vorbereitung + s1Anteil + s2Anteil, 5)
+    const s1Anteil = 1.5 * 2
+    const s2Anteil = 1.5
+    expect(einsatzBedarf).toBeCloseTo(s1Anteil + s2Anteil, 5)
   })
 
   it('charges Koordination per Schule-Besetzung, independent of wir_begleiten, multiplied by Koordinator count', () => {
@@ -408,21 +382,19 @@ describe('berechneBedarfProWoche with Veranstaltungen', () => {
     expect(berechneBedarfProWoche(data, '2026-KW47', false)).toEqual({ einsatzBedarf: 0, koordinationBedarf: 0 })
   })
 
-  it('charges no Vorbereitung or Organisationspauschale when no Schule-Besetzung accompanies the Termin', () => {
+  it('charges no Organisationspauschale when no Schule-Besetzung accompanies the Termin', () => {
     const v = veranstaltung({ art: 'exkursion' })
     v.termine[0].besetzungen = v.termine[0].besetzungen.map((b) => ({ ...b, wir_begleiten: false }))
     const data = leereDaten({ veranstaltungen: [v] })
     expect(berechneBedarfProWoche(data, '2026-KW46', false)).toEqual({ einsatzBedarf: 0, koordinationBedarf: 0 })
   })
 
-  it('still charges Vorbereitung/Pauschale once when only one of several Schulen accompanies', () => {
+  it('still charges the Organisationspauschale once when only one of several Schulen accompanies', () => {
     const v = veranstaltung({ art: 'exkursion' })
     v.termine[0].besetzungen[1].wir_begleiten = false
     const data = leereDaten({ veranstaltungen: [v] })
     const { einsatzBedarf } = berechneBedarfProWoche(data, '2026-KW46', false)
-    const vorbereitung = 1.5 * settings.default_vorbereitungsfaktor_erstdurchfuehrung
-    const s1Anteil = 1.5 + 1
-    expect(einsatzBedarf).toBeCloseTo(vorbereitung + 2 + s1Anteil, 5)
+    expect(einsatzBedarf).toBeCloseTo(2 + 1.5, 5)
   })
 })
 
@@ -442,7 +414,6 @@ describe('Reihe.terminstatus filtering', () => {
               id: 'r1',
               titel: 'x',
               betreuungsmodell: 'A',
-              fahrzeit_h: 1,
               status: 'in_klaerung',
               extern_betreut: false,
               terminstatus: 'offen',
@@ -470,7 +441,6 @@ describe('Reihe.terminstatus filtering', () => {
               id: 'r1',
               titel: 'x',
               betreuungsmodell: 'A',
-              fahrzeit_h: 1,
               status: 'zugesagt',
               extern_betreut: false,
               terminstatus: 'teilweise_festgelegt',
@@ -481,7 +451,7 @@ describe('Reihe.terminstatus filtering', () => {
       ],
     }
     const { einsatzBedarf } = berechneBedarfProWoche(data, '2026-KW46', false)
-    expect(einsatzBedarf).toBeCloseTo(berechneAufwandEinheit(4, 1, true, settings), 5)
+    expect(einsatzBedarf).toBeCloseTo(berechneAufwandEinheit(4), 5)
   })
 
   it('excludes koordination entirely when a Schule has only an offen Reihe', () => {
@@ -499,7 +469,6 @@ describe('Reihe.terminstatus filtering', () => {
               id: 'r1',
               titel: 'x',
               betreuungsmodell: 'B',
-              fahrzeit_h: 1,
               status: 'in_klaerung',
               extern_betreut: false,
               terminstatus: 'offen',
@@ -598,10 +567,9 @@ describe('berechneWochenuebersicht', () => {
               id: 'r_wdg',
               titel: 'x',
               betreuungsmodell: 'A',
-              fahrzeit_h: 1.0,
               status: 'zugesagt',
               extern_betreut: false, terminstatus: 'festgelegt',
-              einheiten: [einheit({ datum_oder_kw: '2026-KW46', kontaktzeit_h: 4, erstdurchfuehrung: true })],
+              einheiten: [einheit({ datum_oder_kw: '2026-KW46', kontaktzeit_h: 4})],
             },
           ],
         },
@@ -613,11 +581,10 @@ describe('berechneWochenuebersicht', () => {
               id: 'r_sedan',
               titel: 'x',
               betreuungsmodell: 'A',
-              fahrzeit_h: 0.5,
               status: 'zugesagt',
               extern_betreut: false, terminstatus: 'festgelegt',
               einheiten: [
-                einheit({ id: 'e_sedan', datum_oder_kw: '2026-KW46', kontaktzeit_h: 1.5, erstdurchfuehrung: false }),
+                einheit({ id: 'e_sedan', datum_oder_kw: '2026-KW46', kontaktzeit_h: 1.5}),
               ],
             },
           ],
@@ -630,7 +597,6 @@ describe('berechneWochenuebersicht', () => {
               id: `r_${i}`,
               titel: 'x',
               betreuungsmodell: 'C' as const,
-              fahrzeit_h: 0,
               status: 'zugesagt',
               extern_betreut: false, terminstatus: 'festgelegt' as const,
               einheiten: [einheit({ id: `e_${i}`, datum_oder_kw: '2026-KW46', wir_begleiten: false })],
@@ -645,7 +611,6 @@ describe('berechneWochenuebersicht', () => {
               id: 'r_huegel',
               titel: 'x',
               betreuungsmodell: 'X',
-              fahrzeit_h: 0,
               status: 'zugesagt',
               extern_betreut: true, terminstatus: 'festgelegt',
               einheiten: [einheit({ id: 'e_huegel', datum_oder_kw: '2026-KW46', wir_begleiten: false })],
@@ -658,7 +623,7 @@ describe('berechneWochenuebersicht', () => {
     const wochen = berechneWochenuebersicht(data)
     expect(wochen).toHaveLength(1)
     expect(wochen[0].wochenKey).toBe('2026-KW46')
-    expect(wochen[0].auslastung).toBeCloseTo(0.324, 2)
+    expect(wochen[0].auslastung).toBeCloseTo(5.5 / 32, 5)
     expect(wochen[0].ampel).toBe('gruen')
     expect(wochen[0].bedarf).toBeCloseTo(wochen[0].einsatzBedarf + wochen[0].koordinationBedarf, 10)
   })
@@ -678,7 +643,6 @@ describe('berechneWochenuebersicht', () => {
               id: 'r1',
               titel: 'x',
               betreuungsmodell: 'C',
-              fahrzeit_h: 0,
               status: 'zugesagt',
               extern_betreut: false, terminstatus: 'festgelegt',
               einheiten: [einheit({ id: 'e1', datum_oder_kw: '2026-KW46', wir_begleiten: false })],

@@ -10,6 +10,8 @@ import {
   berechneReiheZeitraum,
   ermittleFerienName,
   formatWochenspanne,
+  formatDatumOderKw,
+  zuIsoDatum,
   generiereWochentlicheTermine,
   kwNummer,
   naechstesEinheitDatum,
@@ -89,7 +91,6 @@ describe('expandiereMuster', () => {
     expect(einheiten[0]).toMatchObject({
       index: 1,
       kontaktzeit_h: 1.5,
-      erstdurchfuehrung: false,
       wir_begleiten: true,
     })
     // Compare against the correct local-date string (fixed: no longer using
@@ -103,7 +104,6 @@ describe('berechneReiheZeitraum', () => {
     id: 'r1',
     titel: 'x',
     betreuungsmodell: 'A',
-    fahrzeit_h: 0,
     status: 'zugesagt',
     extern_betreut: false, terminstatus: 'festgelegt',
     einheiten: [],
@@ -117,9 +117,9 @@ describe('berechneReiheZeitraum', () => {
     const reihe: Reihe = {
       ...reiheBasis,
       einheiten: [
-        { id: 'e1', index: 1, datum_oder_kw: '2026-KW46', kontaktzeit_h: 1, erstdurchfuehrung: false, wir_begleiten: true, begleitperson_ids: [], koordinator_ids: [] },
-        { id: 'e2', index: 2, datum_oder_kw: '2027-KW05', kontaktzeit_h: 1, erstdurchfuehrung: false, wir_begleiten: true, begleitperson_ids: [], koordinator_ids: [] },
-        { id: 'e3', index: 3, datum_oder_kw: '2026-KW48', kontaktzeit_h: 1, erstdurchfuehrung: false, wir_begleiten: true, begleitperson_ids: [], koordinator_ids: [] },
+        { id: 'e1', index: 1, datum_oder_kw: '2026-KW46', kontaktzeit_h: 1, wir_begleiten: true, begleitperson_ids: [], koordinator_ids: [] },
+        { id: 'e2', index: 2, datum_oder_kw: '2027-KW05', kontaktzeit_h: 1, wir_begleiten: true, begleitperson_ids: [], koordinator_ids: [] },
+        { id: 'e3', index: 3, datum_oder_kw: '2026-KW48', kontaktzeit_h: 1, wir_begleiten: true, begleitperson_ids: [], koordinator_ids: [] },
       ],
     }
     expect(berechneReiheZeitraum(reihe)).toEqual({ von: '2026-KW46', bis: '2027-KW05' })
@@ -129,7 +129,7 @@ describe('berechneReiheZeitraum', () => {
     const reihe: Reihe = {
       ...reiheBasis,
       einheiten: [
-        { id: 'e1', index: 1, datum_oder_kw: '2026-09-07', kontaktzeit_h: 1, erstdurchfuehrung: false, wir_begleiten: true, begleitperson_ids: [], koordinator_ids: [] },
+        { id: 'e1', index: 1, datum_oder_kw: '2026-09-07', kontaktzeit_h: 1, wir_begleiten: true, begleitperson_ids: [], koordinator_ids: [] },
       ],
     }
     expect(berechneReiheZeitraum(reihe)).toEqual({ von: '2026-KW37', bis: '2026-KW37' })
@@ -166,6 +166,30 @@ describe('formatWochenspanne', () => {
   })
 })
 
+describe('formatDatumOderKw', () => {
+  it('formats an ISO date as dd.MM.yyyy with its KW in parentheses', () => {
+    expect(formatDatumOderKw('2026-11-09')).toBe('09.11.2026 (KW46)')
+  })
+
+  it('formats a KW-only value using the Monday of that week', () => {
+    expect(formatDatumOderKw('2026-KW46')).toBe('09.11.2026 (KW46)')
+  })
+
+  it('returns the input unchanged when it is neither a date nor a KW key', () => {
+    expect(formatDatumOderKw('unsinn')).toBe('unsinn')
+  })
+})
+
+describe('zuIsoDatum', () => {
+  it('passes an ISO date through unchanged', () => {
+    expect(zuIsoDatum('2026-11-09')).toBe('2026-11-09')
+  })
+
+  it('converts a KW-only value to the Monday of that week', () => {
+    expect(zuIsoDatum('2026-KW46')).toBe('2026-11-09')
+  })
+})
+
 describe('generiereWochentlicheTermine', () => {
   it('generates exactly anzahlTermine weekly Einheiten, skipping Ferienwochen without counting them', () => {
     const einheiten = generiereWochentlicheTermine('reihe_x', '2026-10-12', 1.5, 0, 3, [herbstferien])
@@ -174,12 +198,7 @@ describe('generiereWochentlicheTermine', () => {
     expect(einheiten.map((e) => e.index)).toEqual([1, 2, 3])
   })
 
-  it('marks only the first generated Termin as erstdurchfuehrung', () => {
-    const einheiten = generiereWochentlicheTermine('reihe_x', '2026-09-07', 1.5, 0, 3, [])
-    expect(einheiten.map((e) => e.erstdurchfuehrung)).toEqual([true, false, false])
-  })
-
-  it('uses the given unterrichtszeitH as kontaktzeit_h for every generated Termin', () => {
+it('uses the given unterrichtszeitH as kontaktzeit_h for every generated Termin', () => {
     const einheiten = generiereWochentlicheTermine('reihe_x', '2026-09-07', 2, 0, 2, [])
     expect(einheiten.every((e) => e.kontaktzeit_h === 2)).toBe(true)
   })
@@ -202,7 +221,6 @@ describe('naechstesEinheitDatum', () => {
       index: 1,
       datum_oder_kw: datumOderKw,
       kontaktzeit_h: 1,
-      erstdurchfuehrung: false,
       wir_begleiten: true,
       begleitperson_ids: [],
       koordinator_ids: [],

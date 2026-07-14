@@ -5,10 +5,7 @@
       "ende": "2027-07-16"
     },
     "schwellwert_warnung": 0.7,
-    "schwellwert_kritisch": 0.9,
-    "default_fahrzeit_h": 1,
-    "default_vorbereitungsfaktor_erstdurchfuehrung": 0.75,
-    "default_vorbereitungsfaktor_wiederholung": 0.25
+    "schwellwert_kritisch": 0.9
   },
   "personen": [
     {
@@ -91,7 +88,6 @@
           "id": "reihe_wdg_theorie",
           "titel": "Theorieblöcke Begabtenförderung",
           "betreuungsmodell": "A",
-          "fahrzeit_h": 1,
           "status": "zugesagt",
           "extern_betreut": false,
           "terminstatus": "festgelegt",
@@ -101,7 +97,6 @@
               "index": 1,
               "datum_oder_kw": "2026-KW46",
               "kontaktzeit_h": 4,
-              "erstdurchfuehrung": true,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -111,7 +106,6 @@
               "index": 2,
               "datum_oder_kw": "2026-KW48",
               "kontaktzeit_h": 4,
-              "erstdurchfuehrung": true,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -121,7 +115,6 @@
               "index": 3,
               "datum_oder_kw": "2026-KW50",
               "kontaktzeit_h": 4,
-              "erstdurchfuehrung": true,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -131,7 +124,6 @@
               "index": 4,
               "datum_oder_kw": "2026-KW51",
               "kontaktzeit_h": 4,
-              "erstdurchfuehrung": true,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -148,7 +140,6 @@
           "id": "reihe_sedanstrasse_gnu",
           "titel": "GNU-Kurs 9. Klasse",
           "betreuungsmodell": "A",
-          "fahrzeit_h": 0.5,
           "status": "zugesagt",
           "extern_betreut": false,
           "terminstatus": "offen",
@@ -158,7 +149,6 @@
               "index": 1,
               "datum_oder_kw": "2026-09-07",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": true,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -168,7 +158,6 @@
               "index": 2,
               "datum_oder_kw": "2026-09-14",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -178,7 +167,6 @@
               "index": 3,
               "datum_oder_kw": "2026-09-21",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -188,7 +176,6 @@
               "index": 4,
               "datum_oder_kw": "2026-09-28",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -198,7 +185,6 @@
               "index": 5,
               "datum_oder_kw": "2026-11-02",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -208,7 +194,6 @@
               "index": 6,
               "datum_oder_kw": "2026-11-09",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -218,7 +203,6 @@
               "index": 7,
               "datum_oder_kw": "2026-11-16",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -228,7 +212,6 @@
               "index": 8,
               "datum_oder_kw": "2026-11-23",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -238,7 +221,6 @@
               "index": 9,
               "datum_oder_kw": "2026-11-30",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -248,7 +230,6 @@
               "index": 10,
               "datum_oder_kw": "2026-12-07",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -258,7 +239,6 @@
               "index": 11,
               "datum_oder_kw": "2026-12-14",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -268,7 +248,6 @@
               "index": 12,
               "datum_oder_kw": "2027-01-11",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -285,7 +264,6 @@
           "id": "reihe_kothen",
           "titel": "SoWi 11 / Physik 8 / Politik 8 (Platzhalter, Kollegiumsabstimmung ausstehend)",
           "betreuungsmodell": "B",
-          "fahrzeit_h": 1,
           "status": "in_klaerung",
           "extern_betreut": false,
           "terminstatus": "offen",
@@ -295,7 +273,6 @@
               "index": 1,
               "datum_oder_kw": "2026-10-05",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": true,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -305,7 +282,6 @@
               "index": 2,
               "datum_oder_kw": "2026-10-12",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -315,7 +291,6 @@
               "index": 3,
               "datum_oder_kw": "2026-11-02",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -325,7 +300,6 @@
               "index": 4,
               "datum_oder_kw": "2026-11-09",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": false,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -335,7 +309,6 @@
               "index": 5,
               "datum_oder_kw": "2026-11-16",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": false,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -345,7 +318,6 @@
               "index": 6,
               "datum_oder_kw": "2026-11-23",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": false,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -362,7 +334,6 @@
           "id": "reihe_else_lasker_parisa",
           "titel": "Parisa, Kl. 9, Mobilität",
           "betreuungsmodell": "B",
-          "fahrzeit_h": 1,
           "status": "zugesagt",
           "extern_betreut": false,
           "terminstatus": "teilweise_festgelegt",
@@ -372,7 +343,6 @@
               "index": 1,
               "datum_oder_kw": "2026-09-08",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": true,
               "wir_begleiten": true,
               "thema": "Mobilität",
               "begleitperson_ids": [],
@@ -383,7 +353,6 @@
               "index": 2,
               "datum_oder_kw": "2026-09-15",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": false,
               "thema": "Mobilität",
               "begleitperson_ids": [],
@@ -394,7 +363,6 @@
               "index": 3,
               "datum_oder_kw": "2026-09-29",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": false,
               "thema": "Mobilität",
               "begleitperson_ids": [],
@@ -406,7 +374,6 @@
           "id": "reihe_else_lasker_simone",
           "titel": "Simone, Q2, Ernährung (Foodsharing, Kiosk, Schnippelparty, Weltacker, Kochshow)",
           "betreuungsmodell": "B",
-          "fahrzeit_h": 1,
           "status": "zugesagt",
           "extern_betreut": false,
           "terminstatus": "teilweise_festgelegt",
@@ -416,7 +383,6 @@
               "index": 1,
               "datum_oder_kw": "2027-01-11",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": true,
               "wir_begleiten": true,
               "thema": "Ernährung",
               "begleitperson_ids": [],
@@ -427,7 +393,6 @@
               "index": 2,
               "datum_oder_kw": "2027-01-18",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "thema": "Ernährung",
               "begleitperson_ids": [],
@@ -438,7 +403,6 @@
               "index": 3,
               "datum_oder_kw": "2027-01-25",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "thema": "Ernährung",
               "begleitperson_ids": [],
@@ -449,7 +413,6 @@
               "index": 4,
               "datum_oder_kw": "2027-02-08",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": false,
               "thema": "Ernährung",
               "begleitperson_ids": [],
@@ -460,7 +423,6 @@
               "index": 5,
               "datum_oder_kw": "2027-02-15",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": false,
               "thema": "Ernährung",
               "begleitperson_ids": [],
@@ -472,7 +434,6 @@
           "id": "reihe_else_lasker_olaf",
           "titel": "Olaf, Klub „Klimaresistente Schule“, nachmittags",
           "betreuungsmodell": "C",
-          "fahrzeit_h": 1,
           "status": "zugesagt",
           "extern_betreut": false,
           "terminstatus": "teilweise_festgelegt",
@@ -482,7 +443,6 @@
               "index": 1,
               "datum_oder_kw": "2026-09-14",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": true,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -492,7 +452,6 @@
               "index": 2,
               "datum_oder_kw": "2026-10-12",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -502,7 +461,6 @@
               "index": 3,
               "datum_oder_kw": "2026-11-09",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -512,7 +470,6 @@
               "index": 4,
               "datum_oder_kw": "2026-12-07",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -522,7 +479,6 @@
               "index": 5,
               "datum_oder_kw": "2027-01-11",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -532,7 +488,6 @@
               "index": 6,
               "datum_oder_kw": "2027-02-08",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -542,7 +497,6 @@
               "index": 7,
               "datum_oder_kw": "2027-05-10",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -552,7 +506,6 @@
               "index": 8,
               "datum_oder_kw": "2027-06-07",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -569,7 +522,6 @@
           "id": "reihe_barmen_projektwochen",
           "titel": "2 Projektwochen (FA-Klassen bis 34 SuS + Höhere Handelsschule 20 SuS)",
           "betreuungsmodell": "A",
-          "fahrzeit_h": 1,
           "status": "zugesagt",
           "extern_betreut": false,
           "terminstatus": "festgelegt",
@@ -579,7 +531,6 @@
               "index": 1,
               "datum_oder_kw": "2027-01-18",
               "kontaktzeit_h": 4.5,
-              "erstdurchfuehrung": true,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -589,7 +540,6 @@
               "index": 2,
               "datum_oder_kw": "2027-01-19",
               "kontaktzeit_h": 4.5,
-              "erstdurchfuehrung": true,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -599,7 +549,6 @@
               "index": 3,
               "datum_oder_kw": "2027-01-20",
               "kontaktzeit_h": 4.5,
-              "erstdurchfuehrung": true,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -609,7 +558,6 @@
               "index": 4,
               "datum_oder_kw": "2027-01-21",
               "kontaktzeit_h": 4.5,
-              "erstdurchfuehrung": true,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -619,7 +567,6 @@
               "index": 5,
               "datum_oder_kw": "2027-02-15",
               "kontaktzeit_h": 4.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -629,7 +576,6 @@
               "index": 6,
               "datum_oder_kw": "2027-02-16",
               "kontaktzeit_h": 4.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -639,7 +585,6 @@
               "index": 7,
               "datum_oder_kw": "2027-02-17",
               "kontaktzeit_h": 4.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -649,7 +594,6 @@
               "index": 8,
               "datum_oder_kw": "2027-02-18",
               "kontaktzeit_h": 4.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -666,7 +610,6 @@
           "id": "reihe_coppel_unesco",
           "titel": "UNESCO-Stunde, 3× 9. Klassen (~80 SuS, Aula) — unser Gastdozenten-Anteil",
           "betreuungsmodell": "C",
-          "fahrzeit_h": 1,
           "status": "zugesagt",
           "extern_betreut": false,
           "terminstatus": "festgelegt",
@@ -676,7 +619,6 @@
               "index": 1,
               "datum_oder_kw": "2026-09-21",
               "kontaktzeit_h": 1.0833333333333333,
-              "erstdurchfuehrung": true,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -686,7 +628,6 @@
               "index": 2,
               "datum_oder_kw": "2026-10-19",
               "kontaktzeit_h": 1.0833333333333333,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -696,7 +637,6 @@
               "index": 3,
               "datum_oder_kw": "2026-11-16",
               "kontaktzeit_h": 1.0833333333333333,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -706,7 +646,6 @@
               "index": 4,
               "datum_oder_kw": "2026-12-14",
               "kontaktzeit_h": 1.0833333333333333,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -716,7 +655,6 @@
               "index": 5,
               "datum_oder_kw": "2027-01-18",
               "kontaktzeit_h": 1.0833333333333333,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -726,7 +664,6 @@
               "index": 6,
               "datum_oder_kw": "2027-02-15",
               "kontaktzeit_h": 1.0833333333333333,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -736,7 +673,6 @@
               "index": 7,
               "datum_oder_kw": "2027-03-15",
               "kontaktzeit_h": 1.0833333333333333,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -746,7 +682,6 @@
               "index": 8,
               "datum_oder_kw": "2027-04-19",
               "kontaktzeit_h": 1.0833333333333333,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -756,7 +691,6 @@
               "index": 9,
               "datum_oder_kw": "2027-05-17",
               "kontaktzeit_h": 1.0833333333333333,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -766,7 +700,6 @@
               "index": 10,
               "datum_oder_kw": "2027-06-14",
               "kontaktzeit_h": 1.0833333333333333,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -783,7 +716,6 @@
           "id": "reihe_huegelstrasse",
           "titel": "Kl. 7, Energierad/Weltacker/Fotos (Beate Petersen)",
           "betreuungsmodell": "X",
-          "fahrzeit_h": 0,
           "status": "zugesagt",
           "extern_betreut": true,
           "terminstatus": "festgelegt",
@@ -793,7 +725,6 @@
               "index": 1,
               "datum_oder_kw": "2026-09-14",
               "kontaktzeit_h": 0,
-              "erstdurchfuehrung": false,
               "wir_begleiten": false,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -803,7 +734,6 @@
               "index": 2,
               "datum_oder_kw": "2027-01-11",
               "kontaktzeit_h": 0,
-              "erstdurchfuehrung": false,
               "wir_begleiten": false,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -813,7 +743,6 @@
               "index": 3,
               "datum_oder_kw": "2027-04-19",
               "kontaktzeit_h": 0,
-              "erstdurchfuehrung": false,
               "wir_begleiten": false,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -830,7 +759,6 @@
           "id": "reihe_max_planck",
           "titel": "2 SoWi-Kurse 9. Klasse",
           "betreuungsmodell": "B",
-          "fahrzeit_h": 1,
           "status": "zugesagt",
           "extern_betreut": false,
           "terminstatus": "teilweise_festgelegt",
@@ -847,7 +775,6 @@
               "index": 1,
               "datum_oder_kw": "2027-02-01",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": true,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -857,7 +784,6 @@
               "index": 2,
               "datum_oder_kw": "2027-02-08",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -867,7 +793,6 @@
               "index": 3,
               "datum_oder_kw": "2027-02-15",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -877,7 +802,6 @@
               "index": 4,
               "datum_oder_kw": "2027-02-22",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -887,7 +811,6 @@
               "index": 5,
               "datum_oder_kw": "2027-05-03",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -897,7 +820,6 @@
               "index": 6,
               "datum_oder_kw": "2027-05-10",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -907,7 +829,6 @@
               "index": 7,
               "datum_oder_kw": "2027-05-17",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -917,7 +838,6 @@
               "index": 8,
               "datum_oder_kw": "2027-05-24",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -934,7 +854,6 @@
           "id": "reihe_bayreuther",
           "titel": "Einzelworkshops + Exkursionen",
           "betreuungsmodell": "C",
-          "fahrzeit_h": 1,
           "status": "zugesagt",
           "extern_betreut": false,
           "terminstatus": "teilweise_festgelegt",
@@ -944,7 +863,6 @@
               "index": 1,
               "datum_oder_kw": "2026-09-14",
               "kontaktzeit_h": 3,
-              "erstdurchfuehrung": true,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -954,7 +872,6 @@
               "index": 2,
               "datum_oder_kw": "2027-01-18",
               "kontaktzeit_h": 3,
-              "erstdurchfuehrung": true,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -971,7 +888,6 @@
           "id": "reihe_schule_x",
           "titel": "Platzhalter für die 10. Schule",
           "betreuungsmodell": "B",
-          "fahrzeit_h": 1,
           "status": "platzhalter",
           "extern_betreut": false,
           "terminstatus": "festgelegt",
@@ -981,7 +897,6 @@
               "index": 1,
               "datum_oder_kw": "2027-04-12",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": true,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -991,7 +906,6 @@
               "index": 2,
               "datum_oder_kw": "2027-04-19",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -1001,7 +915,6 @@
               "index": 3,
               "datum_oder_kw": "2027-04-26",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -1011,7 +924,6 @@
               "index": 4,
               "datum_oder_kw": "2027-05-03",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": false,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -1021,7 +933,6 @@
               "index": 5,
               "datum_oder_kw": "2027-05-10",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": false,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -1031,7 +942,6 @@
               "index": 6,
               "datum_oder_kw": "2027-05-17",
               "kontaktzeit_h": 1.5,
-              "erstdurchfuehrung": false,
               "wir_begleiten": false,
               "begleitperson_ids": [],
               "koordinator_ids": []
@@ -1056,7 +966,6 @@
           "index": 1,
           "datum_oder_kw": "2026-09-22",
           "kontaktzeit_h": 1.5,
-          "erstdurchfuehrung": true,
           "thema": "Mobilität",
           "organisationspauschale_h": 2,
           "besetzungen": [
@@ -1065,8 +974,7 @@
               "wir_begleiten": true,
               "begleitperson_ids": [],
               "koordinator_ids": [],
-              "koordinationszeit_h": 0,
-              "fahrzeit_h": 1
+              "koordinationszeit_h": 0
             }
           ]
         }
@@ -1086,7 +994,6 @@
           "index": 1,
           "datum_oder_kw": "2027-02-01",
           "kontaktzeit_h": 1.5,
-          "erstdurchfuehrung": true,
           "thema": "Ernährung",
           "organisationspauschale_h": 2,
           "besetzungen": [
@@ -1095,8 +1002,7 @@
               "wir_begleiten": false,
               "begleitperson_ids": [],
               "koordinator_ids": [],
-              "koordinationszeit_h": 0,
-              "fahrzeit_h": 1
+              "koordinationszeit_h": 0
             }
           ]
         }

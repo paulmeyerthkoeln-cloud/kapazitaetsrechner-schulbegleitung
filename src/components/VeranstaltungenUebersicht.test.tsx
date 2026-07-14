@@ -25,8 +25,7 @@ const veranstaltungen: Veranstaltung[] = [
         index: 1,
         datum_oder_kw: '2026-11-09',
         kontaktzeit_h: 1.5,
-        erstdurchfuehrung: true,
-        besetzungen: [{ schulId: 's1', wir_begleiten: true, begleitperson_ids: [], koordinator_ids: [], koordinationszeit_h: 0, fahrzeit_h: 1 }],
+        besetzungen: [{ schulId: 's1', wir_begleiten: true, begleitperson_ids: [], koordinator_ids: [], koordinationszeit_h: 0 }],
       },
     ],
   },
@@ -81,10 +80,9 @@ describe('VeranstaltungenUebersicht', () => {
     expect(props.onSchulenChange).toHaveBeenCalledWith('v1', ['s1', 's2'])
   })
 
-  it('renders one Besetzung row per participating Schule, showing Wir begleiten and Fahrzeit', () => {
+  it('renders one Besetzung row per participating Schule, showing Wir begleiten', () => {
     renderUebersicht()
     expect(screen.getByLabelText('Wir begleiten WDG bei Termin 1 in Nachhaltigkeit')).toBeChecked()
-    expect(screen.getByLabelText('Fahrzeit für WDG bei Termin 1 in Nachhaltigkeit')).toHaveValue(1)
   })
 
   it('calls onBesetzungFelderChange when a Begleitpersonen checkbox for a Schule-Besetzung is toggled', () => {

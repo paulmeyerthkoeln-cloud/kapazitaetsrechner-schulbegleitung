@@ -28,7 +28,7 @@ function berechneZugewieseneStundenProWoche(data: Datenbestand, personId: string
       for (const einheit of reihe.einheiten) {
         const wochenKey = parseZuWochenKey(einheit.datum_oder_kw)
         if (einheit.wir_begleiten && einheit.begleitperson_ids.includes(personId)) {
-          addiere(wochenKey, berechneAufwandEinheit(einheit.kontaktzeit_h, reihe.fahrzeit_h, einheit.erstdurchfuehrung, data.settings))
+          addiere(wochenKey, berechneAufwandEinheit(einheit.kontaktzeit_h))
         }
         if (einheit.koordinator_ids.includes(personId)) {
           addiere(wochenKey, einheit.koordinationszeit_h ?? 0)
@@ -44,7 +44,7 @@ function berechneZugewieseneStundenProWoche(data: Datenbestand, personId: string
       const pauschale = veranstaltung.art === 'exkursion' ? termin.organisationspauschale_h ?? 2 : 0
       for (const besetzung of termin.besetzungen) {
         if (besetzung.wir_begleiten && besetzung.begleitperson_ids.includes(personId)) {
-          addiere(wochenKey, berechneAufwandEinheit(termin.kontaktzeit_h, besetzung.fahrzeit_h, termin.erstdurchfuehrung, data.settings, pauschale))
+          addiere(wochenKey, berechneAufwandEinheit(termin.kontaktzeit_h, pauschale))
         }
         if (besetzung.koordinator_ids.includes(personId)) {
           addiere(wochenKey, besetzung.koordinationszeit_h)

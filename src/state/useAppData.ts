@@ -27,9 +27,6 @@ const LEERER_DATENBESTAND: Datenbestand = {
     planungszeitraum: { start: '', ende: '' },
     schwellwert_warnung: 0,
     schwellwert_kritisch: 0,
-    default_fahrzeit_h: 0,
-    default_vorbereitungsfaktor_erstdurchfuehrung: 0,
-    default_vorbereitungsfaktor_wiederholung: 0,
   },
   personen: [],
   kalender: { ferien: [] },
@@ -47,7 +44,6 @@ interface LegacyEinheit {
   index: number
   datum_oder_kw: string
   kontaktzeit_h: number
-  erstdurchfuehrung: boolean
   wir_begleiten: boolean
   thema?: Einheit['thema']
   koordinationszeit_h?: number
@@ -64,7 +60,6 @@ function migriereEinheit(roh: LegacyEinheit): Einheit {
     index: roh.index,
     datum_oder_kw: roh.datum_oder_kw,
     kontaktzeit_h: roh.kontaktzeit_h,
-    erstdurchfuehrung: roh.erstdurchfuehrung,
     wir_begleiten: roh.wir_begleiten,
     thema: roh.thema,
     koordinationszeit_h: roh.koordinationszeit_h,
@@ -104,7 +99,6 @@ function migriereDatenbestand(d: Datenbestand): Datenbestand {
               index: 1,
               datum_oder_kw: roh.datum_oder_kw,
               kontaktzeit_h: roh.kontaktzeit_h,
-              erstdurchfuehrung: roh.erstdurchfuehrung,
               thema: roh.thema,
               organisationspauschale_h: roh.organisationspauschale_h ?? 2,
               besetzungen: [
@@ -114,7 +108,6 @@ function migriereDatenbestand(d: Datenbestand): Datenbestand {
                   begleitperson_ids: roh.begleitperson_ids ?? (roh.begleitperson_id ? [roh.begleitperson_id] : []),
                   koordinator_ids: roh.koordinator_ids ?? [],
                   koordinationszeit_h: roh.koordinationszeit_h ?? 0,
-                  fahrzeit_h: reihe.fahrzeit_h,
                 },
               ],
             },
@@ -285,7 +278,6 @@ export function useAppData() {
             datum_oder_kw: naechstesEinheitDatum(reihe.einheiten),
             kontaktzeit_h: 1.5,
             koordinationszeit_h: 0,
-            erstdurchfuehrung: false,
             wir_begleiten: true,
             begleitperson_ids: [],
             koordinator_ids: [],
@@ -340,7 +332,6 @@ export function useAppData() {
           id: `reihe_${Date.now()}`,
           titel: 'Neuer Kurs',
           betreuungsmodell: 'A',
-          fahrzeit_h: prev.settings.default_fahrzeit_h,
           status: '',
           extern_betreut: false,
           terminstatus: 'offen',
@@ -391,7 +382,7 @@ export function useAppData() {
   }
 
   function leereBesetzung(schulId: string): SchulBesetzung {
-    return { schulId, wir_begleiten: true, begleitperson_ids: [], koordinator_ids: [], koordinationszeit_h: 0, fahrzeit_h: 0 }
+    return { schulId, wir_begleiten: true, begleitperson_ids: [], koordinator_ids: [], koordinationszeit_h: 0 }
   }
 
   function addVeranstaltung(art: VeranstaltungArt, schulIds: string[]) {
@@ -456,7 +447,6 @@ export function useAppData() {
           index: v.termine.length + 1,
           datum_oder_kw: naechstesEinheitDatum(v.termine),
           kontaktzeit_h: 1.5,
-          erstdurchfuehrung: v.termine.length === 0,
           besetzungen: v.schulIds.map((schulId) => leereBesetzung(schulId)),
         }
         return { ...v, termine: [...v.termine, neuerTermin] }
@@ -478,7 +468,7 @@ export function useAppData() {
   function setVeranstaltungTerminFelder(
     veranstaltungId: string,
     terminId: string,
-    patch: Partial<Pick<VeranstaltungTermin, 'datum_oder_kw' | 'kontaktzeit_h' | 'thema' | 'organisationspauschale_h' | 'erstdurchfuehrung'>>
+    patch: Partial<Pick<VeranstaltungTermin, 'datum_oder_kw' | 'kontaktzeit_h' | 'thema' | 'organisationspauschale_h'>>
   ) {
     setData((prev) => ({
       ...prev,
@@ -492,7 +482,7 @@ export function useAppData() {
     veranstaltungId: string,
     terminId: string,
     schulId: string,
-    patch: Partial<Pick<SchulBesetzung, 'wir_begleiten' | 'begleitperson_ids' | 'koordinator_ids' | 'koordinationszeit_h' | 'fahrzeit_h'>>
+    patch: Partial<Pick<SchulBesetzung, 'wir_begleiten' | 'begleitperson_ids' | 'koordinator_ids' | 'koordinationszeit_h'>>
   ) {
     setData((prev) => ({
       ...prev,
