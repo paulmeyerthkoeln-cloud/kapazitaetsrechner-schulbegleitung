@@ -96,7 +96,7 @@ export default function App() {
             />
           )}
           <div className="card">
-            <BedarfAngebotChart wochen={ergebnis.wochen} />
+            <BedarfAngebotChart wochen={ergebnis.wochen} onWocheClick={setAusgewaehlteWoche} />
           </div>
           <div className="card">
             <EngpassBericht topEngpaesse={ergebnis.machbarkeit.topEngpaesse} />

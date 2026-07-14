@@ -31,7 +31,7 @@ export function VeranstaltungenUebersicht({
   onTerminFelderChange: (
     veranstaltungId: string,
     terminId: string,
-    patch: Partial<Pick<VeranstaltungTermin, 'datum_oder_kw' | 'kontaktzeit_h' | 'thema' | 'organisationspauschale_h'>>
+    patch: Partial<Pick<VeranstaltungTermin, 'datum_oder_kw' | 'kontaktzeit_h' | 'thema'>>
   ) => void
   onBesetzungFelderChange: (
     veranstaltungId: string,
@@ -119,19 +119,6 @@ export function VeranstaltungenUebersicht({
                   ))}
                 </select>
               </label>
-              {v.art === 'exkursion' && (
-                <label>
-                  Organisationspauschale (min):{' '}
-                  <input
-                    type="number"
-                    step={5}
-                    min={0}
-                    aria-label={`Organisationspauschale für Termin ${termin.index} in ${v.titel}`}
-                    value={Math.round((termin.organisationspauschale_h ?? 2) * 60)}
-                    onChange={(ev) => onTerminFelderChange(v.id, termin.id, { organisationspauschale_h: Number(ev.target.value) / 60 })}
-                  />
-                </label>
-              )}
               <button onClick={() => onTerminRemove(v.id, termin.id)} aria-label={`Termin ${termin.index} in ${v.titel} löschen`}>
                 🗑
               </button>

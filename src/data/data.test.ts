@@ -98,10 +98,9 @@ describe('seed data.json', () => {
     }
   })
 
-  it('leaves the Exkursions-Organisationspauschale for both extracted Veranstaltungen at 2h', () => {
+  it('extracts exactly 2 Veranstaltungen from the legacy Exkursion Einheiten', () => {
     const d = data as Datenbestand
     expect(d.veranstaltungen).toHaveLength(2)
-    expect(d.veranstaltungen.every((v) => v.termine[0].organisationspauschale_h === 2)).toBe(true)
   })
 
   it('leaves WDG Unterrichtszeit at 4 Stunden per Termin', () => {

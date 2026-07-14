@@ -216,7 +216,7 @@ describe('berechnePersonenKapazitaet with Veranstaltungen', () => {
     expect(ben.zugewiesen).toBeCloseTo(1.5, 5)
   })
 
-  it('adds the Organisationspauschale to an assigned Begleitperson´s charge for an Exkursion', () => {
+  it('charges an assigned Begleitperson the plain Kontaktzeit for an Exkursion, same as a Themenwoche', () => {
     const data = datenbestand({
       personen: [person({ id: 'p1' })],
       veranstaltungen: [
@@ -232,7 +232,6 @@ describe('berechnePersonenKapazitaet with Veranstaltungen', () => {
               index: 1,
               datum_oder_kw: '2026-KW46',
               kontaktzeit_h: 1.5,
-              organisationspauschale_h: 2,
               besetzungen: [{ schulId: 's1', wir_begleiten: true, begleitperson_ids: ['p1'], koordinator_ids: [], koordinationszeit_h: 0}],
             },
           ],
@@ -241,7 +240,7 @@ describe('berechnePersonenKapazitaet with Veranstaltungen', () => {
     })
     const ergebnis = berechnePersonenKapazitaet(data)
     const kw46 = ergebnis[0].wochen.find((w) => w.wochenKey === '2026-KW46')!
-    expect(kw46.zugewiesen).toBeCloseTo(1.5 + 2, 5)
+    expect(kw46.zugewiesen).toBeCloseTo(1.5, 5)
   })
 
   it('ignores a Veranstaltung with terminstatus offen', () => {

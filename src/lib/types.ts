@@ -97,7 +97,6 @@ export interface VeranstaltungTermin {
   datum_oder_kw: string
   kontaktzeit_h: number
   thema?: Thema
-  organisationspauschale_h?: number
   besetzungen: SchulBesetzung[]
 }
 

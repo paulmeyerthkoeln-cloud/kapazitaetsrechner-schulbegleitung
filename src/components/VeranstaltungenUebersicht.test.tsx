@@ -108,8 +108,10 @@ describe('VeranstaltungenUebersicht', () => {
     expect(screen.queryByText('+ Exkursion hinzufügen')).not.toBeInTheDocument()
   })
 
-  it('shows an Organisationspauschale input only for an Exkursion, not for a Themenwoche', () => {
+  it('does not show an Organisationspauschale input for either a Themenwoche or an Exkursion', () => {
     renderUebersicht()
+    expect(screen.queryByLabelText('Organisationspauschale für Termin 1 in Nachhaltigkeit')).not.toBeInTheDocument()
+    renderUebersicht([{ art: 'exkursion' }])
     expect(screen.queryByLabelText('Organisationspauschale für Termin 1 in Nachhaltigkeit')).not.toBeInTheDocument()
   })
 

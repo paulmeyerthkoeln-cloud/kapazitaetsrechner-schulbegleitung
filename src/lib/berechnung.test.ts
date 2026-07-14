@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { berechneAufwandEinheit, berechneBedarfProWoche, berechneAngebotProWoche } from './berechnung'
+import { berechneBedarfProWoche, berechneAngebotProWoche } from './berechnung'
 import { ampelFarbe, berechneWochenuebersicht, berechneMachbarkeit } from './berechnung'
 import type { Einheit, Settings, Datenbestand, Person, Veranstaltung } from './types'
 
@@ -21,16 +21,6 @@ function einheit(overrides: Partial<Einheit> = {}): Einheit {
     ...overrides,
   }
 }
-
-describe('berechneAufwandEinheit', () => {
-  it('is just the Kontaktzeit when no Organisationspauschale is given', () => {
-    expect(berechneAufwandEinheit(4)).toBeCloseTo(4, 5)
-  })
-
-  it('adds the Organisationspauschale when given', () => {
-    expect(berechneAufwandEinheit(4, 2)).toBeCloseTo(6, 5)
-  })
-})
 
 describe('berechneBedarfProWoche', () => {
   it('adds coordination from Einheiten scheduled in the selected week instead of a monthly school average', () => {
@@ -280,7 +270,7 @@ describe('berechneBedarfProWoche', () => {
         },
       ],
     }
-    const einzeln = berechneAufwandEinheit(4)
+    const einzeln = 4
     expect(berechneBedarfProWoche(data, '2026-KW46', false).einsatzBedarf).toBeCloseTo(einzeln * 2, 5)
   })
 
@@ -346,10 +336,10 @@ describe('berechneBedarfProWoche with Veranstaltungen', () => {
     expect(einsatzBedarf).toBeCloseTo(1.5 + 1.5, 5)
   })
 
-  it('adds the Organisationspauschale once for an Exkursion, defaulting to 2h', () => {
+  it('sums plain Kontaktzeit per Schule-Besetzung for an Exkursion just like a Themenwoche', () => {
     const data = leereDaten({ veranstaltungen: [veranstaltung({ art: 'exkursion' })] })
     const { einsatzBedarf } = berechneBedarfProWoche(data, '2026-KW46', false)
-    expect(einsatzBedarf).toBeCloseTo(2 + 1.5 + 1.5, 5)
+    expect(einsatzBedarf).toBeCloseTo(1.5 + 1.5, 5)
   })
 
   it('multiplies a Schule-Besetzung´s contribution by its number of Begleitpersonen', () => {
@@ -382,19 +372,19 @@ describe('berechneBedarfProWoche with Veranstaltungen', () => {
     expect(berechneBedarfProWoche(data, '2026-KW47', false)).toEqual({ einsatzBedarf: 0, koordinationBedarf: 0 })
   })
 
-  it('charges no Organisationspauschale when no Schule-Besetzung accompanies the Termin', () => {
+  it('results in zero einsatzBedarf when no Schule-Besetzung accompanies the Termin', () => {
     const v = veranstaltung({ art: 'exkursion' })
     v.termine[0].besetzungen = v.termine[0].besetzungen.map((b) => ({ ...b, wir_begleiten: false }))
     const data = leereDaten({ veranstaltungen: [v] })
     expect(berechneBedarfProWoche(data, '2026-KW46', false)).toEqual({ einsatzBedarf: 0, koordinationBedarf: 0 })
   })
 
-  it('still charges the Organisationspauschale once when only one of several Schulen accompanies', () => {
+  it('only charges the accompanying Schule when only one of several Schulen accompanies', () => {
     const v = veranstaltung({ art: 'exkursion' })
     v.termine[0].besetzungen[1].wir_begleiten = false
     const data = leereDaten({ veranstaltungen: [v] })
     const { einsatzBedarf } = berechneBedarfProWoche(data, '2026-KW46', false)
-    expect(einsatzBedarf).toBeCloseTo(2 + 1.5, 5)
+    expect(einsatzBedarf).toBeCloseTo(1.5, 5)
   })
 })
 
@@ -451,7 +441,7 @@ describe('Reihe.terminstatus filtering', () => {
       ],
     }
     const { einsatzBedarf } = berechneBedarfProWoche(data, '2026-KW46', false)
-    expect(einsatzBedarf).toBeCloseTo(berechneAufwandEinheit(4), 5)
+    expect(einsatzBedarf).toBeCloseTo(4, 5)
   })
 
   it('excludes koordination entirely when a Schule has only an offen Reihe', () => {

@@ -3,7 +3,13 @@ import { formatWochenspanne, kwNummer } from '../lib/kalenderwochen'
 import { berechneFerienBaender } from '../lib/themenUebersicht'
 import type { WochenErgebnis } from '../lib/berechnung'
 
-export function BedarfAngebotChart({ wochen }: { wochen: WochenErgebnis[] }) {
+export function BedarfAngebotChart({
+  wochen,
+  onWocheClick,
+}: {
+  wochen: WochenErgebnis[]
+  onWocheClick?: (wochenKey: string) => void
+}) {
   const chartData = wochen.map((w) => ({
     wochenKey: w.wochenKey,
     Unterrichtszeit: Number(w.einsatzBedarf.toFixed(2)),
@@ -16,12 +22,19 @@ export function BedarfAngebotChart({ wochen }: { wochen: WochenErgebnis[] }) {
     <div>
       <div className="chart-legende" aria-label="Legende Bedarf und Angebot">
         <span><i style={{ background: '#a5d6a7' }} /> Angebot (Personen-Kapazität)</span>
-        <span><i style={{ background: '#1976d2' }} /> Unterrichtszeit inkl. Vorbereitung/Fahrt</span>
+        <span><i style={{ background: '#1976d2' }} /> Unterrichtszeit</span>
         <span><i style={{ background: '#64b5f6' }} /> Koordination je Termin/KW</span>
         <span><i style={{ background: '#cccccc' }} /> Ferien</span>
       </div>
       <ResponsiveContainer width="100%" height={340}>
-        <BarChart data={chartData} margin={{ bottom: 20 }}>
+        <BarChart
+          data={chartData}
+          margin={{ bottom: 20 }}
+          onClick={(state) => {
+            if (typeof state?.activeLabel === 'string') onWocheClick?.(state.activeLabel)
+          }}
+          style={{ cursor: onWocheClick ? 'pointer' : undefined }}
+        >
           <XAxis
             dataKey="wochenKey"
             tickFormatter={kwNummer}

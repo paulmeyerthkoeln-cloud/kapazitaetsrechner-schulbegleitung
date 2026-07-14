@@ -34,4 +34,18 @@ describe('WochenDetailOverlay', () => {
     fireEvent.click(screen.getByText('Schließen'))
     expect(onClose).toHaveBeenCalled()
   })
+
+  it('calls onClose when clicking the dialog itself (the ::backdrop area, outside the content)', () => {
+    const onClose = vi.fn()
+    render(<WochenDetailOverlay wochenKey="2026-KW46" details={details} onClose={onClose} />)
+    fireEvent.click(screen.getByRole('dialog'))
+    expect(onClose).toHaveBeenCalled()
+  })
+
+  it('does not call onClose when clicking inside the content', () => {
+    const onClose = vi.fn()
+    render(<WochenDetailOverlay wochenKey="2026-KW46" details={details} onClose={onClose} />)
+    fireEvent.click(screen.getByText('WDG'))
+    expect(onClose).not.toHaveBeenCalled()
+  })
 })

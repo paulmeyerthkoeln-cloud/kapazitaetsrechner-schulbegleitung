@@ -706,7 +706,7 @@ describe('useAppData', () => {
                 terminstatus: 'festgelegt',
                 einheiten: [
                   { id: 'e1', index: 1, datum_oder_kw: '2026-10-05', kontaktzeit_h: 1.5, wir_begleiten: true, typ: 'regulaer' },
-                  { id: 'e2', index: 2, datum_oder_kw: '2026-10-12', kontaktzeit_h: 1.5, wir_begleiten: true, typ: 'exkursion', organisationspauschale_h: 2 },
+                  { id: 'e2', index: 2, datum_oder_kw: '2026-10-12', kontaktzeit_h: 1.5, wir_begleiten: true, typ: 'exkursion' },
                 ],
               },
             ],
@@ -722,7 +722,6 @@ describe('useAppData', () => {
       const veranstaltung = result.current.data.veranstaltungen.find((v) => v.id === 'veranstaltung_e2')!
       expect(veranstaltung.art).toBe('exkursion')
       expect(veranstaltung.schulIds).toEqual(['s1'])
-      expect(veranstaltung.termine[0].organisationspauschale_h).toBe(2)
       expect(veranstaltung.termine[0].besetzungen[0]).toMatchObject({ schulId: 's1', wir_begleiten: true})
     })
   })

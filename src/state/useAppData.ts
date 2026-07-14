@@ -51,7 +51,6 @@ interface LegacyEinheit {
   begleitperson_ids?: string[]
   koordinator_ids?: string[]
   typ?: 'regulaer' | 'exkursion'
-  organisationspauschale_h?: number
 }
 
 function migriereEinheit(roh: LegacyEinheit): Einheit {
@@ -100,7 +99,6 @@ function migriereDatenbestand(d: Datenbestand): Datenbestand {
               datum_oder_kw: roh.datum_oder_kw,
               kontaktzeit_h: roh.kontaktzeit_h,
               thema: roh.thema,
-              organisationspauschale_h: roh.organisationspauschale_h ?? 2,
               besetzungen: [
                 {
                   schulId: schule.id,
@@ -468,7 +466,7 @@ export function useAppData() {
   function setVeranstaltungTerminFelder(
     veranstaltungId: string,
     terminId: string,
-    patch: Partial<Pick<VeranstaltungTermin, 'datum_oder_kw' | 'kontaktzeit_h' | 'thema' | 'organisationspauschale_h'>>
+    patch: Partial<Pick<VeranstaltungTermin, 'datum_oder_kw' | 'kontaktzeit_h' | 'thema'>>
   ) {
     setData((prev) => ({
       ...prev,

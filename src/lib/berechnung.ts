@@ -8,10 +8,6 @@ import {
 } from './kalenderwochen'
 import type { Settings, Datenbestand, Person } from './types'
 
-export function berechneAufwandEinheit(kontaktzeit_h: number, organisationspauschale_h = 0): number {
-  return kontaktzeit_h + organisationspauschale_h
-}
-
 export function berechneBedarfProWoche(
   data: Datenbestand,
   wochenKey: string,
@@ -31,7 +27,7 @@ export function berechneBedarfProWoche(
         koordinationBedarf += (einheit.koordinationszeit_h ?? 0) * koordAnzahl
         if (einheit.wir_begleiten) {
           const begleitAnzahl = Math.max(1, einheit.begleitperson_ids.length)
-          einsatzBedarf += berechneAufwandEinheit(einheit.kontaktzeit_h) * begleitAnzahl
+          einsatzBedarf += einheit.kontaktzeit_h * begleitAnzahl
         }
       }
     }
@@ -41,15 +37,6 @@ export function berechneBedarfProWoche(
     if (veranstaltung.terminstatus === 'offen') continue
     for (const termin of veranstaltung.termine) {
       if (parseZuWochenKey(termin.datum_oder_kw) !== wochenKey) continue
-      // The Organisationspauschale (Exkursionen only) is organizational overhead shared
-      // once across the whole Veranstaltung, regardless of how many schools/people attend.
-      const pauschale = veranstaltung.art === 'exkursion' ? termin.organisationspauschale_h ?? 2 : 0
-      // Only charge the shared overhead if at least one participating Schule actually
-      // accompanies this Termin — matching the Reihen-Einheit rule just above
-      // (wir_begleiten gates the whole Aufwand, not only the per-Schule part).
-      if (termin.besetzungen.some((b) => b.wir_begleiten)) {
-        einsatzBedarf += pauschale
-      }
       for (const besetzung of termin.besetzungen) {
         const koordAnzahl = Math.max(1, besetzung.koordinator_ids.length)
         koordinationBedarf += besetzung.koordinationszeit_h * koordAnzahl

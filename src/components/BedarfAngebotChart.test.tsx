@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { BedarfAngebotChart } from './BedarfAngebotChart'
 import type { WochenErgebnis } from '../lib/berechnung'
@@ -23,5 +23,10 @@ describe('BedarfAngebotChart', () => {
     render(<BedarfAngebotChart wochen={[woche()]} />)
     const legende = screen.getByLabelText('Legende Bedarf und Angebot')
     expect(legende).toHaveTextContent('Ferien')
+  })
+
+  it('renders without crashing when onWocheClick is provided', () => {
+    render(<BedarfAngebotChart wochen={[woche()]} onWocheClick={vi.fn()} />)
+    expect(screen.getByLabelText('Legende Bedarf und Angebot')).toBeInTheDocument()
   })
 })

@@ -1,4 +1,4 @@
-import { berechneAufwandEinheit, berechnePersonKapazitaetsbasis } from './berechnung'
+import { berechnePersonKapazitaetsbasis } from './berechnung'
 import { alleWochenImZeitraum, getISOWochenKey, parseZuWochenKey } from './kalenderwochen'
 import type { Datenbestand } from './types'
 
@@ -28,7 +28,7 @@ function berechneZugewieseneStundenProWoche(data: Datenbestand, personId: string
       for (const einheit of reihe.einheiten) {
         const wochenKey = parseZuWochenKey(einheit.datum_oder_kw)
         if (einheit.wir_begleiten && einheit.begleitperson_ids.includes(personId)) {
-          addiere(wochenKey, berechneAufwandEinheit(einheit.kontaktzeit_h))
+          addiere(wochenKey, einheit.kontaktzeit_h)
         }
         if (einheit.koordinator_ids.includes(personId)) {
           addiere(wochenKey, einheit.koordinationszeit_h ?? 0)
@@ -41,10 +41,9 @@ function berechneZugewieseneStundenProWoche(data: Datenbestand, personId: string
     if (veranstaltung.terminstatus === 'offen') continue
     for (const termin of veranstaltung.termine) {
       const wochenKey = parseZuWochenKey(termin.datum_oder_kw)
-      const pauschale = veranstaltung.art === 'exkursion' ? termin.organisationspauschale_h ?? 2 : 0
       for (const besetzung of termin.besetzungen) {
         if (besetzung.wir_begleiten && besetzung.begleitperson_ids.includes(personId)) {
-          addiere(wochenKey, berechneAufwandEinheit(termin.kontaktzeit_h, pauschale))
+          addiere(wochenKey, termin.kontaktzeit_h)
         }
         if (besetzung.koordinator_ids.includes(personId)) {
           addiere(wochenKey, besetzung.koordinationszeit_h)

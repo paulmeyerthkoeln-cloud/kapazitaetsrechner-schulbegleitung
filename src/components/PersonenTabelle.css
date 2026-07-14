@@ -5,6 +5,27 @@
 .personen-tabelle {
   width: 100%;
   min-width: 0;
+  border-collapse: collapse;
+}
+
+.personen-tabelle th {
+  text-align: left;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 2px solid #999;
+}
+
+.personen-tabelle tbody td {
+  vertical-align: top;
+  padding: 0.75rem 0.6rem;
+  border-bottom: 2px solid #ccc;
+}
+
+.personen-tabelle tbody tr:nth-child(even) {
+  background: #f7f7f7;
+}
+
+.personen-tabelle tbody tr:hover {
+  background: #eef4fb;
 }
 
 .personen-tabelle input[type='text'] {
@@ -18,8 +39,15 @@
 
 .personen-urlaub-liste {
   list-style: none;
-  margin: 0 0 0.25rem;
+  margin: 0 0 0.4rem;
   padding: 0;
+}
+
+.personen-urlaub-liste:not(:empty) {
+  padding: 0.4rem;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+  background: #fff;
 }
 
 .personen-urlaub-liste li {

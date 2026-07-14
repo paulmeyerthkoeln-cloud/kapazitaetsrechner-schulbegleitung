@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { formatDatumOderKw, zuIsoDatum } from '../lib/kalenderwochen'
 import './DatumOderKwFeld.css'
 
@@ -10,8 +11,22 @@ export function DatumOderKwFeld({
   onChange: (value: string) => void
   label: string
 }) {
+  const ref = useRef<HTMLDetailsElement>(null)
+
+  useEffect(() => {
+    // <details> is left uncontrolled on purpose: the native 'toggle' event doesn't
+    // bubble, so React's onToggle can't reliably drive a controlled `open` state.
+    // Instead we read/write ref.current.open directly against the live DOM node.
+    function schliesseWennAusserhalb(ev: PointerEvent) {
+      const details = ref.current
+      if (details?.open && !details.contains(ev.target as Node)) details.open = false
+    }
+    document.addEventListener('pointerdown', schliesseWennAusserhalb)
+    return () => document.removeEventListener('pointerdown', schliesseWennAusserhalb)
+  }, [])
+
   return (
-    <details className="datum-oder-kw-feld">
+    <details ref={ref} className="datum-oder-kw-feld">
       <summary>{formatDatumOderKw(value)}</summary>
       <div className="datum-oder-kw-feld-overlay">
         <label>
