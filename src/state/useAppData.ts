@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabaseClient'
 import { berechneMachbarkeit, berechneWochenuebersicht } from '../lib/berechnung'
 import { berechneThemenGantt } from '../lib/themenUebersicht'
 import { berechnePersonenKapazitaet } from '../lib/personenKapazitaet'
-import { naechstesEinheitDatum } from '../lib/kalenderwochen'
+import { naechstesEinheitDatum, sortiereNachDatum } from '../lib/kalenderwochen'
 import type {
   Datenbestand,
   Einheit,
@@ -280,7 +280,7 @@ export function useAppData() {
             begleitperson_ids: [],
             koordinator_ids: [],
           }
-          return { ...reihe, einheiten: [...reihe.einheiten, neueEinheit] }
+          return { ...reihe, einheiten: sortiereNachDatum([...reihe.einheiten, neueEinheit]) }
         }),
       })),
     }))
@@ -314,7 +314,7 @@ export function useAppData() {
             ? reihe
             : {
                 ...reihe,
-                einheiten: reihe.einheiten.map((e) => (e.id === einheitId ? { ...e, ...patch } : e)),
+                einheiten: sortiereNachDatum(reihe.einheiten.map((e) => (e.id === einheitId ? { ...e, ...patch } : e))),
               }
         ),
       })),
@@ -447,7 +447,7 @@ export function useAppData() {
           kontaktzeit_h: 1.5,
           besetzungen: v.schulIds.map((schulId) => leereBesetzung(schulId)),
         }
-        return { ...v, termine: [...v.termine, neuerTermin] }
+        return { ...v, termine: sortiereNachDatum([...v.termine, neuerTermin]) }
       }),
     }))
   }
@@ -471,7 +471,9 @@ export function useAppData() {
     setData((prev) => ({
       ...prev,
       veranstaltungen: prev.veranstaltungen.map((v) =>
-        v.id !== veranstaltungId ? v : { ...v, termine: v.termine.map((t) => (t.id === terminId ? { ...t, ...patch } : t)) }
+        v.id !== veranstaltungId
+          ? v
+          : { ...v, termine: sortiereNachDatum(v.termine.map((t) => (t.id === terminId ? { ...t, ...patch } : t))) }
       ),
     }))
   }

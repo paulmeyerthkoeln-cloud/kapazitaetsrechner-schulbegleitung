@@ -152,6 +152,15 @@ export function formatDatumOderKw(datumOderKw: string): string {
   return `${format(datum, 'dd.MM.yyyy')} (KW${kwNummer(getISOWochenKey(datum))})`
 }
 
+// Termine werden immer chronologisch angezeigt: nach jeder Änderung, die die Reihenfolge
+// beeinflussen könnte (neuer Termin, geändertes Datum), wird neu sortiert und der Index
+// (1..n) entsprechend der neuen Position neu vergeben.
+export function sortiereNachDatum<T extends { datum_oder_kw: string; index: number }>(termine: T[]): T[] {
+  return [...termine]
+    .sort((a, b) => zuIsoDatum(a.datum_oder_kw).localeCompare(zuIsoDatum(b.datum_oder_kw)))
+    .map((termin, i) => ({ ...termin, index: i + 1 }))
+}
+
 export function naechstesEinheitDatum(einheiten: { datum_oder_kw: string }[]): string {
   if (einheiten.length === 0) return format(new Date(), 'yyyy-MM-dd')
   const wochenKeys = einheiten.map((e) => parseZuWochenKey(e.datum_oder_kw))

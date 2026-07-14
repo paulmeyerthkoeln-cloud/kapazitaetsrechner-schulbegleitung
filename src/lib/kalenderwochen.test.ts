@@ -12,6 +12,7 @@ import {
   formatWochenspanne,
   formatDatumOderKw,
   zuIsoDatum,
+  sortiereNachDatum,
   generiereWochentlicheTermine,
   kwNummer,
   naechstesEinheitDatum,
@@ -187,6 +188,45 @@ describe('zuIsoDatum', () => {
 
   it('converts a KW-only value to the Monday of that week', () => {
     expect(zuIsoDatum('2026-KW46')).toBe('2026-11-09')
+  })
+})
+
+describe('sortiereNachDatum', () => {
+  it('reorders Termine chronologically and renumbers their index accordingly', () => {
+    const termine = [
+      { id: 't1', index: 1, datum_oder_kw: '2026-11-16' },
+      { id: 't2', index: 2, datum_oder_kw: '2026-11-02' },
+      { id: 't3', index: 3, datum_oder_kw: '2026-11-09' },
+    ]
+    const sortiert = sortiereNachDatum(termine)
+    expect(sortiert.map((t) => t.id)).toEqual(['t2', 't3', 't1'])
+    expect(sortiert.map((t) => t.index)).toEqual([1, 2, 3])
+  })
+
+  it('places a newly inserted Termin at its chronologically correct position', () => {
+    const termine = [
+      { id: 't1', index: 1, datum_oder_kw: '2026-11-02' },
+      { id: 't3', index: 2, datum_oder_kw: '2026-11-16' },
+      { id: 'neu', index: 3, datum_oder_kw: '2026-11-09' },
+    ]
+    const sortiert = sortiereNachDatum(termine)
+    expect(sortiert.map((t) => t.id)).toEqual(['t1', 'neu', 't3'])
+  })
+
+  it('treats a KW-only value and its equivalent Monday date as the same position', () => {
+    const termine = [
+      { id: 't1', index: 1, datum_oder_kw: '2026-11-16' },
+      { id: 't2', index: 2, datum_oder_kw: '2026-KW45' },
+    ]
+    expect(sortiereNachDatum(termine).map((t) => t.id)).toEqual(['t2', 't1'])
+  })
+
+  it('keeps the relative order of Termine that fall on the same date (stable sort)', () => {
+    const termine = [
+      { id: 'a', index: 1, datum_oder_kw: '2026-11-09' },
+      { id: 'b', index: 2, datum_oder_kw: '2026-11-09' },
+    ]
+    expect(sortiereNachDatum(termine).map((t) => t.id)).toEqual(['a', 'b'])
   })
 })
 

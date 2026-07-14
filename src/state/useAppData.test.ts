@@ -185,6 +185,33 @@ describe('useAppData', () => {
     expect(aktualisierteReihe.einheiten.at(-1)?.datum_oder_kw).toBe('2026-12-21')
   })
 
+  it('addEinheit inserts the new Einheit at its chronologically correct position, not just at the end', async () => {
+    const { result } = await renderBereitesAppData()
+    const schule = result.current.data.schulen.find((s) => s.id === 'wdg')!
+    const reihe = schule.reihen[0]
+    act(() => {
+      result.current.addEinheit(reihe.id)
+    })
+    const einheitId = result.current.data.schulen.find((s) => s.id === 'wdg')!.reihen[0].einheiten.at(-1)!.id
+    act(() => {
+      // wdg's existing Einheiten sit at KW46/48/50/51 (see src/data/data.json) — 2026-11-16 falls
+      // between the KW46 (2026-11-09) and KW48 (2026-11-23) Einheiten.
+      result.current.setEinheitFelder(reihe.id, einheitId, { datum_oder_kw: '2026-11-16' })
+    })
+    const aktualisierteReihe = result.current.data.schulen.find((s) => s.id === 'wdg')!.reihen[0]
+    // WDG's seed Einheiten keep their original "YYYY-KWnn" formatting; only the new one we
+    // just set is a literal date — the point being tested is the chronological ordering.
+    expect(aktualisierteReihe.einheiten.map((e) => e.datum_oder_kw)).toEqual([
+      '2026-KW46',
+      '2026-11-16',
+      '2026-KW48',
+      '2026-KW50',
+      '2026-KW51',
+    ])
+    expect(aktualisierteReihe.einheiten.map((e) => e.index)).toEqual([1, 2, 3, 4, 5])
+    expect(aktualisierteReihe.einheiten[1].id).toBe(einheitId)
+  })
+
   it('setEinheitBegleitung clears begleitperson_ids when toggled off', async () => {
     const { result } = await renderBereitesAppData()
     const schule = result.current.data.schulen.find((s) => s.id === 'wdg')!
@@ -280,7 +307,8 @@ describe('useAppData', () => {
     act(() => {
       result.current.setEinheitFelder(reihe.id, einheit.id, { datum_oder_kw: '2026-12-01', kontaktzeit_h: 2 })
     })
-    const aktualisierteEinheit = result.current.data.schulen.find((s) => s.id === 'wdg')!.reihen[0].einheiten[0]
+    const aktualisierteReihe = result.current.data.schulen.find((s) => s.id === 'wdg')!.reihen[0]
+    const aktualisierteEinheit = aktualisierteReihe.einheiten.find((e) => e.id === einheit.id)!
     expect(aktualisierteEinheit.datum_oder_kw).toBe('2026-12-01')
     expect(aktualisierteEinheit.kontaktzeit_h).toBe(2)
     expect(aktualisierteEinheit.wir_begleiten).toBe(einheit.wir_begleiten)
@@ -625,6 +653,33 @@ describe('useAppData', () => {
       expect(termin.kontaktzeit_h).toBe(1.5)
       expect(termin.besetzungen.map((b) => b.schulId)).toEqual(['wdg', 'sedanstrasse'])
       expect(termin.besetzungen.every((b) => b.wir_begleiten && b.begleitperson_ids.length === 0)).toBe(true)
+    })
+
+    it('inserts a Termin at its chronologically correct position when its Datum is set earlier than existing Termine', async () => {
+      const { result } = await renderBereitesAppData()
+      act(() => {
+        result.current.addVeranstaltung('themenwoche', ['wdg'])
+      })
+      const id = result.current.data.veranstaltungen.at(-1)!.id
+      act(() => {
+        result.current.addVeranstaltungTermin(id)
+      })
+      const ersterTerminId = result.current.data.veranstaltungen.find((v) => v.id === id)!.termine[0].id
+      act(() => {
+        result.current.setVeranstaltungTerminFelder(id, ersterTerminId, { datum_oder_kw: '2026-11-16' })
+      })
+      act(() => {
+        result.current.addVeranstaltungTermin(id)
+      })
+      const zweiterTerminId = result.current.data.veranstaltungen
+        .find((v) => v.id === id)!
+        .termine.find((t) => t.id !== ersterTerminId)!.id
+      act(() => {
+        result.current.setVeranstaltungTerminFelder(id, zweiterTerminId, { datum_oder_kw: '2026-11-02' })
+      })
+      const termine = result.current.data.veranstaltungen.find((v) => v.id === id)!.termine
+      expect(termine.map((t) => t.id)).toEqual([zweiterTerminId, ersterTerminId])
+      expect(termine.map((t) => t.index)).toEqual([1, 2])
     })
 
     it('removeVeranstaltungTermin deletes the matching Termin and renumbers the rest', async () => {
