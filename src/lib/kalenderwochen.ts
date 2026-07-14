@@ -1,4 +1,4 @@
-import { getISOWeek, getISOWeekYear, startOfISOWeek, addWeeks, areIntervalsOverlapping, endOfISOWeek, parseISO, format, setISOWeek, setISOWeekYear } from 'date-fns'
+import { getISOWeek, getISOWeekYear, startOfISOWeek, addWeeks, addDays, areIntervalsOverlapping, endOfISOWeek, isSaturday, parseISO, format, setISOWeek, setISOWeekYear } from 'date-fns'
 import type { FerienZeitraum, Muster, Einheit, Reihe } from './types'
 
 export function getISOWochenKey(date: Date): string {
@@ -28,6 +28,20 @@ export function istWocheInFerien(wochenStartMontag: Date, ferien: FerienZeitraum
   return ferien.some((f) =>
     areIntervalsOverlapping(wocheInterval, { start: parseISO(f.von), end: parseISO(f.bis) }, { inclusive: true })
   )
+}
+
+// istWocheInFerien markiert eine ganze Mo–So-Woche als Ferien, sobald sie den Ferienzeitraum
+// auch nur berührt. Beginnt ein Ferienzeitraum an einem Samstag, reicht er damit ins
+// Wochenende der VORHERIGEN (eigentlich normalen) Schulwoche hinein und lässt diese
+// fälschlich als volle Ferienwoche erscheinen — aus z. B. 2 Wochen Herbstferien würden in der
+// Wochen-Heatmap/im Balkendiagramm optisch 3. Da Samstag/Sonntag ohnehin schulfrei sind, geht
+// beim Verschieben auf den folgenden Montag kein echter Ferientag verloren.
+export function bereinigeFerien(ferien: FerienZeitraum[]): FerienZeitraum[] {
+  return ferien.map((f) => {
+    const von = parseISO(f.von)
+    if (!isSaturday(von)) return f
+    return { ...f, von: format(addDays(von, 2), 'yyyy-MM-dd') }
+  })
 }
 
 export function alleWochenImZeitraum(start: string, ende: string): Date[] {

@@ -779,5 +779,23 @@ describe('useAppData', () => {
       expect(veranstaltung.schulIds).toEqual(['s1'])
       expect(veranstaltung.termine[0].besetzungen[0]).toMatchObject({ schulId: 's1', wir_begleiten: true})
     })
+
+    it('moves a Ferien-Start that falls on a Samstag to the following Montag on import', async () => {
+      const { result } = await renderBereitesAppData()
+      const roh = {
+        settings: {
+          planungszeitraum: { start: '2026-09-01', ende: '2027-07-16' },
+          schwellwert_warnung: 0.7,
+          schwellwert_kritisch: 0.9,
+        },
+        personen: [],
+        kalender: { ferien: [{ name: 'Herbstferien NRW', von: '2026-10-17', bis: '2026-10-31' }] },
+        schulen: [],
+      }
+      act(() => {
+        result.current.importJson(JSON.stringify(roh))
+      })
+      expect(result.current.data.kalender.ferien).toEqual([{ name: 'Herbstferien NRW', von: '2026-10-19', bis: '2026-10-31' }])
+    })
   })
 })

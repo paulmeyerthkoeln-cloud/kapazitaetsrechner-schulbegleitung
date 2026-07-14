@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabaseClient'
 import { berechneMachbarkeit, berechneWochenuebersicht } from '../lib/berechnung'
 import { berechneThemenGantt } from '../lib/themenUebersicht'
 import { berechnePersonenKapazitaet } from '../lib/personenKapazitaet'
-import { naechstesEinheitDatum, sortiereNachDatum } from '../lib/kalenderwochen'
+import { naechstesEinheitDatum, sortiereNachDatum, bereinigeFerien } from '../lib/kalenderwochen'
 import type {
   Datenbestand,
   Einheit,
@@ -128,6 +128,7 @@ function migriereDatenbestand(d: Datenbestand): Datenbestand {
         ...person,
         urlaub: person.urlaub ?? [],
       })),
+    kalender: { ...d.kalender, ferien: bereinigeFerien(d.kalender.ferien) },
     schulen,
     veranstaltungen: [...(d.veranstaltungen ?? []), ...exkursionsVeranstaltungen],
   }

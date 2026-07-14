@@ -5,6 +5,7 @@ import {
   parseZuWochenKey,
   istDatumInFerien,
   istWocheInFerien,
+  bereinigeFerien,
   alleWochenImZeitraum,
   expandiereMuster,
   berechneReiheZeitraum,
@@ -71,6 +72,23 @@ describe('istWocheInFerien', () => {
     // 2026-10-26 runs through Sunday 2026-11-01, so only Fri 10-30 and Sat
     // 10-31 (2 of 7 days) fall inside the Ferien range — a clear minority.
     expect(istWocheInFerien(new Date('2026-10-26'), [herbstferien])).toBe(true)
+  })
+})
+
+describe('bereinigeFerien', () => {
+  it('moves a Samstag start to the following Montag, leaving the end untouched', () => {
+    expect(bereinigeFerien([herbstferien])).toEqual([{ ...herbstferien, von: '2026-10-19' }])
+  })
+
+  it('leaves a Ferien range starting on a weekday unchanged', () => {
+    const osterferien: FerienZeitraum = { name: 'Osterferien NRW 2027', von: '2027-03-22', bis: '2027-04-03' }
+    expect(bereinigeFerien([osterferien])).toEqual([osterferien])
+  })
+
+  it('no longer makes the preceding week look like a Ferienwoche after the fix', () => {
+    const [bereinigt] = bereinigeFerien([herbstferien])
+    expect(istWocheInFerien(new Date('2026-10-12'), [bereinigt])).toBe(false)
+    expect(istWocheInFerien(new Date('2026-10-19'), [bereinigt])).toBe(true)
   })
 })
 
