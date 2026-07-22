@@ -410,6 +410,12 @@ describe('useAppData', () => {
     expect(result.current.personenKapazitaet).toHaveLength(result.current.data.personen.length)
   })
 
+  it('exposes terminUebersichtZeilen once the Datenbestand is loaded', async () => {
+    const { result } = renderHook(() => useAppData())
+    await waitFor(() => expect(result.current.ladePhase).toBe('bereit'))
+    expect(Array.isArray(result.current.terminUebersichtZeilen)).toBe(true)
+  })
+
   it('addPersonenUmverteilung appends a new entry', async () => {
     const { result } = await renderBereitesAppData()
     const personId = result.current.data.personen[0].id

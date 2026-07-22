@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabaseClient'
 import { berechneMachbarkeit, berechneWochenuebersicht } from '../lib/berechnung'
 import { berechneThemenGantt } from '../lib/themenUebersicht'
 import { berechnePersonenKapazitaet } from '../lib/personenKapazitaet'
+import { berechneTerminUebersicht } from '../lib/terminUebersicht'
 import { naechstesEinheitDatum, sortiereNachDatum, bereinigeFerien } from '../lib/kalenderwochen'
 import type {
   Datenbestand,
@@ -546,6 +547,7 @@ export function useAppData() {
   }, [data])
   const themenGanttZeilen = useMemo(() => berechneThemenGantt(data), [data])
   const personenKapazitaet = useMemo(() => berechnePersonenKapazitaet(data), [data])
+  const terminUebersichtZeilen = useMemo(() => berechneTerminUebersicht(data), [data])
 
   return {
     data,
@@ -554,6 +556,7 @@ export function useAppData() {
     speicherFehler,
     themenGanttZeilen,
     personenKapazitaet,
+    terminUebersichtZeilen,
     setPerson,
     setPersonUrlaub,
     addPerson,

@@ -8,6 +8,7 @@ import { PersonenTabelle } from './components/PersonenTabelle'
 import { PersonenKapazitaetsUebersicht } from './components/PersonenKapazitaetsUebersicht'
 import { EngpassBericht } from './components/EngpassBericht'
 import { ThemenUebersicht } from './components/ThemenUebersicht'
+import { TerminUebersicht } from './components/TerminUebersicht'
 import { VeranstaltungenUebersicht } from './components/VeranstaltungenUebersicht'
 import { PersonenUmverteilung } from './components/PersonenUmverteilung'
 import { ExportImport } from './components/ExportImport'
@@ -47,6 +48,7 @@ export default function App() {
     removePersonenUmverteilung,
     ergebnis,
     themenGanttZeilen,
+    terminUebersichtZeilen,
     personenKapazitaet,
     exportJson,
     importJson,
@@ -103,6 +105,9 @@ export default function App() {
           </div>
           <div className="card">
             <ThemenUebersicht zeilen={themenGanttZeilen} wochen={ergebnis.wochen} />
+          </div>
+          <div className="card">
+            <TerminUebersicht zeilen={terminUebersichtZeilen} personen={data.personen} />
           </div>
           <h2>Schulen</h2>
           <SchulenAccordion
