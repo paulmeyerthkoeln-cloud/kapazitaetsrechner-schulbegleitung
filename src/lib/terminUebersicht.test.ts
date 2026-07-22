@@ -129,3 +129,58 @@ describe('berechneTerminUebersicht – Schulen', () => {
     expect(zeile.begleitpersonIds).toEqual([])
   })
 })
+
+describe('berechneTerminUebersicht – Veranstaltungen', () => {
+  it('creates one Zeile per Besetzung of a Veranstaltungs-Termin', () => {
+    const data = datenbestand({
+      schulen: [schule({ id: 's1', name: 'Schule Eins', reihen: [] }), schule({ id: 's2', name: 'Schule Zwei', reihen: [] })],
+      veranstaltungen: [
+        {
+          id: 'v1',
+          art: 'themenwoche',
+          titel: 'Nachhaltigkeitswoche',
+          terminstatus: 'festgelegt',
+          schulIds: ['s1', 's2'],
+          termine: [
+            {
+              id: 't1',
+              index: 1,
+              datum_oder_kw: '2026-11-10',
+              kontaktzeit_h: 1.5,
+              thema: 'Stadtgrün',
+              besetzungen: [
+                { schulId: 's1', wir_begleiten: true, begleitperson_ids: ['p1'], koordinator_ids: [], koordinationszeit_h: 0 },
+                { schulId: 's2', wir_begleiten: false, begleitperson_ids: [], koordinator_ids: ['p2'], koordinationszeit_h: 1 },
+              ],
+            },
+          ],
+        },
+      ],
+    })
+    const zeilen = berechneTerminUebersicht(data)
+    expect(zeilen).toHaveLength(2)
+    expect(zeilen).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          quelle: 'veranstaltung',
+          titel: 'Nachhaltigkeitswoche',
+          schulId: 's1',
+          schulName: 'Schule Eins',
+          thema: 'Stadtgrün',
+          unterrichtsStunden: 1.5,
+          koordinationsStunden: 0,
+          begleitpersonNamen: ['Anna'],
+        }),
+        expect.objectContaining({
+          quelle: 'veranstaltung',
+          titel: 'Nachhaltigkeitswoche',
+          schulId: 's2',
+          schulName: 'Schule Zwei',
+          unterrichtsStunden: 0,
+          koordinationsStunden: 1,
+          koordinatorNamen: ['Ben'],
+        }),
+      ])
+    )
+  })
+})
