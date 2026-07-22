@@ -319,7 +319,7 @@ describe('berechneTerminUebersicht – Veranstaltungen', () => {
 ```
 
 Run: `npx vitest run src/lib/terminUebersicht.test.ts`
-Expected: FAIL — only 1 row returned (Schule-Zeilen present, but `schulen: [..., reihen: []]` in this fixture produce 0 Schul-Zeilen, so the new test alone would get 0 Veranstaltungs-Zeilen; total 0 instead of expected 2)
+Expected: FAIL — 0 rows returned instead of 2 (this test's fixture overrides `schulen` with empty `reihen` on both entries, so `baueSchulZeilen` contributes nothing, and `berechneTerminUebersicht` doesn't build Veranstaltungs-Zeilen yet)
 
 - [ ] **Step 2: Extend `berechneTerminUebersicht` with Veranstaltungen**
 
@@ -370,7 +370,7 @@ export function berechneTerminUebersicht(data: Datenbestand): TerminZeile[] {
 - [ ] **Step 3: Run test to verify it passes**
 
 Run: `npx vitest run src/lib/terminUebersicht.test.ts`
-Expected: PASS (4 tests)
+Expected: PASS (3 tests)
 
 - [ ] **Step 4: Commit**
 
@@ -506,7 +506,7 @@ export function berechneTerminUebersicht(data: Datenbestand): TerminZeile[] {
 - [ ] **Step 3: Run test to verify it passes**
 
 Run: `npx vitest run src/lib/terminUebersicht.test.ts`
-Expected: PASS (8 tests)
+Expected: PASS (7 tests)
 
 - [ ] **Step 4: Commit**
 
