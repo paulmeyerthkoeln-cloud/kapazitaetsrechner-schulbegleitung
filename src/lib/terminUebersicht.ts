@@ -88,6 +88,40 @@ function baueVeranstaltungsZeilen(data: Datenbestand): TerminZeile[] {
   return zeilen
 }
 
+function markiereKonflikte(zeilen: TerminZeile[]): TerminZeile[] {
+  const zeilenProPersonUndDatum = new Map<string, TerminZeile[]>()
+  for (const zeile of zeilen) {
+    const relevantePersonen = new Set([
+      ...(zeile.unterrichtsStunden > 0 ? zeile.begleitpersonIds : []),
+      ...(zeile.koordinationsStunden > 0 ? zeile.koordinatorIds : []),
+    ])
+    for (const personId of relevantePersonen) {
+      const schluessel = `${zeile.isoDatum}__${personId}`
+      const liste = zeilenProPersonUndDatum.get(schluessel) ?? []
+      liste.push(zeile)
+      zeilenProPersonUndDatum.set(schluessel, liste)
+    }
+  }
+
+  const konfliktZeilenIds = new Set<string>()
+  for (const liste of zeilenProPersonUndDatum.values()) {
+    const eindeutigeIds = new Set(liste.map((z) => z.id))
+    if (eindeutigeIds.size < 2) continue
+    for (const id of eindeutigeIds) konfliktZeilenIds.add(id)
+  }
+
+  return zeilen.map((z) => (konfliktZeilenIds.has(z.id) ? { ...z, hatKonflikt: true } : z))
+}
+
+function sortiereChronologisch(zeilen: TerminZeile[]): TerminZeile[] {
+  return [...zeilen].sort((a, b) => {
+    if (a.isoDatum !== b.isoDatum) return a.isoDatum.localeCompare(b.isoDatum)
+    if (a.schulName !== b.schulName) return a.schulName.localeCompare(b.schulName)
+    return a.titel.localeCompare(b.titel)
+  })
+}
+
 export function berechneTerminUebersicht(data: Datenbestand): TerminZeile[] {
-  return [...baueSchulZeilen(data), ...baueVeranstaltungsZeilen(data)]
+  const zeilen = [...baueSchulZeilen(data), ...baueVeranstaltungsZeilen(data)]
+  return sortiereChronologisch(markiereKonflikte(zeilen))
 }

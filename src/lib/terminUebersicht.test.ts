@@ -184,3 +184,58 @@ describe('berechneTerminUebersicht – Veranstaltungen', () => {
     )
   })
 })
+
+describe('berechneTerminUebersicht – Sortierung und Konflikte', () => {
+  it('sorts rows chronologically by isoDatum', () => {
+    const data = datenbestand({
+      schulen: [
+        schule({
+          id: 's1',
+          reihen: [
+            reihe({
+              einheiten: [
+                einheit({ id: 'e1', datum_oder_kw: '2026-11-16' }),
+                einheit({ id: 'e2', datum_oder_kw: '2026-11-09' }),
+              ],
+            }),
+          ],
+        }),
+      ],
+    })
+    const zeilen = berechneTerminUebersicht(data)
+    expect(zeilen.map((z) => z.isoDatum)).toEqual(['2026-11-09', '2026-11-16'])
+  })
+
+  it('flags two rows on the same day sharing a Begleitperson as Konflikt', () => {
+    const data = datenbestand({
+      schulen: [
+        schule({ id: 's1', name: 'Schule Eins', reihen: [reihe({ id: 'r1', einheiten: [einheit({ id: 'e1', datum_oder_kw: '2026-11-09', begleitperson_ids: ['p1'] })] })] }),
+        schule({ id: 's2', name: 'Schule Zwei', reihen: [reihe({ id: 'r2', einheiten: [einheit({ id: 'e2', datum_oder_kw: '2026-11-09', begleitperson_ids: ['p1'] })] })] }),
+      ],
+    })
+    const zeilen = berechneTerminUebersicht(data)
+    expect(zeilen.every((z) => z.hatKonflikt)).toBe(true)
+  })
+
+  it('does not flag a Konflikt when the shared Person is only listed but wir_begleiten is false and koordinationszeit_h is 0', () => {
+    const data = datenbestand({
+      schulen: [
+        schule({ id: 's1', reihen: [reihe({ id: 'r1', einheiten: [einheit({ id: 'e1', datum_oder_kw: '2026-11-09', wir_begleiten: false, koordinationszeit_h: 0, begleitperson_ids: ['p1'] })] })] }),
+        schule({ id: 's2', reihen: [reihe({ id: 'r2', einheiten: [einheit({ id: 'e2', datum_oder_kw: '2026-11-09', wir_begleiten: false, koordinationszeit_h: 0, begleitperson_ids: ['p1'] })] })] }),
+      ],
+    })
+    const zeilen = berechneTerminUebersicht(data)
+    expect(zeilen.every((z) => !z.hatKonflikt)).toBe(true)
+  })
+
+  it('does not flag a Konflikt for the same Person on different days', () => {
+    const data = datenbestand({
+      schulen: [
+        schule({ id: 's1', reihen: [reihe({ id: 'r1', einheiten: [einheit({ id: 'e1', datum_oder_kw: '2026-11-09', begleitperson_ids: ['p1'] })] })] }),
+        schule({ id: 's2', reihen: [reihe({ id: 'r2', einheiten: [einheit({ id: 'e2', datum_oder_kw: '2026-11-16', begleitperson_ids: ['p1'] })] })] }),
+      ],
+    })
+    const zeilen = berechneTerminUebersicht(data)
+    expect(zeilen.every((z) => !z.hatKonflikt)).toBe(true)
+  })
+})
