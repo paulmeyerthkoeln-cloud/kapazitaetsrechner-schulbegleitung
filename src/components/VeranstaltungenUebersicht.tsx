@@ -1,4 +1,5 @@
 import { PersonenMehrfachauswahl } from './PersonenMehrfachauswahl'
+import { DatumOderKwFeld } from './DatumOderKwFeld'
 import type { Person, Schule, Terminstatus, Thema, Veranstaltung, VeranstaltungArt, VeranstaltungTermin } from '../lib/types'
 import './VeranstaltungenUebersicht.css'
 
@@ -83,12 +84,10 @@ export function VeranstaltungenUebersicht({
             <div key={termin.id} className="veranstaltung-termin">
               <label>
                 Datum/KW:{' '}
-                <input
-                  type="text"
-                  aria-label={`Datum/KW für Termin ${termin.index} in ${v.titel}`}
+                <DatumOderKwFeld
                   value={termin.datum_oder_kw}
-                  placeholder="YYYY-MM-DD oder YYYY-KWnn"
-                  onChange={(ev) => onTerminFelderChange(v.id, termin.id, { datum_oder_kw: ev.target.value })}
+                  onChange={(datum_oder_kw) => onTerminFelderChange(v.id, termin.id, { datum_oder_kw })}
+                  label={`Datum/KW für Termin ${termin.index} in ${v.titel}`}
                 />
               </label>
               <label>
