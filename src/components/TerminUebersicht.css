@@ -36,3 +36,11 @@
   border: 1px solid #ddd;
   border-radius: 0.35rem;
 }
+
+.termin-zeile-konflikt {
+  background: #fff3e0;
+}
+
+.termin-konflikt-symbol {
+  cursor: help;
+}

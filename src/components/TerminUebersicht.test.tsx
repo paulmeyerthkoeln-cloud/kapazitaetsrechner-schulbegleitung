@@ -115,4 +115,19 @@ describe('TerminUebersicht', () => {
     expect(screen.getByText('Schule A')).toBeInTheDocument()
     expect(screen.queryByText('Schule B')).not.toBeInTheDocument()
   })
+
+  it('shows a Konflikt indicator for rows with hatKonflikt', () => {
+    render(<TerminUebersicht zeilen={[zeile({ id: 'z1', hatKonflikt: true })]} personen={personen} />)
+    expect(screen.getByTitle(/Terminkonflikt/)).toBeInTheDocument()
+  })
+
+  it('does not show a Konflikt indicator for conflict-free rows', () => {
+    render(<TerminUebersicht zeilen={[zeile({ id: 'z1', hatKonflikt: false })]} personen={personen} />)
+    expect(screen.queryByTitle(/Terminkonflikt/)).not.toBeInTheDocument()
+  })
+
+  it('includes the Konflikt count in the collapsed summary when Konflikte exist', () => {
+    render(<TerminUebersicht zeilen={[zeile({ id: 'z1', hatKonflikt: true }), zeile({ id: 'z2', hatKonflikt: false })]} personen={personen} />)
+    expect(screen.getByText('Terminliste anzeigen (2 Termine, 1 Konflikte)')).toBeInTheDocument()
+  })
 })

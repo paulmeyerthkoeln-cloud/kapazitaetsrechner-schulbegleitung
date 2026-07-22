@@ -44,9 +44,14 @@ export function TerminUebersicht({
     return true
   })
 
+  const anzahlKonflikte = zeilen.filter((z) => z.hatKonflikt).length
+
   return (
     <details className="termin-uebersicht">
-      <summary>Terminliste anzeigen ({zeilen.length} Termine)</summary>
+      <summary>
+        Terminliste anzeigen ({zeilen.length} Termine
+        {anzahlKonflikte > 0 ? `, ${anzahlKonflikte} Konflikte` : ''})
+      </summary>
       <div className="termin-uebersicht-inhalt">
         <div className="termin-uebersicht-filter">
           <PersonenMehrfachauswahl personen={personen} ausgewaehlt={personFilter} onChange={setPersonFilter} label="Person filtern" />
@@ -104,8 +109,15 @@ export function TerminUebersicht({
             </thead>
             <tbody>
               {gefiltert.map((z) => (
-                <tr key={z.id}>
-                  <td>{formatDatumOderKw(z.datumOderKw)}</td>
+                <tr key={z.id} className={z.hatKonflikt ? 'termin-zeile-konflikt' : undefined}>
+                  <td>
+                    {formatDatumOderKw(z.datumOderKw)}
+                    {z.hatKonflikt && (
+                      <span className="termin-konflikt-symbol" title="Terminkonflikt: mindestens eine beteiligte Person ist an diesem Tag mehrfach eingeplant">
+                        {' '}⚠
+                      </span>
+                    )}
+                  </td>
                   <td>{z.schulName}</td>
                   <td>{z.titel}</td>
                   <td>{z.thema ?? '—'}</td>
