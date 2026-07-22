@@ -1,0 +1,26 @@
+.termin-uebersicht {
+  margin-top: var(--spacing-sm);
+}
+
+.termin-uebersicht > summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.termin-uebersicht-inhalt {
+  margin-top: var(--spacing-sm);
+}
+
+.termin-uebersicht table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: var(--spacing-sm);
+}
+
+.termin-uebersicht th,
+.termin-uebersicht td {
+  text-align: left;
+  padding: 0.35rem 0.5rem;
+  border-bottom: 1px solid #eee;
+  font-size: 0.9rem;
+}
