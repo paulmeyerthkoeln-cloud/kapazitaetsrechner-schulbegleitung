@@ -6,7 +6,7 @@ import {
   getISOWochenKey,
   ermittleFerienName,
 } from './kalenderwochen'
-import type { Settings, Datenbestand, Person } from './types'
+import type { Settings, Datenbestand, Person, PersonenUmverteilung } from './types'
 
 export function berechneBedarfProWoche(
   data: Datenbestand,
@@ -66,8 +66,19 @@ export function berechnePersonKapazitaetsbasis(person: Person, wochenStartMontag
   return person.stunden_pro_woche_fuer_begleitung * (1 - abzugsfaktor)
 }
 
-export function berechneAngebotProWoche(personen: Person[], wochenStartMontag: Date): number {
-  return personen.reduce((summe, person) => summe + berechnePersonKapazitaetsbasis(person, wochenStartMontag), 0)
+export function berechneAngebotProWoche(
+  personen: Person[],
+  wochenStartMontag: Date,
+  personenUmverteilungen: PersonenUmverteilung[] = []
+): number {
+  const wochenKey = getISOWochenKey(wochenStartMontag)
+  return personen.reduce((summe, person) => {
+    const basis = berechnePersonKapazitaetsbasis(person, wochenStartMontag)
+    const eigene = personenUmverteilungen.filter((u) => u.personId === person.id)
+    const eingehend = eigene.filter((u) => u.zielWochenKey === wochenKey).reduce((s, u) => s + u.stunden, 0)
+    const ausgehend = eigene.filter((u) => u.quelleWochenKey === wochenKey).reduce((s, u) => s + u.stunden, 0)
+    return summe + basis + eingehend - ausgehend
+  }, 0)
 }
 
 export type AmpelFarbe = 'gruen' | 'gelb' | 'rot'
@@ -98,7 +109,7 @@ export function berechneWochenuebersicht(data: Datenbestand): WochenErgebnis[] {
     const ferienName = ermittleFerienName(montag, data.kalender.ferien)
     const { einsatzBedarf, koordinationBedarf } = berechneBedarfProWoche(data, wochenKey, istFerien)
     const bedarf = einsatzBedarf + koordinationBedarf
-    const angebot = berechneAngebotProWoche(data.personen, montag)
+    const angebot = berechneAngebotProWoche(data.personen, montag, data.personenUmverteilungen ?? [])
     const auslastung = angebot === 0 ? 0 : bedarf / angebot
     return {
       wochenKey,

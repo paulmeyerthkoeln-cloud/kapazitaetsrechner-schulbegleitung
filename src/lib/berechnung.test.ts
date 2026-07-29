@@ -518,6 +518,24 @@ describe('berechneAngebotProWoche', () => {
     const personen = [person({ aktiv_ab: '2027-02-01' })]
     expect(berechneAngebotProWoche(personen, new Date('2026-11-09'))).toBe(0)
   })
+
+  it('shifts capacity between weeks according to personenUmverteilungen', () => {
+    const personen = [person({ id: 'p1' })]
+    const umverteilungen = [
+      { id: 'u1', personId: 'p1', quelleWochenKey: '2026-KW46', zielWochenKey: '2026-KW47', stunden: 6 },
+    ]
+    // 2026-11-09 is the Monday of KW46/2026, 2026-11-16 is KW47/2026.
+    expect(berechneAngebotProWoche(personen, new Date('2026-11-09'), umverteilungen)).toBeCloseTo(8 - 6, 5)
+    expect(berechneAngebotProWoche(personen, new Date('2026-11-16'), umverteilungen)).toBeCloseTo(8 + 6, 5)
+  })
+
+  it('ignores personenUmverteilungen of other Personen', () => {
+    const personen = [person({ id: 'p1' })]
+    const umverteilungen = [
+      { id: 'u1', personId: 'p2', quelleWochenKey: '2026-KW46', zielWochenKey: '2026-KW47', stunden: 6 },
+    ]
+    expect(berechneAngebotProWoche(personen, new Date('2026-11-09'), umverteilungen)).toBeCloseTo(8, 5)
+  })
 })
 
 describe('ampelFarbe', () => {
