@@ -330,3 +330,10 @@ describe('ReihenEditor', () => {
     expect(props.onExkursionAdd).toHaveBeenCalled()
   })
 })
+
+describe('Titel-Feld Breite', () => {
+  it('renders the Titel input at full width so long Kursnamen stay readable', () => {
+    renderReihenEditor()
+    expect(screen.getByLabelText('Titel')).toHaveStyle({ width: '100%' })
+  })
+})

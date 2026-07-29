@@ -52,7 +52,13 @@ export function ReihenEditor({
 
   return (
     <div>
-      <input type="text" aria-label="Titel" value={reihe.titel} onChange={(ev) => onTitelChange(ev.target.value)} />
+      <input
+        type="text"
+        aria-label="Titel"
+        value={reihe.titel}
+        onChange={(ev) => onTitelChange(ev.target.value)}
+        style={{ width: '100%' }}
+      />
       <p>
         {anteil.anzahl} von {anteil.gesamt} Einheiten ({Math.round(anteil.anteil * 100)}%)
       </p>
