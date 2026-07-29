@@ -23,6 +23,7 @@ export function PersonenTabelle({
           <tr>
             <th>Person</th>
             <th>Stunden/Woche für Begleitung</th>
+            <th>Zeitraum im Projekt</th>
             <th>Urlaub</th>
             <th></th>
           </tr>
@@ -48,6 +49,21 @@ export function PersonenTabelle({
                   onChange={(e) => onChange(p.id, { stunden_pro_woche_fuer_begleitung: Number(e.target.value) })}
                 />
                 <span> {p.stunden_pro_woche_fuer_begleitung} h</span>
+              </td>
+              <td>
+                <input
+                  type="date"
+                  aria-label={`Aktiv ab von ${p.name}`}
+                  value={p.aktiv_ab}
+                  onChange={(e) => onChange(p.id, { aktiv_ab: e.target.value })}
+                />
+                {' – '}
+                <input
+                  type="date"
+                  aria-label={`Aktiv bis von ${p.name}`}
+                  value={p.aktiv_bis}
+                  onChange={(e) => onChange(p.id, { aktiv_bis: e.target.value })}
+                />
               </td>
               <td>
                 <ul className="personen-urlaub-liste">

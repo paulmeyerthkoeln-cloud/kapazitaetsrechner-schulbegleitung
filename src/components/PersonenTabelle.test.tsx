@@ -58,3 +58,23 @@ describe('PersonenTabelle Urlaub', () => {
     expect(props.onUrlaubChange).toHaveBeenCalledWith('p1', [])
   })
 })
+
+describe('PersonenTabelle Zeitraum im Projekt', () => {
+  it('renders the Aktiv-ab/Aktiv-bis dates for a Person', () => {
+    renderTabelle()
+    expect(screen.getByLabelText('Aktiv ab von Anna')).toHaveValue('2026-09-01')
+    expect(screen.getByLabelText('Aktiv bis von Anna')).toHaveValue('2027-07-16')
+  })
+
+  it('editing Aktiv-ab calls onChange with the updated aktiv_ab', () => {
+    const props = renderTabelle()
+    fireEvent.change(screen.getByLabelText('Aktiv ab von Anna'), { target: { value: '2026-10-01' } })
+    expect(props.onChange).toHaveBeenCalledWith('p1', { aktiv_ab: '2026-10-01' })
+  })
+
+  it('editing Aktiv-bis calls onChange with the updated aktiv_bis', () => {
+    const props = renderTabelle()
+    fireEvent.change(screen.getByLabelText('Aktiv bis von Anna'), { target: { value: '2027-06-01' } })
+    expect(props.onChange).toHaveBeenCalledWith('p1', { aktiv_bis: '2027-06-01' })
+  })
+})
