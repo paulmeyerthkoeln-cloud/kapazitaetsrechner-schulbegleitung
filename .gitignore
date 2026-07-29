@@ -23,6 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 .superpowers/
+.worktrees/
 
 # Claude Code local session state (not shared project config)
 .claude/settings.local.json
