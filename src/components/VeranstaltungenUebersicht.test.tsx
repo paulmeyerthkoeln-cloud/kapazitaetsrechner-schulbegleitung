@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, within } from '@testing-library/react'
 import { VeranstaltungenUebersicht } from './VeranstaltungenUebersicht'
 import type { Person, Schule, Veranstaltung } from '../lib/types'
 
@@ -119,5 +119,14 @@ describe('VeranstaltungenUebersicht', () => {
     const props = renderUebersicht()
     fireEvent.click(screen.getByLabelText('Termin 1 in Nachhaltigkeit löschen'))
     expect(props.onTerminRemove).toHaveBeenCalledWith('v1', 't1')
+  })
+
+  describe('Projekttag als Thema-Option', () => {
+    it('offers Projekttag as a selectable option in the Thema dropdown', () => {
+      renderUebersicht()
+      const termin = veranstaltungen[0].termine[0]
+      const select = screen.getByLabelText(`Thema für Termin ${termin.index} in ${veranstaltungen[0].titel}`)
+      expect(within(select).getByText('Projekttag')).toBeInTheDocument()
+    })
   })
 })

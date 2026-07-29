@@ -37,7 +37,7 @@ export interface Kalender {
   ferien: FerienZeitraum[]
 }
 
-export type Thema = 'Ernährung' | 'Stadtgrün' | 'Mobilität' | 'Energie'
+export type Thema = 'Ernährung' | 'Stadtgrün' | 'Mobilität' | 'Energie' | 'Projekttag'
 
 export interface Einheit {
   id: string

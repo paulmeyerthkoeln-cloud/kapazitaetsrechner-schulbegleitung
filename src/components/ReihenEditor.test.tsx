@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, within } from '@testing-library/react'
 import { ReihenEditor } from './ReihenEditor'
 import type { Person, Reihe } from '../lib/types'
 
@@ -328,6 +328,14 @@ describe('ReihenEditor', () => {
     const props = renderReihenEditor()
     fireEvent.click(screen.getByText('+ Exkursion hinzufügen'))
     expect(props.onExkursionAdd).toHaveBeenCalled()
+  })
+
+  describe('Projekttag als Thema-Option', () => {
+    it('offers Projekttag as a selectable option in the Thema dropdown', () => {
+      renderReihenEditor()
+      const select = screen.getByLabelText(`Thema für Termin ${reihe.einheiten[0].index} in ${reihe.titel}`)
+      expect(within(select).getByText('Projekttag')).toBeInTheDocument()
+    })
   })
 })
 

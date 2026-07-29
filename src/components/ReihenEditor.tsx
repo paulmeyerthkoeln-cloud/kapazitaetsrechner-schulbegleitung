@@ -5,7 +5,7 @@ import { PersonenMehrfachauswahl } from './PersonenMehrfachauswahl'
 import { DatumOderKwFeld } from './DatumOderKwFeld'
 import type { Person, Reihe, Terminstatus, Thema } from '../lib/types'
 
-const THEMEN: Thema[] = ['Ernährung', 'Stadtgrün', 'Mobilität', 'Energie']
+const THEMEN: Thema[] = ['Ernährung', 'Stadtgrün', 'Mobilität', 'Energie', 'Projekttag']
 
 export function ReihenEditor({
   reihe,

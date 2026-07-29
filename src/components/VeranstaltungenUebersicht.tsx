@@ -3,7 +3,7 @@ import { DatumOderKwFeld } from './DatumOderKwFeld'
 import type { Person, Schule, Terminstatus, Thema, Veranstaltung, VeranstaltungArt, VeranstaltungTermin } from '../lib/types'
 import './VeranstaltungenUebersicht.css'
 
-const THEMEN: Thema[] = ['Ernährung', 'Stadtgrün', 'Mobilität', 'Energie']
+const THEMEN: Thema[] = ['Ernährung', 'Stadtgrün', 'Mobilität', 'Energie', 'Projekttag']
 
 export function VeranstaltungenUebersicht({
   veranstaltungen,
