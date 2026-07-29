@@ -54,3 +54,10 @@
   text-overflow: ellipsis;
   margin: 0.2rem 0;
 }
+
+.themen-gantt-praxis-linie {
+  height: 100%;
+  width: 0;
+  pointer-events: none;
+  z-index: 1;
+}

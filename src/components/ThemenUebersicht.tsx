@@ -10,8 +10,11 @@ const THEMEN_FARBEN: Record<Thema | 'ohne', string> = {
   Stadtgrün: '#3d9970',
   Mobilität: '#4a7fbf',
   Energie: '#e6b800',
+  Projekttag: '#6b4c9a',
   ohne: '#8a8a8a',
 }
+
+const THEORIE_PRAXIS_LINIE_FARBE = '#d62728'
 
 export function ThemenUebersicht({
   zeilen,
@@ -32,6 +35,7 @@ export function ThemenUebersicht({
   const wochenKeys = wochen.map((w) => w.wochenKey)
   const indexVon = new Map(wochenKeys.map((key, i) => [key, i]))
   const ferienBaender = berechneFerienBaender(wochen)
+  const projekttagMarker = zeilen.filter((z) => z.thema === 'Projekttag')
 
   const reihenIds: string[] = []
   for (const z of zeilen) {
@@ -90,6 +94,18 @@ export function ThemenUebersicht({
             >
               {z.balkenLabel}
             </div>
+          ))}
+          {projekttagMarker.map((z) => (
+            <div
+              key={`${z.reiheId}-${z.startWochenKey}-praxis-linie`}
+              className="themen-gantt-praxis-linie"
+              title={`Theorie → Praxis: ${z.zeilenLabel} ab ${z.startWochenKey}`}
+              style={{
+                gridColumn: `${(indexVon.get(z.startWochenKey) ?? 0) + 2}`,
+                gridRow: (rowVonReihe.get(z.reiheId) ?? 0) + 2,
+                borderLeft: `3px solid ${THEORIE_PRAXIS_LINIE_FARBE}`,
+              }}
+            />
           ))}
         </div>
       </div>

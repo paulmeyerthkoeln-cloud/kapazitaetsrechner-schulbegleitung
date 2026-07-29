@@ -80,4 +80,20 @@ describe('ThemenUebersicht', () => {
     expect(screen.getByText('Energie')).toBeInTheDocument()
     expect(screen.getByText('Mobilität')).toBeInTheDocument()
   })
+
+  it('renders a Theorie/Praxis divider line at the start of a Projekttag-Balken', () => {
+    const projekttagZeilen: ThemenGanttZeile[] = [
+      {
+        reiheId: 'r1',
+        zeilenLabel: 'Schule X - Kurs Y',
+        balkenLabel: 'Projekttag',
+        thema: 'Projekttag',
+        startWochenKey: '2026-KW38',
+        endWochenKey: '2026-KW38',
+        stunden: 6,
+      },
+    ]
+    render(<ThemenUebersicht zeilen={projekttagZeilen} wochen={wochen} />)
+    expect(screen.getByTitle('Theorie → Praxis: Schule X - Kurs Y ab 2026-KW38')).toBeInTheDocument()
+  })
 })
